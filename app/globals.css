@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* Text */
+  .text-primary {
+    color: hsl(var(--primary));
+  }
+  .text-secondary {
+    color: hsl(var(--secondary));
+  }
+  .text-muted {
+    color: hsl(var(--text-muted));
+  }
+  .text-disabled {
+    color: hsl(var(--text-disabled));
+  }
+  .text-accent {
+    color: hsl(var(--accent));
+  }
+
+  /* Background */
+  .bg-primary {
+    background-color: hsl(var(--primary));
+  }
+  .bg-secondary {
+    background-color: hsl(var(--secondary));
+  }
+  .bg-accent {
+    background-color: hsl(var(--accent));
+  }
+  .bg-input {
+    background-color: hsl(var(--input));
+  }
+  .bg-background-lighter {
+    background-color: hsl(var(--background-lighter));
+  }
+  .bg-background-darker {
+    background-color: hsl(var(--background-darker));
+  }
+
+  /* Interactive state */
+  .bg-primary-hover:hover {
+    background-color: hsl(var(--primary-hover));
+  }
+  .bg-primary-active:active {
+    background-color: hsl(var(--primary-active));
+  }
+  .bg-secondary-hover:hover {
+    background-color: hsl(var(--secondary-hover));
+  }
+  .bg-secondary-active:active {
+    background-color: hsl(var(--secondary-active));
+  }
+  .bg-accent-hover:hover {
+    background-color: hsl(var(--accent-hover));
+  }
+  .bg-accent-active:active {
+    background-color: hsl(var(--accent-active));
+  }
+  .bg-input-hover:hover {
+    background-color: hsl(var(--input-hover));
+  }
+  .bg-input-focus:focus {
+    background-color: hsl(var(--input-focus));
+  }
+
+  /* Border */
+  .border-light {
+    border-color: hsl(var(--border-light));
+  }
+  .border-heavy {
+    border-color: hsl(var(--border-heavy));
+  }
+
+  /* Status */
+  .bg-success {
+    background-color: hsl(var(--success));
+  }
+  .bg-warning {
+    background-color: hsl(var(--warning));
+  }
+  .bg-error {
+    background-color: hsl(var(--error));
+  }
+  .bg-info {
+    background-color: hsl(var(--info));
+  }
+  .text-success {
+    color: hsl(var(--success));
+  }
+  .text-warning {
+    color: hsl(var(--warning));
+  }
+  .text-error {
+    color: hsl(var(--error));
+  }
+  .text-info {
+    color: hsl(var(--info));
+  }
+
+  /* Focus state */
+  .focus-ring:focus {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
