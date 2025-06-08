@@ -73,6 +73,15 @@ export function useSettingsData() {
   const { toast } = useToast()
 
   useEffect(() => {
+    const handleSettings = (data: SettingsData) => {
+      const newSettings = { ...defaultSettings }
+      for (const group in data) {
+        for (const key in data[group]) {
+          newSettings[group][key].value = data[group][key]
+        }
+      }
+      setSettings(newSettings)
+    }
     const handleSettingsSaved = (response: { success?: "Success"; error?: "Error"; message: string }) => {
       setIsSaving(false)
 
@@ -91,11 +100,14 @@ export function useSettingsData() {
     }
 
     if (websocketService) {
+      websocketService.on("settings", handleSettings)
       websocketService.on("settingsSaved", handleSettingsSaved)
+      websocketService.send("getSettings", {})
     }
 
     return () => {
       if (websocketService) {
+        websocketService.off("settings", handleSettings)
         websocketService.off("settingsSaved", handleSettingsSaved)
       }
     }

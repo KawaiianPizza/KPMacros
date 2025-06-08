@@ -106,6 +106,7 @@ class WebSocketService {
 
   private handleClose(): void {
     console.log("WebSocket connection closed")
+    window.close()
     this.isConnecting = false
     this.attemptReconnect()
   }
