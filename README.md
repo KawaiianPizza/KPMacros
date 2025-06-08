@@ -22,7 +22,9 @@ A **minimalistic**, **high-performance** macro tool designed for power users who
 - 💸 **Completely Free** – No cost, but you can give me money anyway if you want :3.
 
 ### 🙏 Special Thanks
+
 **Ryelowz** on Discord for being a huge **beta** tester!
+
 ---
 
 *Designed for those who want to uninstall their peripheral software in favor of control, speed, and minimal overhead.*
