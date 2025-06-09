@@ -11,6 +11,8 @@ export interface Setting {
   label: string
   description: string
   link?: string
+  links?: string[]
+  disabled?: boolean
 }
 
 export interface SettingsData {
@@ -43,6 +45,7 @@ const defaultSettings: SettingsData = {
       value: true,
       label: "Auto-update UI",
       description: "Automatically download and install UI updates without prompting",
+      disabled: false
     },
   },
   about: {
@@ -56,6 +59,17 @@ const defaultSettings: SettingsData = {
       label: "Discord",
       description: "Need help or have a suggestion? Join the Discord and let me know! :D",
       link: "https://discord.gg/GVCzVagyu7",
+    },
+    supportMe: {
+      value: {},
+      label: "Support me",
+      description: "Here are some ways to support me and the development of KPMacros 💝",
+      links: [
+        "https://streamelements.com/kawaiianpizza/tip",
+        "https://www.paypal.me/kawaiianpizza",
+        "https://www.patreon.com/KawaiianPizza",
+        "https://boosty.to/kawaiianpizza",
+      ]
     },
     github: {
       value: undefined,
@@ -79,6 +93,9 @@ export function useSettingsData() {
         for (const key in data[group]) {
           newSettings[group][key].value = data[group][key]
         }
+      }
+      if (newSettings.updates?.autoUpdateUI && newSettings.updates?.checkForUpdates) {
+        newSettings.updates.autoUpdateUI.disabled = !newSettings.updates.checkForUpdates.value
       }
       setSettings(newSettings)
     }
@@ -132,6 +149,11 @@ export function useSettingsData() {
             value,
           },
         },
+      }
+      if (groupKey === "updates" && settingKey === "checkForUpdates") {
+        if (newSettings.updates?.autoUpdateUI) {
+          newSettings.updates.autoUpdateUI.disabled = !value
+        }
       }
       setIsSaving(true)
 
