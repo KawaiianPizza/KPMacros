@@ -2,13 +2,13 @@
 
 import type React from "react"
 
-import { useEffect, useState } from "react"
+import { SyntheticEvent, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { KeyIcon as KeyDown, KeyIcon as KeyUp, KeyRound } from "lucide-react"
+import { ArrowDownToLine, ArrowUpFromLine, ArrowDownUp } from "lucide-react"
 import type { MacroAction } from "@/contexts/macro-editor-context"
 import KEYCODES from "@/lib/KEYCODES"
 
@@ -54,6 +54,13 @@ export default function KeyboardActionInput({ action, onChange, onKeyDown }: Key
     return search.length === 0 ? 1 : 0;
   }
 
+  function handleSearchChange(value: string) {
+    if (!/^\d+$/g.test(value)) return
+    const index = Number.parseInt(value);
+    if (index > 0 && index < 256)
+      onChange({ ...action, key: value })
+  }
+
   return (
     <div className="space-y-2">
       <Label>Key Action</Label>
@@ -65,13 +72,13 @@ export default function KeyboardActionInput({ action, onChange, onKeyDown }: Key
           className="flex-shrink-0"
         >
           <ToggleGroupItem value="down" aria-label="Key Down" title="Key Down">
-            <KeyDown className="h-4 w-4" />
+            <ArrowDownToLine className="h-4 w-4" />
           </ToggleGroupItem>
           <ToggleGroupItem value="press" aria-label="Key Press" title="Key Press">
-            <KeyRound className="h-4 w-4" />
+            <ArrowDownUp className="h-4 w-4" />
           </ToggleGroupItem>
           <ToggleGroupItem value="up" aria-label="Key Up" title="Key Up">
-            <KeyUp className="h-4 w-4" />
+            <ArrowUpFromLine className="h-4 w-4" />
           </ToggleGroupItem>
         </ToggleGroup>
 
@@ -82,7 +89,7 @@ export default function KeyboardActionInput({ action, onChange, onKeyDown }: Key
             </Button>
           </PopoverTrigger>
           <PopoverContent className=" p-0">
-            <Command filter={handleFilterCommand}>
+            <Command filter={handleFilterCommand} onChange={(e) => handleSearchChange((e.target as HTMLInputElement).value)}>
               <CommandInput placeholder="Search key..." />
               <CommandEmpty>No key found.</CommandEmpty>
               <CommandGroup>

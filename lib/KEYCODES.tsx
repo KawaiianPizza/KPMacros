@@ -147,7 +147,6 @@ const KEYCODES = [
   { value: "OEMAX", label: "OEMAX", keyCode: 225 },
   { value: "OEM102", label: "OEM102", keyCode: 226 },
   { value: "ICOHelp", label: "ICOHelp", keyCode: 227 },
-  { value: "ICO00", label: "ICO00", keyCode: 228 },
   { value: "ProcessKey", label: "ProcessKey", keyCode: 229 },
   { value: "ICOClear", label: "ICOClear", keyCode: 230 },
   { value: "OEMReset", label: "OEMReset", keyCode: 233 },
@@ -252,6 +251,7 @@ const KEYCODES = [
   { value: "217", label: "217", keyCode: 217, hidden: true },
   { value: "218", label: "218", keyCode: 218, hidden: true },
   { value: "224", label: "224", keyCode: 224, hidden: true },
+  { value: "ICO00", label: "ICO00", keyCode: 228, hidden: true },
   { value: "Packet", label: "Packet", keyCode: 231, hidden: true },
   { value: "232", label: "232", keyCode: 232, hidden: true },
 ];

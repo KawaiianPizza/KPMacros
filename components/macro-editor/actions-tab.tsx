@@ -68,7 +68,25 @@ export default function ActionsTab() {
 
   const handleAddAction = () => {
     if (selectedLists.length === 0 || !isActionValid()) return
-    selectedLists.forEach((listType) => addAction(listType, newAction))
+
+    selectedLists.forEach((listType) => {
+      // Special handling for keyboard "press" - add both down and up actions
+      if (getCurrentActionType() === "keyboard" && newAction.state === "press") {
+        // Add down action first
+        addAction(listType, {
+          ...newAction,
+          state: "down",
+        })
+        // Add up action second
+        addAction(listType, {
+          ...newAction,
+          state: "up",
+        })
+      } else {
+        // Normal single action
+        addAction(listType, newAction)
+      }
+    })
   }
 
   const isActionValid = () => {
