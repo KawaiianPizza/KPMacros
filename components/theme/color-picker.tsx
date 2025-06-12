@@ -27,19 +27,10 @@ export function ColorPicker() {
         "primaryForeground",
         "secondary",
         "secondaryForeground",
+        "accent",
+        "border",
+        "destructive"
       ],
-    },
-    interactive: {
-      title: "Interactive Elements",
-      colors: ["accent", "accentForeground", "muted", "mutedForeground", "border", "input", "ring"],
-    },
-    states: {
-      title: "Interactive States",
-      colors: ["primaryHover", "primaryActive", "secondaryHover", "secondaryActive", "accentHover", "accentActive"],
-    },
-    status: {
-      title: "Status Colors",
-      colors: ["success", "warning", "error", "info", "destructive", "destructiveForeground"],
     },
   }
 
@@ -85,7 +76,7 @@ export function ColorPicker() {
 
           {Object.entries(colorCategories).map(([categoryKey, category]) => (
             <TabsContent key={categoryKey} value={categoryKey} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-8 gap-4">
                 {category.colors.map((colorKey) => {
                   const currentColor = getCurrentColor(colorKey as keyof ThemeColors)
                   const hasChanged = tempColors[colorKey as keyof ThemeColors] !== undefined

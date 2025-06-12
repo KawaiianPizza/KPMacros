@@ -49,7 +49,7 @@ export default function ConfirmationDialog({
             <Button
               disabled
               className={
-                variant === "destructive" ? "bg-destructive text-destructive-foreground hover:bg-destructive/65" : ""
+                variant === "destructive" ? "bg-destructive text-gray-800 hover:bg-destructive/65" : ""
               }
             >
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -59,7 +59,7 @@ export default function ConfirmationDialog({
             <AlertDialogAction
               onClick={onConfirm}
               className={
-                variant === "destructive" ? "bg-destructive text-destructive-foreground hover:bg-destructive/65" : ""
+                variant === "destructive" ? "bg-destructive text-gray-800 hover:bg-destructive/65" : ""
               }
             >
               {confirmText}

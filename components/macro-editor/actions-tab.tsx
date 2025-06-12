@@ -185,7 +185,7 @@ export default function ActionsTab() {
                 </Card>
                 <Button
                   variant={isSelected ? "default" : "outline"}
-                  className={cn("w-full flex items-center justify-center gap-1 h-10", isSelected && "border border-accent text-accent-foreground")}
+                  className={cn("w-full flex items-center justify-center gap-1 h-10", isSelected && "border border-accent text-accent")}
                   onClick={() => handleListSelect(type)}
                 >
                   <ArrowUp className="h-4 w-4" />

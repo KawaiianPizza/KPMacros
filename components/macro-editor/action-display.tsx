@@ -196,7 +196,7 @@ export default function ActionDisplay({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 text-destructive hover:text-destructive-foreground hover:bg-destructive"
+                  className="h-6 w-6 text-destructive hover:text-gray-800 hover:bg-destructive"
                   onClick={(e) => {
                     e.stopPropagation()
                     onDelete()

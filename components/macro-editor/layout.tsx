@@ -73,7 +73,7 @@ export default function MacroEditorLayout() {
           </Button>
           <h1 className="text-2xl font-bold text-foreground">{getPageTitle()}</h1>
           {hasUnsavedChanges && (
-            <span className="ml-3 text-sm text-accent-foreground">• Unsaved changes</span>
+            <span className="ml-3 text-sm text-accent">• Unsaved changes</span>
           )}
         </div>
 

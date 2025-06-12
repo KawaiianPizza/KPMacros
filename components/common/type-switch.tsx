@@ -16,12 +16,12 @@ export default function TypeSwitch<T extends readonly [string, string]>({ option
                 <div className={cn("absolute top-1 bottom-1 w-[calc(50%-4px)] bg-accent rounded-md shadow-sm transition-all duration-200 ease-in-out z-10",
                     value === options[0] ? "left-1" : "left-[calc(50%)]")} />
                 <div className={cn("flex-1 flex items-center justify-center text-xl rounded-md font-medium transition-colors duration-200 relative z-20",
-                    value === options[0] ? "text-primary" : "bg-primary text-primary-foreground/65 hover:text-accent-foreground")}>
+                    value === options[0] ? "text-primary" : "bg-primary text-primary-foreground/65 hover:text-accent")}>
                     {options[0]}
                 </div>
 
                 <div className={cn("flex-1 flex items-center justify-center text-xl rounded-md font-medium transition-colors duration-200 relative z-20",
-                    value === options[1] ? "text-primary" : "bg-primary text-primary-foreground/65 hover:text-accent-foreground")}>
+                    value === options[1] ? "text-primary" : "bg-primary text-primary-foreground/65 hover:text-accent")}>
                     {options[1]}
                 </div>
             </div>

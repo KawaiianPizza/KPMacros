@@ -66,17 +66,13 @@ export interface ThemeColors {
   background: string
   foreground: string
   card: string
-  cardForeground: string
   primary: string
   primaryForeground: string
   secondary: string
   secondaryForeground: string
   accent: string
-  accentForeground: string
   destructive: string
-  destructiveForeground: string
   border: string
-  ring: string
 }
 
 export interface WebSocketMessage {

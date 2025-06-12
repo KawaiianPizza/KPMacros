@@ -52,8 +52,8 @@ export default function MacroList({
     return (
       <div key={macro.id}>
         <div
-          className={cn("p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:border-accent bg-primary/65",
-            isSelected ? "border-accent shadow-sm border-b-0 rounded-b-none" : "border-border border-b"
+          className={cn("p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:border-accent bg-card",
+            isSelected ? "border-accent shadow-sm border-b-0 rounded-b-none" : "border-border"
           )}
           onClick={(e) => handleMacroSelect(macro.id, e)}
         >
@@ -70,7 +70,7 @@ export default function MacroList({
                   <Badge variant={macro.type === "Hotkey" ? "default" : "secondary"}>{macro.type}</Badge>
                   <Badge
                     variant={macro.enabled ? "default" : "outline"}
-                    className={cn(macro.enabled || "bg-primary/35 text-secondary-foreground/65")}
+                    className={cn(macro.enabled || "bg-primary/35 text-primary-foreground/65")}
                   >
                     {macro.enabled ? "Enabled" : "Disabled"}
                   </Badge>
@@ -107,7 +107,7 @@ export default function MacroList({
         </div>
 
         <CardContent className={cn("px-0 pb-4 overflow-hidden transition-all duration-300", isSelected ? "h-[70px]" : "h-0 p-0")}>
-          <div className="p-4 bg-primary/35 rounded-lg border border-dashed border-accent rounded-t-none">
+          <div className="p-4 bg-card/35 rounded-lg border border-dashed border-accent rounded-t-none">
             <div className="flex items-center gap-2 justify-end *:bg-primary">
               <Button variant="outline" size="sm" onClick={() => onEditMacro(macro.id)} className="gap-2 text-primary-foreground hover:bg-primary/65">
                 <Edit className="h-4 w-4" />
@@ -166,7 +166,7 @@ export default function MacroList({
             </Button>
           </div>
         ) : (
-          <ScrollArea className="h-full pb-4 border border-border p-1">
+          <ScrollArea className="h-full pb-4 border border-border p-1 bg-background">
             <div className="space-y-2 max-h-[75dvh]">{macros.map(renderMacroRow)}</div>
           </ScrollArea>
         )}
