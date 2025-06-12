@@ -15,9 +15,9 @@ A **minimalistic**, **high-performance** macro tool designed for power users who
 - ⏱️ **Precise Delays** – Control timing down to the millisecond.
 - 🔁 **Start-Loop-Finish System** – Build macros with start, loop, and finish actions that can loop when held or toggled.
 - 🪟 **Windows Key Compatible** – Full support for the Windows key in bindings (Cannot override Windows exclusive keybinds i.e. Win+L).
-- 🎮 **“Mod” Key System** – Acts like Logitech’s G-Shift for secondary hotkey layers.
+- 🎮 **“Mod” Key System** – Acts like Logitech’s G-Shift for a secondary hotkey layer.
   To use this, make a macro with Mod key down in the start list and Mod key up in the finish list. Then, when creating hotkeys that require it, prefix the activator with "Mod+". 
-- 👤 **Profile Management** – Automatic profile switching based on the foreground window matching the profiles windows.
+- 👤 **Profile Management** – Automatic profile switching based on the foreground window.
 - 🧠 **Highly Performant** – Built to be good enough for gaming at a high level without input delay or resource hogging.
 - 💸 **Completely Free** – No cost, but you can give me money anyway if you want :3.
 
