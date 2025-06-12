@@ -6,6 +6,7 @@ import { useRef, useEffect } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import type { MacroAction } from "@/contexts/macro-editor-context"
+import { NumberInput } from "@/components/common/number-input"
 
 interface DelayActionInputProps {
   action: Omit<MacroAction, "id">
@@ -22,14 +23,14 @@ export default function DelayActionInput({ action, onChange, onKeyDown }: DelayA
     }
   }, [])
 
-  const handleDelayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({ ...action, duration: Number.parseInt(e.target.value) })
+  const handleDelayChange = (duration: number) => {
+    onChange({ ...action, duration })
   }
 
   return (
     <div className="space-y-2">
       <Label htmlFor="delay-value">Wait Duration (ms)</Label>
-      <Input
+      <NumberInput
         id="delay-value"
         ref={inputRef}
         type="number"

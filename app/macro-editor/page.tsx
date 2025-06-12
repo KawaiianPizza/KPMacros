@@ -8,6 +8,7 @@ import { MacroData, MacroEditorProvider, Modifiers } from "@/contexts/macro-edit
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent } from "@/components/ui/card"
 import { AlertTriangle } from "lucide-react"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 
 export default function MacroEditorPage() {
@@ -116,10 +117,10 @@ export default function MacroEditorPage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-background p-4">
+      <main className="min-h-screen bg-background p-4 text-foreground">
         <div className="container mx-auto max-w-5xl">
           <div className="flex items-center justify-center py-12">
-            <div className="flex items-center gap-3 text-muted-foreground">
+            <div className="flex items-center gap-3 text-foreground/65">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               <span>Loading Macro Editor...</span>
             </div>
@@ -139,7 +140,7 @@ export default function MacroEditorPage() {
                 <AlertTriangle className="h-6 w-6" />
                 <h2 className="text-lg font-semibold">Error Loading Macro Editor</h2>
               </div>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-foreground/65 mb-4">
                 {error || "Failed to load macro editor. Missing required parameters."}
               </p>
               <button
@@ -163,7 +164,7 @@ export default function MacroEditorPage() {
       macroName={macroName}
     >
       <main className="min-h-screen bg-background p-4">
-        <MacroEditorLayout />
+          <MacroEditorLayout />
       </main>
     </MacroEditorProvider>
   )

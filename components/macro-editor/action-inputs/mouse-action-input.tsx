@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 import type { MacroAction } from "@/contexts/macro-editor-context"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { NumberInput } from "@/components/common/number-input"
 
 interface MouseActionInputProps {
   action: Omit<MacroAction, "id">
@@ -151,11 +152,11 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
     })
   }
 
-  const handleScrollAmountChange = (amount: string) => {
+  const handleScrollAmountChange = (amount: number) => {
     onChange({
       ...emptyAction,
       scroll: action.scroll || "down",
-      amount: Number.parseInt(amount) || 1,
+      amount: amount || 1,
     })
   }
 
@@ -164,7 +165,7 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
       <Label>Mouse Action</Label>
       <div className="space-y-4">
         <Tabs value={currentTab} onValueChange={handleMouseActionTypeChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-3 h-auto">
             <TabsTrigger value="buttons" className="flex items-center gap-1">
               <MousePointerClick className="h-3.5 w-3.5" />
               <span>Buttons</span>
@@ -189,7 +190,7 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
                   type="single"
                   value={action.button || "left"}
                   onValueChange={handleMouseButtonChange}
-                  className="justify-start"
+                  className="justify-start w-min rounded-md"
                 >
                   <ToggleGroupItem value="left" aria-label="Left Button" title="Left Button">
                     <MouseLeft className="h-4 w-4 mr-1" />
@@ -212,7 +213,7 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
                   type="single"
                   value={action.state || "click"}
                   onValueChange={handleMouseStateChange}
-                  className="justify-start"
+                  className="justify-start w-min rounded-md"
                 >
                   <ToggleGroupItem value="down" aria-label="Mouse Down" title="Mouse Down">
                     <MouseDown className="h-4 w-4 mr-1" />
@@ -234,10 +235,10 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
 
         {currentTab === "move" && (
           <div className="pt-2 space-y-3 flex flex-wrap  gap-4">
-            <div className="flex items-center space-x-2 min-w-[200px]">
+            <div className="flex flex-col-reverse items-center space-x-2 min-w-[200px]">
               <Switch id="relative-position" checked={!!action.relative} onCheckedChange={handlePositionModeChange} />
               <Label htmlFor="relative-position" className="text-xs">
-                Relative to current position
+                {!!action.relative ? "Relative to current" : "Absolute"} position
               </Label>
             </div>
 
@@ -247,10 +248,10 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
                   <MoveHorizontal className="h-3.5 w-3.5 mr-1" />
                   <Label className="text-xs">X {action.relative ? "offset" : "position"}</Label>
                 </div>
-                <Input
+                <NumberInput
                   type="number"
-                  value={action.x ?? 0}
-                  onChange={(e) => handleCoordinateChange("x", Number.parseInt(e.target.value) || 0)}
+                  value={action.x || 0}
+                  onChange={(e) => handleCoordinateChange("x", e || 0)}
                   onKeyDown={onKeyDown}
                   className="h-8"
                 />
@@ -260,10 +261,10 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
                   <MoveVertical className="h-3.5 w-3.5 mr-1" />
                   <Label className="text-xs">Y {action.relative ? "offset" : "position"}</Label>
                 </div>
-                <Input
+                <NumberInput
                   type="number"
-                  value={action.y ?? 0}
-                  onChange={(e) => handleCoordinateChange("y", Number.parseInt(e.target.value) || 0)}
+                  value={action.y || 0}
+                  onChange={(e) => handleCoordinateChange("y", e || 0)}
                   onKeyDown={onKeyDown}
                   className="h-8"
                 />
@@ -280,7 +281,7 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
                 type="single"
                 value={action.scroll || "down"}
                 onValueChange={handleScrollChange}
-                className="justify-start"
+                className="justify-start w-min rounded-md"
               >
                 <ToggleGroupItem value="up" aria-label="Scroll Up" title="Scroll Up">
                   <ArrowUp className="h-4 w-4 mr-1" />
@@ -294,13 +295,12 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
             </div>
             <div className="space-y-1 flex-1 min-w-[200px]">
               <Label className="text-xs">Amount (clicks)</Label>
-              <Input
+              <NumberInput
                 type="number"
                 min={1}
                 value={action.amount || 1}
-                onChange={(e) => handleScrollAmountChange(e.target.value)}
+                onChange={(e) => handleScrollAmountChange(e)}
                 onKeyDown={onKeyDown}
-                className="h-8"
               />
             </div>
           </div>

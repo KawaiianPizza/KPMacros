@@ -23,7 +23,7 @@ export function SettingsPanel({ settings, selectedGroup, searchQuery, onUpdateSe
 
   if (groupsToShow.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground">
+      <div className="flex items-center justify-center h-full text-foreground/65">
         <div className="text-center">
           <p className="text-lg font-medium">No settings found</p>
           {searchQuery && <p className="text-sm mt-1">Try adjusting your search terms</p>}
@@ -47,7 +47,7 @@ export function SettingsPanel({ settings, selectedGroup, searchQuery, onUpdateSe
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-semibold">{groupLabel}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{getGroupDescription(groupKey)}</p>
+                  <p className="text-sm text-foreground/65 mt-1">{getGroupDescription(groupKey)}</p>
                 </div>
 
                 <div className="space-y-4">

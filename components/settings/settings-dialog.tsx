@@ -70,11 +70,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   }
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] p-0 flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[80vh] p-0 flex flex-col bg-background text-foreground">
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle>Settings</DialogTitle>
           {isSaving && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-foreground/65">
               <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
               <span>Saving settings...</span>
             </div>
@@ -82,7 +82,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         </DialogHeader>
 
         <div className="flex flex-1 min-h-0">
-          <div className="w-64 border-r bg-muted/30 flex flex-col">
+          <div className="w-64 border-r bg-background flex flex-col">
             <ScrollArea className="flex-1 p-4">
               <div className="space-y-2">
                 {groupKeys.map((groupKey) => (
@@ -96,7 +96,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 ))}
 
                 {!hasResults && searchQuery && (
-                  <div className="text-sm text-muted-foreground text-center py-4">No settings found</div>
+                  <div className="text-sm text-foreground/65 text-center py-4">No settings found</div>
                 )}
               </div>
             </ScrollArea>
@@ -104,20 +104,20 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             <Separator />
 
             <div className="p-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <div className="relative text-primary-foreground">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" />
                 <Input
                   placeholder="Search settings..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-9"
+                  className="pl-9 pr-9 bg-primary placeholder:text-primary-foreground/65"
                 />
                 {searchQuery && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={clearSearch}
-                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-primary/65"
                   >
                     <X className="h-3 w-3" />
                   </Button>

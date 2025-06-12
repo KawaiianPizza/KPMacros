@@ -43,7 +43,7 @@ export default function ActionsTab() {
       keyboard: { type: "keyboard" },
       mouse: { type: "mouse", button: "left", state: "click" },
       text: { type: value },
-      delay: { type: value },
+      delay: { type: value, duration: 25 },
     }
     setNewAction(actionMap[value as keyof typeof actionMap] || { type: value })
   }
@@ -70,20 +70,16 @@ export default function ActionsTab() {
     if (selectedLists.length === 0 || !isActionValid()) return
 
     selectedLists.forEach((listType) => {
-      // Special handling for keyboard "press" - add both down and up actions
       if (getCurrentActionType() === "keyboard" && newAction.state === "press") {
-        // Add down action first
         addAction(listType, {
           ...newAction,
           state: "down",
         })
-        // Add up action second
         addAction(listType, {
           ...newAction,
           state: "up",
         })
       } else {
-        // Normal single action
         addAction(listType, newAction)
       }
     })
@@ -126,7 +122,6 @@ export default function ActionsTab() {
       title: "Start Actions",
       description: "Executed when the macro is first triggered",
       icon: Play,
-      color: "green",
       hidden: macro.type === "Command",
     },
     {
@@ -134,7 +129,6 @@ export default function ActionsTab() {
       title: "Loop Actions",
       description: "Executed repeatedly while the macro is active",
       icon: RotateCcw,
-      color: "blue",
       hidden: macro.type === "Command",
     },
     {
@@ -142,7 +136,6 @@ export default function ActionsTab() {
       title: "Finish Actions",
       description: "Executed when the macro ends",
       icon: Square,
-      color: "orange",
       hidden: false,
     },
   ]
@@ -151,8 +144,8 @@ export default function ActionsTab() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Action Lists</h3>
-          <p className="text-sm text-muted-foreground">Define the sequence of actions for your macro</p>
+          <h3 className="text-lg font-semibold text-foreground">Action Lists</h3>
+          <p className="text-sm text-foreground/65">Define the sequence of actions for your macro</p>
         </div>
         <Badge variant="outline" className="text-sm">
           {totalCount} total {totalCount === 1 ? "action" : "actions"}
@@ -161,7 +154,7 @@ export default function ActionsTab() {
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className={cn("grid grid-cols-1 gap-6", macro.type === "Command" ? "" : "lg:grid-cols-3")}>
-          {actionListConfigs.map(({ type, title, description, icon: Icon, color, hidden }) => {
+          {actionListConfigs.map(({ type, title, description, icon: Icon, hidden }) => {
             if (hidden) return null
 
             const count = actionCounts[type]
@@ -173,18 +166,18 @@ export default function ActionsTab() {
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-base">
                       <div
-                        className={`flex items-center justify-center w-6 h-6 rounded-full bg-${color}-100 dark:bg-${color}-900/30`}
+                        className={`flex items-center justify-center w-6 h-6 rounded-full`}
                       >
-                        <Icon className={`h-3 w-3 text-${color}-600 dark:text-${color}-400`} />
+                        <Icon className={`h-3 w-3`} />
                       </div>
                       {title}
                       {count > 0 && (
-                        <Badge variant="secondary" className="ml-auto">
+                        <Badge className="ml-auto">
                           {count}
                         </Badge>
                       )}
                     </CardTitle>
-                    <p className="text-xs text-muted-foreground">{description}</p>
+                    <p className="text-xs text-foreground/65">{description}</p>
                   </CardHeader>
                   <CardContent className="flex-1 pt-0">
                     <ActionList listType={type} compact={true} />
@@ -192,7 +185,7 @@ export default function ActionsTab() {
                 </Card>
                 <Button
                   variant={isSelected ? "default" : "outline"}
-                  className="w-full flex items-center justify-center gap-1 h-10"
+                  className={cn("w-full flex items-center justify-center gap-1 h-10", isSelected && "border border-accent text-accent-foreground")}
                   onClick={() => handleListSelect(type)}
                 >
                   <ArrowUp className="h-4 w-4" />
@@ -203,7 +196,7 @@ export default function ActionsTab() {
           })}
         </div>
       </DragDropContext>
-      <p className="text-xs text-muted-foreground !mt-2">
+      <p className="text-xs text-foreground/65 !mt-2">
         <span className="font-medium">Multi-select mode:</span> Hold Ctrl and click to select multiple lists
       </p>
       <Card className="border border-primary/20 mt-6">
@@ -224,7 +217,7 @@ export default function ActionsTab() {
                 Type
               </Label>
               <Select value={getCurrentActionType()} onValueChange={handleActionTypeChange}>
-                <SelectTrigger id="action-type" className="h-9">
+                <SelectTrigger id="action-type">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -247,7 +240,7 @@ export default function ActionsTab() {
           </div>
 
           <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-foreground/65">
               {selectedLists.length === 0 ? (
                 <span>Select a list above to add this action</span>
               ) : (

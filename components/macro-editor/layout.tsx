@@ -7,6 +7,9 @@ import { useMacroEditor } from "@/contexts/macro-editor-context"
 import GeneralTab from "@/components/macro-editor/general-tab"
 import ActionsTab from "@/components/macro-editor/actions-tab"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import TypeSwitch from "../common/type-switch"
+import { ScrollArea } from "../ui/scroll-area"
+import { Card } from "../ui/card"
 
 export default function MacroEditorLayout() {
   const {
@@ -20,7 +23,6 @@ export default function MacroEditorLayout() {
     macro,
     isLoading,
     error,
-    sidebarCollapsed,
     isActivatorValid
   } = useMacroEditor()
 
@@ -45,9 +47,9 @@ export default function MacroEditorLayout() {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case "actions":
+      case "Actions":
         return <ActionsTab />
-      case "general":
+      case "General":
       default:
         return <GeneralTab />
     }
@@ -65,62 +67,53 @@ export default function MacroEditorLayout() {
 
   return (
     <div className="container mx-auto max-w-7xl">
-      <div className="flex items-center mb-6">
-        <Button variant="ghost" size="icon" onClick={cancelEditing} className="mr-2">
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-2xl font-bold text-foreground">{getPageTitle()}</h1>
-        {hasUnsavedChanges && (
-          <span className="ml-3 text-sm text-amber-600 dark:text-amber-400">• Unsaved changes</span>
+        <div className="flex items-center mb-6">
+          <Button variant="ghost" size="icon" onClick={cancelEditing} className="mr-2">
+            <ArrowLeft className="h-5 w-5 text-foreground" />
+          </Button>
+          <h1 className="text-2xl font-bold text-foreground">{getPageTitle()}</h1>
+          {hasUnsavedChanges && (
+            <span className="ml-3 text-sm text-accent-foreground">• Unsaved changes</span>
+          )}
+        </div>
+
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
-      </div>
 
-      {error && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+        <Card className="flex gap-6">
+          <div className="rounded-lg border border-border transition-all duration-300 flex-1 overflow-hidden">
+            <div className="p-6">
+              <TypeSwitch options={["General", "Actions"]} onValueChange={handleTabChange} value={activeTab} className="w-full mb-6" />
 
-      <div className="flex gap-6">
-        <div
-          className={`bg-secondary rounded-lg border border-border transition-all duration-300 ${
-            sidebarCollapsed ? "flex-1" : "flex-1 lg:flex-[2]"
-          }`}
-        >
-          <div className="p-6">
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
-              <TabsList className="grid grid-cols-2">
-                <TabsTrigger value="general">General</TabsTrigger>
-                <TabsTrigger value="actions">Actions</TabsTrigger>
-              </TabsList>
-            </Tabs>
+              <div className="space-y-6">
+                {renderTabContent()}
 
-            <div className="space-y-6">
-              {renderTabContent()}
-
-              <div className="flex justify-end space-x-2 pt-4 border-t border-border mt-6">
-                <Button variant="outline" onClick={cancelEditing} disabled={isLoading}>
-                  Cancel
-                </Button>
-                <Button onClick={saveMacro} className="bg-primary text-primary-foreground" disabled={isLoading || !isActivatorValid}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      {isEditingExisting ? "Update Macro" : "Save Macro"}
-                    </>
-                  )}
-                </Button>
+                <div className="flex justify-end space-x-2 pt-4 border-t border-border mt-6">
+                  <Button variant="outline" onClick={cancelEditing} disabled={isLoading}>
+                    Cancel
+                  </Button>
+                  <Button onClick={saveMacro} disabled={isLoading || !isActivatorValid}>
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        {isEditingExisting ? "Update Macro" : "Save Macro"}
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </Card>
     </div>
   )
 }

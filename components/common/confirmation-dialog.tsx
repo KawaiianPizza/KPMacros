@@ -38,18 +38,18 @@ export default function ConfirmationDialog({
 }: ConfirmationDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={(open) => !isLoading && onOpenChange(open)}>
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-background text-foreground">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogDescription className="text-foreground">{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>{cancelText}</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading} className="bg-primary hover:bg-primary/65 text-primary-foreground">{cancelText}</AlertDialogCancel>
           {isLoading ? (
             <Button
               disabled
               className={
-                variant === "destructive" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""
+                variant === "destructive" ? "bg-destructive text-destructive-foreground hover:bg-destructive/65" : ""
               }
             >
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -59,7 +59,7 @@ export default function ConfirmationDialog({
             <AlertDialogAction
               onClick={onConfirm}
               className={
-                variant === "destructive" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""
+                variant === "destructive" ? "bg-destructive text-destructive-foreground hover:bg-destructive/65" : ""
               }
             >
               {confirmText}

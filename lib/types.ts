@@ -63,55 +63,20 @@ export interface Theme {
 }
 
 export interface ThemeColors {
-  // Base colors
   background: string
   foreground: string
   card: string
   cardForeground: string
-  popover: string
-  popoverForeground: string
   primary: string
   primaryForeground: string
   secondary: string
   secondaryForeground: string
-  muted: string
-  mutedForeground: string
   accent: string
   accentForeground: string
   destructive: string
   destructiveForeground: string
   border: string
-  input: string
   ring: string
-
-  // Extended colors for better theming
-  backgroundLighter: string
-  backgroundDarker: string
-  textMuted: string
-  textDisabled: string
-
-  // Interactive states
-  primaryHover: string
-  primaryActive: string
-  secondaryHover: string
-  secondaryActive: string
-  accentHover: string
-  accentActive: string
-
-  // Border variations
-  borderLight: string
-  borderHeavy: string
-
-  // Input states
-  inputHover: string
-  inputFocus: string
-  inputForeground: string
-
-  // Status colors
-  success: string
-  warning: string
-  error: string
-  info: string
 }
 
 export interface WebSocketMessage {

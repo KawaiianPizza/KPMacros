@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Copy, RotateCcw, Type } from "lucide-react"
 import type { MacroAction } from "@/contexts/macro-editor-context"
+import { Badge } from "@/components/ui/badge"
 
 interface TextActionInputProps {
   action: Omit<MacroAction, "id">
@@ -216,7 +217,7 @@ export default function TextActionInput({ action, onChange, onKeyDown }: TextAct
 
   const lineNumbersElement = useMemo(
     () => (
-      <div className="bg-muted/50 px-2 py-2 text-xs text-muted-foreground font-mono select-none border-r">
+      <div className="bg-primary/65 px-2 py-2 text-xs text-primary-foreground/65 font-mono select-none border-r">
         {lineNumbers.map((num) => (
           <div key={num} className="h-5 leading-5 text-right min-w-[2ch]">
             {num}
@@ -254,7 +255,7 @@ export default function TextActionInput({ action, onChange, onKeyDown }: TextAct
             onChange={handleTextChange}
             onKeyDown={handleKeyDown}
             placeholder="Enter text to type..."
-            className="border-0 resize-none font-mono text-sm leading-5 min-h-[120px] focus-visible:ring-0"
+            className="border-0 resize-none font-mono text-sm leading-5 min-h-[120px] focus-visible:ring-0 placeholder:text-primary-foreground/65 bg-primary rounded-l-none text-primary-foreground"
             style={{
               lineHeight: "1.25rem",
               paddingTop: "0.5rem",
@@ -264,17 +265,17 @@ export default function TextActionInput({ action, onChange, onKeyDown }: TextAct
         </div>
       </div>
 
-      <div className="text-xs text-muted-foreground space-y-1 bg-muted/30 p-3 rounded-md">
+      <div className="text-xs text-foreground/65 space-y-1 bg-background/65 p-3 rounded-md">
         <div className="font-medium mb-2">Keyboard Shortcuts:</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
           <div>
-            <kbd className="px-1 py-0.5 bg-background rounded text-xs">Enter</kbd> New line
+            <Badge className="px-1 py-0.5 rounded text-xs">Enter</Badge> New line
           </div>
           <div>
-            <kbd className="px-1 py-0.5 bg-background rounded text-xs">Ctrl + Enter</kbd> Add action
+            <Badge className="px-1 py-0.5 rounded text-xs">Ctrl + Enter</Badge> Add action
           </div>
           <div>
-            <kbd className="px-1 py-0.5 bg-background rounded text-xs">Alt + ↑/↓</kbd> Move lines
+            <Badge className="px-1 py-0.5 rounded text-xs">Alt + ↑/↓</Badge> Move lines
           </div>
         </div>
       </div>

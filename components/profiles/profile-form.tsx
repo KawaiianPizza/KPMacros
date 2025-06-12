@@ -14,6 +14,7 @@ import type { Profile, Window } from "@/lib/types"
 import websocketService from "@/lib/websocket-service"
 import { validateWindowsFilename } from "@/lib/validation-utils"
 import { v4 as uuidv4 } from "uuid"
+import { cn } from "@/lib/utils"
 
 interface ProfileFormProps {
   profile: Profile | null
@@ -167,16 +168,16 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
 
   return (
     <Dialog open={true} onOpenChange={() => !isSaving && onCancel()}>
-      <DialogContent className="sm:max-w-[500px] bg-background border-border">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="text-foreground">
+          <DialogTitle>
             {profile ? `Edit Profile: ${profile.name}` : "Create New Profile"}
           </DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-6 py-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-foreground font-medium">
+            <Label htmlFor="name" className="font-medium">
               Profile Name
             </Label>
             <Input
@@ -184,8 +185,8 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
               value={name}
               onChange={handleNameChange}
               placeholder="Enter profile name..."
-              className={`bg-input text-input-foreground border-border ${errors.name ? "border-destructive focus-visible:ring-destructive" : ""
-                }`}
+              className={cn("border-border",
+                errors.name && "border-destructive focus-visible:ring-destructive")}
               aria-invalid={!!errors.name}
               aria-describedby={errors.name ? "profile-name-error" : undefined}
               disabled={isSaving}
@@ -195,7 +196,7 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
                 {errors.name}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-foreground/65">
               Profile name must not contain invalid characters (\ / : * ? " &lt; &gt; |), cannot be empty, and must be
               unique.
             </p>
@@ -214,35 +215,34 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
             <div className="border border-border rounded-md bg-background">
               <ScrollArea className="h-[250px] p-3">
                 {isLoadingWindows ? (
-                  <div className="flex items-center justify-center py-8 text-muted-foreground">
+                  <div className="flex items-center justify-center py-8 text-foreground/65">
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                     Loading available windows...
                   </div>
                 ) : allWindows.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-8 text-foreground/65">
                     <p>No windows available</p>
                     <p className="text-xs mt-1">Make sure some applications are running</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {allWindows.sort(e => selectedWindows.includes(e.executable) ? -1 : 1).map((window) => (
-                      <div key={window.pid} className="flex items-start space-x-3 p-2 rounded hover:bg-muted/50">
+                      <div key={window.pid} className="flex items-start space-x-3 p-2 rounded bg-secondary text-primary-foreground hover:bg-secondary/65" onClick={() => toggleWindow(window.executable)}>
                         <Checkbox
                           id={`window-${window.executable}`}
                           checked={selectedWindows.includes(window.executable)}
-                          onCheckedChange={() => toggleWindow(window.executable)}
-                          className="border-border mt-0.5"
+                          className="mt-0.5"
                           disabled={isSaving}
                         />
                         <div className="flex-1 min-w-0">
                           <Label
                             htmlFor={`window-${window.executable}`}
-                            className="cursor-pointer text-foreground font-medium block"
+                            className="text-foreground font-medium block pointer-events-none"
                           >
                             {window.title || window.executable}
                           </Label>
                           {window.title && window.title !== window.executable && (
-                            <p className="text-xs text-muted-foreground mt-1 font-mono">{window.executable}</p>
+                            <p className="text-xs text-foreground/65 mt-1 font-mono cursor-default">{window.executable}</p>
                           )}
                         </div>
                       </div>
@@ -252,7 +252,7 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
               </ScrollArea>
             </div>
 
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-foreground/65">
               Select one or more windows that this profile should be active for.
               {selectedWindows.length > 0 && ` (${selectedWindows.length} selected)`}
             </p>
@@ -260,14 +260,14 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
         </div>
 
         <DialogFooter className="gap-2">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving} className="border-border">
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving} className="border-border bg-primary text-primary-foreground hover:bg-primary/65">
             Cancel
           </Button>
           <Button
             type="button"
             onClick={handleSave}
             disabled={!isFormValid || isSaving}
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            className="bg-primary text-primary-foreground hover:bg-primary/65"
           >
             {isSaving ? (
               <>

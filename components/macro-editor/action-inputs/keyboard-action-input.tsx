@@ -11,6 +11,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { ArrowDownToLine, ArrowUpFromLine, ArrowDownUp } from "lucide-react"
 import type { MacroAction } from "@/contexts/macro-editor-context"
 import KEYCODES from "@/lib/KEYCODES"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface KeyboardActionInputProps {
   action: Omit<MacroAction, "id">
@@ -69,7 +70,7 @@ export default function KeyboardActionInput({ action, onChange, onKeyDown }: Key
           type="single"
           value={action.state}
           onValueChange={handleKeyboardModeChange}
-          className="flex-shrink-0"
+          className="flex-shrink-0 rounded-lg"
         >
           <ToggleGroupItem value="down" aria-label="Key Down" title="Key Down">
             <ArrowDownToLine className="h-4 w-4" />
@@ -93,13 +94,15 @@ export default function KeyboardActionInput({ action, onChange, onKeyDown }: Key
               <CommandInput placeholder="Search key..." />
               <CommandEmpty>No key found.</CommandEmpty>
               <CommandGroup>
-                <CommandList>
-                  {KEYCODES.map((keycode) => keycode.hidden ? undefined : (
-                    <CommandItem key={keycode.value} value={keycode.value + keycode.label} onSelect={() => handleKeycodeSelect(keycode.value)}>
-                      {keycode.label == "Space bar" ? "Spacebar" : keycode.label}
-                    </CommandItem>
-                  ))}
-                </CommandList>
+                <ScrollArea className="h-[300px]">
+                  <CommandList>
+                    {KEYCODES.map((keycode) => keycode.hidden ? undefined : (
+                      <CommandItem key={keycode.value} value={keycode.value + keycode.label} onSelect={() => handleKeycodeSelect(keycode.value)}>
+                        {keycode.label == "Space bar" ? "Spacebar" : keycode.label}
+                      </CommandItem>
+                    ))}
+                  </CommandList>
+                </ScrollArea>
               </CommandGroup>
             </Command>
           </PopoverContent>

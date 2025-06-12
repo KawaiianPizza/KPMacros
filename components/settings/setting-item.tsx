@@ -35,7 +35,7 @@ export function SettingItem({ groupKey, settingKey, setting, onUpdate }: Setting
       case "undefined":
         if (setting.link)
           return (
-            <Button variant="outline" size="sm" onClick={() => window.open(setting.link, "_blank")} className="gap-2">
+            <Button size="sm" onClick={() => window.open(setting.link, "_blank")} className="gap-2">
               <Info className="h-4 w-4" />
               View
               <ExternalLink className="h-3 w-3" />
@@ -49,7 +49,7 @@ export function SettingItem({ groupKey, settingKey, setting, onUpdate }: Setting
             if (!domain || domain.length !== 2) return
             console.log(domain)
             return (
-              <Button variant="outline" size="sm" onClick={() => window.open(link, "_blank")} className="gap-2">
+              <Button size="sm" onClick={() => window.open(link, "_blank")} className="gap-2">
                 <Info className="h-4 w-4" />
                 {domain[1]}
                 <ExternalLink className="h-3 w-3" />
@@ -60,15 +60,15 @@ export function SettingItem({ groupKey, settingKey, setting, onUpdate }: Setting
   }
 
   return (
-    <div className={cn("flex items-start justify-between py-3 px-4 rounded-lg border bg-card", shouldWrap ? "flex-col space-y-3" : "")}>
+    <div className={cn("flex items-start justify-between py-3 px-4 rounded-lg border bg-card text-card-foreground", shouldWrap ? "flex-col space-y-3" : "")}>
       <div className="flex-1 space-y-1">
         <div className="flex items-center gap-2">
           <h4 className="font-medium leading-none">{setting.label}</h4>
         </div>
-        <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{setting.description}</p>
+        <p className="text-sm text-foreground/65 leading-relaxed whitespace-pre-wrap">{setting.description}</p>
       </div>
 
-      <div className={cn("ml-4 flex-shrink-0", shouldWrap ? "ml-auto" : "")}>
+      <div className={cn("ml-4 flex-shrink-0 place-self-center", shouldWrap ? "ml-auto" : "")}>
         {getSettingType()}
       </div>
     </div>

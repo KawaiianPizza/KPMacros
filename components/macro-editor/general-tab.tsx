@@ -13,6 +13,9 @@ import { useMacroEditor } from "@/contexts/macro-editor-context"
 import { Info } from "lucide-react"
 import KEYCODES from "@/lib/KEYCODES"
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group"
+import TypeSwitch from "../common/type-switch"
+import { cn } from "@/lib/utils"
+import { NumberInput } from "../common/number-input"
 
 export default function GeneralTab() {
   const { macro, updateMacro, isRecording, setIsRecording, startRecording, toggleModifierMode, isActivatorValid } = useMacroEditor()
@@ -35,8 +38,8 @@ export default function GeneralTab() {
     updateMacro({ repeatDelay: value })
   }
 
-  const handleMacroTypeChange = (value: "Hotkey" | "Command") => {
-    updateMacro({ type: value })
+  const handleMacroTypeChange = (value: string) => {
+    updateMacro({ type: value as "Hotkey" | "Command" })
   }
 
   useEffect(() => {
@@ -112,21 +115,7 @@ export default function GeneralTab() {
           <CardDescription>Choose how this macro will be triggered</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-1 flex-1 min-w-[200px]">
-            <ToggleGroup
-              type="single"
-              value={macro.type || "Hotkey"}
-              onValueChange={handleMacroTypeChange}
-              className="justify-evenly w-[30dvw] mx-auto"
-            >
-              <ToggleGroupItem value="Hotkey" aria-label="Hotkey Macro" title="Hotkey Macro">
-                <span>Hotkey</span>
-              </ToggleGroupItem>
-              <ToggleGroupItem value="Command" aria-label="Command Macro" title="Command Macro">
-                <span>Command</span>
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
+          <TypeSwitch options={["Hotkey", "Command"]} value={macro.type || "Hotkey"} onValueChange={handleMacroTypeChange} />
         </CardContent>
       </Card>
 
@@ -178,9 +167,10 @@ export default function GeneralTab() {
                 }
                 value={macro.activator}
                 onChange={handleActivatorChange}
-                className={`bg-input text-input-foreground border-border ${macro.type === "Hotkey" ? "rounded-none" : "rounded-l-md"
-                  } ${isRecording ? "border-primary animate-pulse" : ""} ${!isActivatorValid ? "border-destructive focus-visible:ring-destructive" : ""
-                  }`}
+                className={cn("border-border",
+                  macro.type === "Hotkey" ? "rounded-none" : "rounded-l-md",
+                  isRecording && "border-primary animate-pulse",
+                  !isActivatorValid && "border-destructive focus-visible:ring-destructive")}
                 readOnly={isRecording}
               />
 
@@ -196,7 +186,7 @@ export default function GeneralTab() {
               )}
             </div>
 
-            <div className="flex items-center text-xs text-muted-foreground">
+            <div className="flex items-center text-xs text-foreground/65">
               {isRecording ? (
                 <p>Press any key combination. Recording will stop after a non-modifier key is pressed...</p>
               ) : macro.type === "Hotkey" ? (
@@ -212,12 +202,12 @@ export default function GeneralTab() {
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <Checkbox id="interrupt" checked={macro.interrupt} onCheckedChange={handleInterruptChange} />
-              <Label htmlFor="interrupt" className="text-foreground flex items-center gap-2">
+              <Label htmlFor="interrupt" className="flex items-center gap-2">
                 {macro.type === "Hotkey" ? "Interrupt the activator key" : "Remove command after activation"}
                 <TooltipProvider delayDuration={300}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-muted-foreground" />
+                      <Info className="h-4 w-4 text-foreground/65" />
                     </TooltipTrigger>
                     <TooltipContent>
                       {macro.type === "Hotkey"
@@ -237,7 +227,7 @@ export default function GeneralTab() {
                 <TooltipProvider delayDuration={300}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-muted-foreground" />
+                      <Info className="h-4 w-4 text-foreground/65" />
                     </TooltipTrigger>
                     <TooltipContent>Time in milliseconds to wait before repeating the Loop action list</TooltipContent>
                   </Tooltip>
@@ -249,24 +239,24 @@ export default function GeneralTab() {
                   variant="outline"
                   size="icon"
                   onClick={() => handleRepeatDelayChange(Math.max(0, macro.repeatDelay - 5))}
-                  className="rounded-r-none border-r-0"
+                  className="rounded-r-none border-r-0 border-border"
                 >
                   -
                 </Button>
-                <Input
+                <NumberInput
                   id="repeatDelay"
                   type="number"
                   min={0}
                   value={macro.repeatDelay}
-                  onChange={(e) => handleRepeatDelayChange(Number.parseInt(e.target.value) || 0)}
-                  className="rounded-none text-center bg-input text-input-foreground border-border"
+                  onChange={(e) => handleRepeatDelayChange(e || 0)}
+                  className="rounded-none text-center border-border"
                 />
                 <Button
                   type="button"
                   variant="outline"
                   size="icon"
                   onClick={() => handleRepeatDelayChange(macro.repeatDelay + 5)}
-                  className="rounded-l-none border-l-0"
+                  className="rounded-l-none border-l-0 border-border"
                 >
                   +
                 </Button>

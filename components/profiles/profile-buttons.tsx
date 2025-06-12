@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Plus, Pencil, Trash2 } from "lucide-react"
 import type { Profile } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 interface ProfileButtonsProps {
   profiles: Profile[]
@@ -36,50 +37,42 @@ export default function ProfileButtons({
                 <div className="flex">
                   <Button
                     variant={isSelected ? "default" : "outline"}
-                    className={`h-16 whitespace-normal text-center transition-all duration-200 ${
-                      isSelected
-                        ? "border-2 border-primary bg-primary text-primary-foreground hover:bg-primary/90"
-                        : "hover:bg-muted/50"
-                    } ${
-                      isGlobal
-                        ? "border-primary/30 min-w-[120px]"
-                        : isSelected
-                          ? "rounded-r-none min-w-[120px]"
-                          : "min-w-[120px]"
-                    }`}
+                    className={cn("h-16 whitespace-normal text-center transition-all duration-200 min-w-[120px]",
+                      isSelected && "border-2 border-accent hover:bg-primary", isSelected && !isGlobal && "rounded-r-none border-r-0"
+                    )}
                     onClick={() => onSelectProfile(profile.name)}
                   >
                     <span className="line-clamp-2 px-2">{profile.name}</span>
                   </Button>
 
-                  {isSelected && !isGlobal && (
-                    <div className="flex flex-col">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 w-8 rounded-l-none rounded-br-none border-l-0 p-0 hover:bg-muted/70"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onEditProfile(profile)
-                        }}
-                        title="Edit Profile"
-                      >
-                        <Pencil className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 w-8 rounded-l-none rounded-tr-none border-l-0 border-t-0 p-0 hover:bg-destructive/10 hover:text-destructive"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onDeleteProfile(profile)
-                        }}
-                        title="Delete Profile"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  )}
+                  <div className={cn("flex flex-col border-accent transition-all duration-200 rounded-r-md overflow-hidden", isSelected && !isGlobal
+                    ? "opacity-100 pointer-events-auto w-8 border-2 border-l-0"
+                    : "opacity-0 pointer-events-none w-0 border-0")}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-full w-auto rounded-none rounded-l-none rounded-br-none p-0 border-none"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onEditProfile(profile)
+                      }}
+                      title="Edit Profile"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="h-full w-auto rounded-none rounded-l-none rounded-tr-none border-l-0 border-t-0 p-0"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onDeleteProfile(profile)
+                      }}
+                      title="Delete Profile"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             )
@@ -87,7 +80,7 @@ export default function ProfileButtons({
 
           <Button
             variant="outline"
-            className="h-16 w-16 flex-shrink-0 hover:bg-primary/10 hover:border-primary/50"
+            className="h-16 w-16 flex-shrink-0 hover:bg-primary/65 hover:border-primary bg-primary text-primary-foreground"
             onClick={onNewProfile}
             title="Create New Profile"
           >

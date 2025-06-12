@@ -16,6 +16,7 @@ import ConfirmationDialog from "@/components/common/confirmation-dialog"
 import LoadingSpinner from "@/components/common/loading-spinner"
 import MacroList from "@/components/profiles/macro-list"
 import { SettingsButton } from "@/components/settings/settings-button"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 function ProfilesContent() {
   const router = useRouter()
@@ -194,66 +195,68 @@ function ProfilesContent() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-3 space-y-3">
-        <Card>
-          <CardHeader className="pb-4">
-            <div className="flex justify-between text-center">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <CircleUserRound className="h-5 w-5" />
-                Profiles
-              </CardTitle>
-              <SettingsButton />
-            </div>
-            <CardDescription>Select a profile to view and manage its macros</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoadingProfiles ? (
-              <LoadingSpinner text="Loading profiles..." />
-            ) : (
-              <ProfileButtons
-                profiles={profiles}
-                selectedProfile={selectedProfile}
-                onSelectProfile={setSelectedProfile}
-                onNewProfile={handleNewProfile}
-                onEditProfile={handleEditProfile}
-                onDeleteProfile={handleDeleteProfile}
-              />
-            )}
-          </CardContent>
-        </Card>
+      <ScrollArea>
+        <div className="container mx-auto px-6 py-3 space-y-3 max-h-dvh">
+          <Card>
+            <CardHeader className="pb-4">
+              <div className="flex justify-between text-center text-foreground">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <CircleUserRound className="h-5 w-5" />
+                  Profiles
+                </CardTitle>
+                <SettingsButton />
+              </div>
+              <CardDescription>Select a profile to view and manage its macros</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingProfiles ? (
+                <LoadingSpinner text="Loading profiles..." />
+              ) : (
+                <ProfileButtons
+                  profiles={profiles}
+                  selectedProfile={selectedProfile}
+                  onSelectProfile={setSelectedProfile}
+                  onNewProfile={handleNewProfile}
+                  onEditProfile={handleEditProfile}
+                  onDeleteProfile={handleDeleteProfile}
+                />
+              )}
+            </CardContent>
+          </Card>
 
-        <MacroList
-          macros={macros}
-          isLoading={isLoadingMacros}
-          selectedProfile={selectedProfile}
-          onToggleEnabled={handleToggleEnabled}
-          onUpdateLoopMode={handleUpdateLoopMode}
-          onEditMacro={handleEditMacro}
-          onRenameMacro={handleRenameMacro}
-          onDeleteMacro={handleDeleteMacro}
-          onCreateNewMacro={handleCreateNewMacro}
-        />
-
-        {showProfileForm && (
-          <ProfileForm
-            profile={editingProfile}
-            profiles={profiles}
-            onSave={handleSaveProfile}
-            onCancel={handleCancelProfileForm}
+          <MacroList
+            macros={macros}
+            isLoading={isLoadingMacros}
+            selectedProfile={selectedProfile}
+            onToggleEnabled={handleToggleEnabled}
+            onUpdateLoopMode={handleUpdateLoopMode}
+            onEditMacro={handleEditMacro}
+            onRenameMacro={handleRenameMacro}
+            onDeleteMacro={handleDeleteMacro}
+            onCreateNewMacro={handleCreateNewMacro}
           />
-        )}
 
-        <ConfirmationDialog
-          open={showDeleteDialog}
-          onOpenChange={setShowDeleteDialog}
-          title="Delete Profile"
-          description={`Are you sure you want to delete the profile "${profileToDelete?.name}"? This action cannot be undone and will also delete all macros associated with this profile.`}
-          confirmText="Delete"
-          variant="destructive"
-          isLoading={isDeletingProfile}
-          onConfirm={confirmDeleteProfile}
-        />
-      </div>
+          {showProfileForm && (
+            <ProfileForm
+              profile={editingProfile}
+              profiles={profiles}
+              onSave={handleSaveProfile}
+              onCancel={handleCancelProfileForm}
+            />
+          )}
+
+          <ConfirmationDialog
+            open={showDeleteDialog}
+            onOpenChange={setShowDeleteDialog}
+            title="Delete Profile"
+            description={`Are you sure you want to delete the profile "${profileToDelete?.name}"? This action cannot be undone and will also delete all macros associated with this profile.`}
+            confirmText="Delete"
+            variant="destructive"
+            isLoading={isDeletingProfile}
+            onConfirm={confirmDeleteProfile}
+          />
+        </div>
+      </ScrollArea>
     </main>
   )
 }

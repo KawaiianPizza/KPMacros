@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ChevronDown, ChevronRight, Edit, Trash, FileEdit, Plus, Zap } from "lucide-react"
 import LoadingSpinner from "@/components/common/loading-spinner"
 import { Macro } from "@/lib/types"
+import { cn } from "@/lib/utils"
+import { ScrollArea } from "../ui/scroll-area"
 
 interface MacroListProps {
   macros: Macro[]
@@ -50,52 +52,53 @@ export default function MacroList({
     return (
       <div key={macro.id}>
         <div
-          className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:bg-muted/50 ${isSelected ? "border-primary bg-primary/5 shadow-sm rounded-b-none" : "border-border border-b"
-            }`}
+          className={cn("p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:border-accent bg-primary/65",
+            isSelected ? "border-accent shadow-sm border-b-0 rounded-b-none" : "border-border border-b"
+          )}
           onClick={(e) => handleMacroSelect(macro.id, e)}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {isSelected ? (
-                <ChevronDown className="h-4 w-4 text-primary" />
+                <ChevronDown className="h-4 w-4 text-primary-foreground" />
               ) : (
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                <ChevronRight className="h-4 w-4 text-primary-foreground" />
               )}
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-medium text-foreground">{macro.name}</h3>
+                  <h3 className="font-medium text-secondary-foreground">{macro.name}</h3>
                   <Badge variant={macro.type === "Hotkey" ? "default" : "secondary"}>{macro.type}</Badge>
                   <Badge
                     variant={macro.enabled ? "default" : "outline"}
-                    className={macro.enabled ? "bg-green-500 text-white" : ""}
+                    className={cn(macro.enabled || "bg-primary/35 text-secondary-foreground/65")}
                   >
                     {macro.enabled ? "Enabled" : "Disabled"}
                   </Badge>
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Activator: <span className="font-mono bg-muted px-1 rounded">{macro.activator}</span>
-                  {macro.type === "Hotkey" && " • Loop: " + macro.loopMode}
+                <p className="text-sm text-foreground mt-1 flex">
+                  Activator:
+                  <Badge className="font-mono bg-primary text-secondary-foreground px-1 content-center h-6 text-sm flex items-center justify-between border rounded border-input">{macro.activator}</Badge>
+                  {macro.type === "Hotkey" && (<> • Loop:
+                    <Select
+                      value={macro.loopMode}
+                      onValueChange={(value: "Held" | "Toggle") => {
+                        onUpdateLoopMode(macro.id, value)
+                      }}
+                    >
+                      <SelectTrigger className="h-6 w-24 font-mono bg-primary text-primary-foreground px-1 rounded" onClick={(e) => e.stopPropagation()}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="text-primary-foreground bg-primary">
+                        <SelectItem value="Held" className="focus:text-primary-foreground focus:bg-primary/65 cursor-pointer">Held</SelectItem>
+                        <SelectItem value="Toggle" className="focus:text-primary-foreground focus:bg-primary/65 cursor-pointer">Toggle</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </>)}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              {macro.type === "Hotkey" && (
-                <Select
-                  value={macro.loopMode}
-                  onValueChange={(value: "Held" | "Toggle") => {
-                    onUpdateLoopMode(macro.id, value)
-                  }}
-                >
-                  <SelectTrigger className="w-24" onClick={(e) => e.stopPropagation()}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Held">Held</SelectItem>
-                    <SelectItem value="Toggle">Toggle</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
               <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                 <Switch checked={macro.enabled} onCheckedChange={(enabled) => onToggleEnabled(macro.id, enabled)} />
               </div>
@@ -103,32 +106,30 @@ export default function MacroList({
           </div>
         </div>
 
-        {isSelected && (
-          <CardContent className="px-0 pb-4">
-            <div className="p-4 bg-muted/30 rounded-lg border border-dashed rounded-t-none">
-              <div className="flex items-center gap-2 justify-end">
-                <Button variant="outline" size="sm" onClick={() => onEditMacro(macro.id)} className="gap-2">
-                  <Edit className="h-4 w-4" />
-                  Edit
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => onRenameMacro(macro.id)} className="gap-2">
-                  <FileEdit className="h-4 w-4" />
-                  Rename
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onDeleteMacro(macro.id)}
-                  className="gap-2 text-destructive hover:text-destructive"
-                >
-                  <Trash className="h-4 w-4" />
-                  Delete
-                </Button>
-              </div>
+        <CardContent className={cn("px-0 pb-4 overflow-hidden transition-all duration-300", isSelected ? "h-[70px]" : "h-0 p-0")}>
+          <div className="p-4 bg-primary/35 rounded-lg border border-dashed border-accent rounded-t-none">
+            <div className="flex items-center gap-2 justify-end *:bg-primary">
+              <Button variant="outline" size="sm" onClick={() => onEditMacro(macro.id)} className="gap-2 text-primary-foreground hover:bg-primary/65">
+                <Edit className="h-4 w-4" />
+                Edit
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => onRenameMacro(macro.id)} className="gap-2 text-primary-foreground hover:bg-primary/65">
+                <FileEdit className="h-4 w-4" />
+                Rename
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onDeleteMacro(macro.id)}
+                className="gap-2 text-destructive hover:text-destructive hover:bg-primary/65"
+              >
+                <Trash className="h-4 w-4" />
+                Delete
+              </Button>
             </div>
-          </CardContent>
-        )}
-      </div>
+          </div>
+        </CardContent>
+      </div >
     )
   }
 
@@ -156,7 +157,7 @@ export default function MacroList({
             <LoadingSpinner text="Loading macros..." />
           </div>
         ) : macros.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-8 text-foreground/65">
             <Zap className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p className="mb-2">No macros found for this profile</p>
             <Button variant="outline" onClick={onCreateNewMacro} className="gap-2">
@@ -165,7 +166,9 @@ export default function MacroList({
             </Button>
           </div>
         ) : (
-          <div className="space-y-2 overflow-auto max-h-[61dvh]">{macros.map(renderMacroRow)}</div>
+          <ScrollArea className="h-full pb-4 border border-border p-1">
+            <div className="space-y-2 max-h-[75dvh]">{macros.map(renderMacroRow)}</div>
+          </ScrollArea>
         )}
       </CardContent>
     </Card>

@@ -17,7 +17,7 @@ export default function LoadingSpinner({ size = "md", text, className }: Loading
   }
 
   return (
-    <div className={cn("flex items-center gap-2 text-muted-foreground", className)}>
+    <div className={cn("flex items-center gap-2 text-foreground", className)}>
       <Loader2 className={cn("animate-spin", sizeClasses[size])} />
       {text && <span>{text}</span>}
     </div>

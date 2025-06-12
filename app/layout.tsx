@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { Inter } from "next/font/google"
 import RefreshPrevention from "@/components/common/refresh-prevention"
 import { Suspense } from "react"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -25,15 +26,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        {!process.env.NODE_ENV ? <RefreshPrevention /> : null}
-        <ThemeProvider>
-          <ProfileProvider>
-            <Suspense>
-              {children}
-            </Suspense>
-            <Toaster />
-          </ProfileProvider>
-        </ThemeProvider>
+        <ScrollArea className="h-screen">
+          {!process.env.NODE_ENV ? <RefreshPrevention /> : null}
+          <ThemeProvider>
+            <ProfileProvider>
+              <Suspense>
+                {children}
+              </Suspense>
+              <Toaster />
+            </ProfileProvider>
+          </ThemeProvider>
+        </ScrollArea>
       </body>
     </html>
   )

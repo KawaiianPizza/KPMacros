@@ -86,7 +86,7 @@ export default function ActionDisplay({
     <Card
       ref={provided.innerRef}
       {...provided.draggableProps}
-      className={cn("border-border transition-all duration-200 select-none", isSelected ? "shadow-md" : "shadow-sm")}
+      className={cn("border-border transition-all duration-200 select-none bg-primary", isSelected ? "shadow-md" : "shadow-sm")}
     >
       <CardHeader
         className={cn(
@@ -100,9 +100,9 @@ export default function ActionDisplay({
       >
         <div className="flex items-center">
           <div {...dragHandleProps} className="mr-2 cursor-grab" onClick={(e) => e.stopPropagation()}>
-            <GripVertical className="h-4 w-4 text-muted-foreground" />
+            <GripVertical className="h-4 w-4 text-foreground/65" />
           </div>
-          <CardTitle className="text-sm font-medium">
+          <CardTitle className="text-sm font-medium text-secondary-foreground">
             {getActionDescription()}
           </CardTitle>
         </div>
@@ -196,7 +196,7 @@ export default function ActionDisplay({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 text-destructive hover:text-destructive"
+                  className="h-6 w-6 text-destructive hover:text-destructive-foreground hover:bg-destructive"
                   onClick={(e) => {
                     e.stopPropagation()
                     onDelete()

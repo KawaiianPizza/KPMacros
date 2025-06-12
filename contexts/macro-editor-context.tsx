@@ -159,7 +159,7 @@ export function MacroEditorProvider({
   const [currentMacroName] = useState<string | null>(macroName)
   const [isEditingExisting] = useState<boolean>(Boolean(macroId && macroName))
 
-  const [activeTab, setActiveTab] = useState<string>("general")
+  const [activeTab, setActiveTab] = useState<string>("General")
   const [isRecording, setIsRecording] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
