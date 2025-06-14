@@ -50,14 +50,14 @@ export default function ActionList({ listType, title, description, compact = fal
         </div>
       )}
 
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 h-full">
         <Droppable droppableId={`${listType}-actions`}>
           {(provided, snapshot) => (
             <ScrollArea className="h-96">
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={`space-y-2 pr-2 transition-colors ${snapshot.isDraggingOver ? "bg-background/65 rounded-md" : ""
+                className={`space-y-2 min-h-48 transition-colors ${snapshot.isDraggingOver ? "bg-primary/65 rounded-md" : ""
                   }`}
               >
                 {actions.length === 0 ? (

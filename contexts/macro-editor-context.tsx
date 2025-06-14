@@ -157,7 +157,7 @@ export function MacroEditorProvider({
   const [currentProfile] = useState<string>(profileName)
   const [currentMacroId] = useState<string | null>(macroId)
   const [currentMacroName] = useState<string | null>(macroName)
-  const [isEditingExisting] = useState<boolean>(Boolean(macroId && macroName))
+  const [isEditingExisting] = useState<boolean>(Boolean(macroName))
 
   const [activeTab, setActiveTab] = useState<string>("General")
   const [isRecording, setIsRecording] = useState(false)

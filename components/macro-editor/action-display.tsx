@@ -40,39 +40,31 @@ export default function ActionDisplay({
   const getActionDescription = () => {
     switch (action.type) {
       case "keyboard":
-        switch (action.state) {
-          case "down":
-            return `Hold ${action.key}`
-          case "press":
-            return `Press ${action.key}`
-          case "up":
-            return `Release ${action.key}`
-        }
-        break;
+        return <span>
+          {action.state === "down" && "Hold" || action.state === "press" && "Press" || action.state === "up" && "Release"}{" "}
+          <span className="text-secondary-foreground">{action.key}</span>
+        </span>
       case "text":
-        return `Type "${action.text}"`
+        return <span>Type <span className="text-secondary-foreground">{action.text}</span></span>
       case "mouse":
-        switch (action.state) {
-          case "down":
-            return `${action.button} button down`
-          case "click":
-            return `${action.button} click`
-          case "up":
-            return `${action.button} button up`
-        }
+        if (action.state)
+          return <span>
+            <span className="text-secondary-foreground">{action.button}</span> mouse {" "}
+            <span className="text-secondary-foreground">{action.state}</span>
+          </span>
         if (action.x !== undefined || action.y !== undefined) {
           const relative = action.relative
           const x = action.x || 0
           const y = action.y || 0
           return relative
-            ? `Move mouse ${x >= 0 ? "right" : "left"} ${Math.abs(x)}px, ${y >= 0 ? "down" : "up"} ${Math.abs(y)}px`
-            : `Move mouse to (${x}, ${y})`
+            ? <span>Move mouse <span className="text-secondary-foreground">{x >= 0 ? "right" : "left"} {Math.abs(x)}px</span>, <span className="text-secondary-foreground">{y >= 0 ? "down" : "up"} {Math.abs(y)}px</span></span>
+            : <span>Move mouse to (<span className="text-secondary-foreground">{x}</span>, <span className="text-secondary-foreground">{y}</span>)</span>
         }
         if (action.scroll)
-          return `Scroll ${action.scroll} ${action.amount} units`
+          return <span>Scroll <span className="text-secondary-foreground">{action.scroll} {action.amount}</span> time{action.amount > 1 && "s"}</span>
         break;
       case "delay":
-        return `Delay ${action.duration || action.duration}ms`
+        return <span>Delay <span className="text-secondary-foreground">{action.duration}ms</span></span>
       default:
         return `${action.type}: ${action.value}`
     }
@@ -86,53 +78,30 @@ export default function ActionDisplay({
     <Card
       ref={provided.innerRef}
       {...provided.draggableProps}
-      className={cn("border-border transition-all duration-200 select-none bg-primary", isSelected ? "shadow-md" : "shadow-sm")}
+      className={cn("border-border transition-all duration-200 select-none bg-primary group", isSelected ? "shadow-md" : "shadow-sm")}
     >
       <CardHeader
         className={cn(
           "py-3 px-4 flex flex-row items-center justify-between cursor-pointer",
           isSelected ? "border-b" : "",
         )}
+        {...dragHandleProps}
         onClick={(e) => {
           if ((e.target as HTMLElement).closest("button")) return
           onSelect()
         }}
       >
-        <div className="flex items-center">
-          <div {...dragHandleProps} className="mr-2 cursor-grab" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center cursor-grab">
+          <div className="mr-2">
             <GripVertical className="h-4 w-4 text-foreground/65" />
           </div>
-          <CardTitle className="text-sm font-medium text-secondary-foreground">
+          <CardTitle className="text-sm font-medium">
             {getActionDescription()}
           </CardTitle>
         </div>
-        <div className="flex space-x-1">
-          {isSelected ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={(e) => {
-                e.stopPropagation()
-                onSelect()
-              }}
-            >
-              <ChevronUp className="h-3 w-3" />
-            </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={(e) => {
-                e.stopPropagation()
-                onSelect()
-              }}
-            >
-              <ChevronDown className="h-3 w-3" />
-            </Button>
-          )}
-
+        <div className={cn("flex space-x-1 transition-all duration-200 overflow-x-hidden opacity-0 min-w-0 w-0 group-hover:w-28 group-hover:min-w-28 group-hover:opacity-100",
+          isSelected && "w-28 min-w-28 opacity-100"
+        )}>
           <TooltipProvider delayDuration={300}>
             <Tooltip>
               <TooltipTrigger asChild>

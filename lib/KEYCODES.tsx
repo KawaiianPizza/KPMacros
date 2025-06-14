@@ -54,7 +54,7 @@ const KEYCODES = [
   { value: "Back", label: "Backspace", keyCode: 8 },
   { value: "Tab", label: "Tab", keyCode: 9 },
   { value: "OpenBrackets", label: "Open Brackets ([ {)", keyCode: 219 },
-  { value: "CloseBrackets", label: "Close Brackets ()] })", keyCode: 221 },
+  { value: "CloseBrackets", label: "Close Brackets (] })", keyCode: 221 },
   { value: "Backslash", label: "Backslash (\\ |)", keyCode: 220 },
   { value: "CapsLock", label: "CapsLock", keyCode: 20 },
   { value: "Semicolon", label: "Semicolon (; :)", keyCode: 186 },
@@ -168,7 +168,6 @@ const KEYCODES = [
   { value: "ErEoF", label: "ErEoF", keyCode: 249 },
   { value: "Play", label: "Play", keyCode: 250 },
   { value: "Zoom", label: "Zoom", keyCode: 251 },
-  { value: "NoName", label: "NoName", keyCode: 252 },
   { value: "PA1", label: "PA1", keyCode: 253 },
   { value: "OEMClear", label: "OEMClear", keyCode: 254 },
   { value: "None", label: "None", keyCode: 0, hidden: true },
@@ -254,5 +253,6 @@ const KEYCODES = [
   { value: "ICO00", label: "ICO00", keyCode: 228, hidden: true },
   { value: "Packet", label: "Packet", keyCode: 231, hidden: true },
   { value: "232", label: "232", keyCode: 232, hidden: true },
+  { value: "NoName", label: "NoName", keyCode: 252, hidden: true },
 ];
 export default KEYCODES

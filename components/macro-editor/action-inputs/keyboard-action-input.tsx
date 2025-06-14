@@ -96,11 +96,14 @@ export default function KeyboardActionInput({ action, onChange, onKeyDown }: Key
               <CommandGroup>
                 <ScrollArea className="h-[300px]">
                   <CommandList>
-                    {KEYCODES.map((keycode) => keycode.hidden ? undefined : (
-                      <CommandItem key={keycode.value} value={keycode.value + keycode.label} onSelect={() => handleKeycodeSelect(keycode.value)}>
-                        {keycode.label == "Space bar" ? "Spacebar" : keycode.label}
-                      </CommandItem>
-                    ))}
+                    <div className="flex flex-wrap gap-2 p-2">
+                      {KEYCODES.map((keycode) => keycode.hidden ? undefined : (
+                        <CommandItem key={keycode.value} value={keycode.value + keycode.label} onSelect={() => handleKeycodeSelect(keycode.value)}
+                          className="flex-shrink-0 w-auto min-w-fit">
+                          {keycode.label == "Space bar" ? "Spacebar" : keycode.label}
+                        </CommandItem>
+                      ))}
+                    </div>
                   </CommandList>
                 </ScrollArea>
               </CommandGroup>

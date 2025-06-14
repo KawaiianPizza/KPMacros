@@ -148,11 +148,13 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
     }
   }
 
-  const toggleWindow = (windowExecutable: string) => {
+  const toggleWindow = (window: Window) => {
+    if (!name)
+      setName(window.title.replaceAll(/[\\/:*?"<>|]/g, ""))
     setSelectedWindows((prev) => {
-      const newSelection = prev.includes(windowExecutable)
-        ? prev.filter((id) => id !== windowExecutable)
-        : [...prev, windowExecutable]
+      const newSelection = prev.includes(window.executable)
+        ? prev.filter((id) => id !== window.executable)
+        : [...prev, window.executable]
 
       if (errors.windows && newSelection.length > 0) {
         setErrors((prevErrors) => ({ ...prevErrors, windows: undefined }))
@@ -226,27 +228,36 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {allWindows.sort(e => selectedWindows.includes(e.executable) ? -1 : 1).map((window) => (
-                      <div key={window.pid} className="flex items-start space-x-3 p-2 rounded bg-secondary text-primary-foreground hover:bg-secondary/65" onClick={() => toggleWindow(window.executable)}>
-                        <Checkbox
-                          id={`window-${window.executable}`}
-                          checked={selectedWindows.includes(window.executable)}
-                          className="mt-0.5"
-                          disabled={isSaving}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <Label
-                            htmlFor={`window-${window.executable}`}
-                            className="text-foreground font-medium block pointer-events-none"
-                          >
-                            {window.title || window.executable}
-                          </Label>
-                          {window.title && window.title !== window.executable && (
-                            <p className="text-xs text-foreground/65 mt-1 font-mono cursor-default">{window.executable}</p>
-                          )}
+                    {allWindows.map((window, index) => ({ ...window, index }))
+                      .sort((a, b) => {
+                        const aIndex = selectedWindows.indexOf(a.executable);
+                        const bIndex = selectedWindows.indexOf(b.executable);
+
+                        if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+                        if (aIndex !== -1) return -1;
+                        if (bIndex !== -1) return 1;
+                        return a.index - b.index;
+                      }).map((window) => (
+                        <div key={window.pid} className="flex items-start space-x-3 p-2 border border-border rounded bg-card text-primary-foreground hover:bg-secondary/65 hover:border-accent" onClick={() => toggleWindow(window)}>
+                          <Checkbox
+                            id={`window-${window.executable}`}
+                            checked={selectedWindows.includes(window.executable)}
+                            className="mt-0.5"
+                            disabled={isSaving}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <Label
+                              htmlFor={`window-${window.executable}`}
+                              className="text-foreground font-medium block pointer-events-none"
+                            >
+                              {window.title || window.executable}
+                            </Label>
+                            {window.title && window.title !== window.executable && (
+                              <p className="text-xs text-foreground/65 mt-1 font-mono cursor-default">{window.executable}</p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 )}
               </ScrollArea>

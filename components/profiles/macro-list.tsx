@@ -166,7 +166,7 @@ export default function MacroList({
             </Button>
           </div>
         ) : (
-          <ScrollArea className="h-full pb-4 border border-border p-1 bg-background">
+          <ScrollArea className="h-full pb-4 border border-border p-1 rounded-md bg-background">
             <div className="space-y-2 max-h-[75dvh]">{macros.map(renderMacroRow)}</div>
           </ScrollArea>
         )}
