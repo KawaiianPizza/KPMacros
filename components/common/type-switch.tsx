@@ -4,25 +4,29 @@ import { cn } from "@/lib/utils"
 
 type TypeSwitchProps<T extends readonly [string, string]> = {
     options: T;
-    value: T[number]; // Ensures `value` is one of the elements in `options`
+    disabled?: T[number];
+    value: T[number];
     onValueChange: (value: T[number]) => void;
     className?: string;
 }
 
-export default function TypeSwitch<T extends readonly [string, string]>({ options, value, onValueChange, className }: TypeSwitchProps<T>) {
+export default function TypeSwitch<T extends readonly [string, string]>({ options, disabled, value, onValueChange, className }: TypeSwitchProps<T>) {
     return (
-        <div className={cn("w-[20dvw] mx-auto", className)}>
-            <div className="relative flex items-center justify-between bg-primary/65 rounded-lg p-1 cursor-pointer h-full select-none" onClick={() => onValueChange(value === options[0] ? options[1] : options[0])}>
-                <div className={cn("absolute top-1 bottom-1 w-[calc(50%-4px)] bg-accent rounded-md shadow-sm transition-all duration-200 ease-in-out z-10",
-                    value === options[0] ? "left-1" : "left-[calc(50%)]")} />
-                <div className={cn("flex-1 flex items-center justify-center text-xl rounded-md font-medium transition-colors duration-200 relative z-20",
+        <div className={cn("w-[20dvw] mx-auto border border-border/35 rounded-lg", className)}>
+            <div className="relative flex items-center justify-between bg-primary/65 rounded-lg p-1 cursor-pointer h-full select-none" onClick={() => disabled || onValueChange(value === options[0] ? options[1] : options[0])}>
+                <div className={cn("flex-1 flex items-center justify-center text-xl rounded-sm font-medium transition-colors duration-200 relative z-20 overflow-clip",
                     value === options[0] ? "text-primary" : "bg-primary text-primary-foreground/65 hover:text-accent")}>
-                    {options[0]}
+                    <span className="z-10">{options[0]}</span>
+                    <div className={cn("absolute top-0 bottom-0 w-full bg-accent rounded-md shadow-sm transition-all duration-200 ease-in-out",
+                        value === options[0] ? "left-0" : "left-full",
+                        disabled === options[0] && "hidden")} />
                 </div>
-
-                <div className={cn("flex-1 flex items-center justify-center text-xl rounded-md font-medium transition-colors duration-200 relative z-20",
-                    value === options[1] ? "text-primary" : "bg-primary text-primary-foreground/65 hover:text-accent")}>
-                    {options[1]}
+                <div className={cn("flex-1 flex items-center justify-center text-xl rounded-sm font-medium transition-colors duration-200 relative z-20 overflow-clip",
+                    value === options[1] ? "text-primary" : "bg-primary text-primary-foreground/65 hover:text-accent",
+                    disabled === options[1] && "hidden")}>
+                    <span className="z-10">{options[1]}</span>
+                    <div className={cn("absolute top-0 bottom-0 w-full bg-accent rounded-md shadow-sm transition-all duration-200 ease-in-out",
+                        value === options[1] ? "left-0" : "-left-full")} />
                 </div>
             </div>
         </div>

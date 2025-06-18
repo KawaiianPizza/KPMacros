@@ -7,38 +7,8 @@ import { v4 as uuidv4 } from "uuid"
 import websocketService from "@/lib/websocket-service"
 import { useToast } from "@/hooks/use-toast"
 import { validateActivator } from "@/lib/validation-utils"
+import { MacroAction, MacroData, Modifiers } from "@/lib/types"
 
-export interface MacroAction extends Record<string, any> {
-  id: string
-  type: "keyboard" | "mouse" | "text" | "delay"
-}
-
-export enum Modifiers {
-  Shift = 1 << 0,
-  Control = 1 << 1,
-  Alt = 1 << 2,
-  Win = 1 << 3,
-  Any = 1 << 4,
-  None = 1 << 5,
-}
-
-export interface MacroData {
-  id?: string
-  name: string
-  oldName?: string
-  enabled: boolean
-  type: "Hotkey" | "Command"
-  activator: string
-  loopMode: "Held" | "Toggle"
-  interrupt: boolean
-  repeatDelay: number
-  modifiers: Modifiers
-  modifierMode: "Inclusive" | "Exclusive"
-  start: MacroAction[]
-  loop: MacroAction[]
-  finish: MacroAction[]
-  cooldown: number
-}
 
 interface MacroEditorContextType {
   // Macro data
@@ -73,6 +43,7 @@ interface MacroEditorContextType {
   setActiveTab: (tab: string) => void
   isRecording: boolean
   setIsRecording: (recording: boolean) => void
+  isTesting: boolean
   sidebarCollapsed: boolean
   setSidebarCollapsed: (collapsed: boolean) => void
   activeActionList: "start" | "loop" | "finish"
@@ -88,6 +59,7 @@ interface MacroEditorContextType {
   saveMacro: () => Promise<void>
   cancelEditing: () => void
   startRecording: () => void
+  toggleTesting: () => void
   toggleModifierMode: () => void
 }
 
@@ -105,6 +77,7 @@ const createDefaultMacroData = (): MacroData => ({
   loop: [],
   finish: [],
   cooldown: 0,
+  mod: false
 })
 
 const MacroEditorContext = createContext<MacroEditorContextType | undefined>(undefined)
@@ -167,6 +140,7 @@ export function MacroEditorProvider({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isActivatorValid, setIsActivatorValid] = useState(validateActivator(macro.activator, macro.type).isValid)
+  const [isTesting, setIsTesting] = useState(false)
 
   useEffect(() => {
     if (initialMacroData) {
@@ -342,7 +316,16 @@ export function MacroEditorProvider({
         throw new Error("Profile is required")
       }
 
-      const macroToSave = {
+      const macroToSave = macro.mod ? {
+        name: macro.name ? macro.name : macro.activator,
+        oldName: isEditingExisting ? macro.oldName : undefined,
+        activator: macro.activator,
+        modifiers: macro.modifiers,
+        enabled: macro.enabled,
+        interrupt: macro.interrupt,
+        modifierMode: macro.modifierMode,
+        mod: macro.mod,
+      } : {
         ...macro,
         name: macro.name ? macro.name : macro.activator,
         start: macro.start.map(({ id, ...rest }) => rest),
@@ -396,6 +379,57 @@ export function MacroEditorProvider({
       setIsLoading(false)
     }
   }, [macro, currentProfile, currentMacroId, isEditingExisting, router, toast])
+
+  const toggleTesting = useCallback(async (): Promise<void> => {
+    try {
+      setError(null)
+      setIsTesting(prev => !prev)
+      if (isTesting) {
+        if (websocketService) {
+          websocketService?.send("testMacroStop", { profile: currentProfile, clearMods: false })
+        } else {
+          throw new Error("WebSocket service is not available")
+        }
+        return
+      }
+      if (!currentProfile) {
+        throw new Error("Profile is required")
+      }
+
+      const macroToTest = {
+        ...macro,
+        start: macro.start.map(({ id, ...rest }) => rest),
+        loop: macro.loop.map(({ id, ...rest }) => rest),
+        finish: macro.finish.map(({ id, ...rest }) => rest),
+      }
+
+      console.log("Testing macro:", {
+        profile: currentProfile,
+        macro: macroToTest,
+      })
+
+      if (websocketService) {
+        const macroData = {
+          profile: currentProfile,
+          macro: macroToTest,
+        }
+
+        websocketService.send("testMacro", macroData)
+      } else {
+        throw new Error("WebSocket service is not available")
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to test macro"
+      console.error("Error testing macro:", errorMessage)
+      setError(errorMessage)
+
+      toast({
+        title: "Cannot test macro",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    }
+  }, [macro, profileName, toast, isTesting, setIsTesting])
 
   const cancelEditing = useCallback(() => {
     try {
@@ -471,6 +505,8 @@ export function MacroEditorProvider({
     isLoading,
     error,
     isActivatorValid,
+    isTesting,
+    toggleTesting
   }
 
   return <MacroEditorContext.Provider value={contextValue}>{children}</MacroEditorContext.Provider>

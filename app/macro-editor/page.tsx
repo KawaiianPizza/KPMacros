@@ -4,11 +4,13 @@ import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
 import MacroEditorLayout from "@/components/macro-editor/layout"
-import { MacroData, MacroEditorProvider, Modifiers } from "@/contexts/macro-editor-context"
+import { MacroEditorProvider } from "@/contexts/macro-editor-context"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent } from "@/components/ui/card"
 import { AlertTriangle } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { MacroData, Modifiers } from "@/lib/types"
+import websocketService from "@/lib/websocket-service"
 
 
 export default function MacroEditorPage() {
@@ -55,6 +57,7 @@ export default function MacroEditorPage() {
           const validatedMacroData: MacroData = {
             name: parsedData.name || name || "Untitled Macro",
             enabled: typeof parsedData.enabled === "boolean" ? parsedData.enabled : true,
+            mod: parsedData.mod || false,
             type: ["Hotkey", "Command"].includes(parsedData.type) ? parsedData.type : "Hotkey",
             activator: typeof parsedData.activator === "string" ? parsedData.activator : "",
             loopMode: ["Held", "Toggle"].includes(parsedData.loopMode) ? parsedData.loopMode : "Held",
@@ -80,6 +83,7 @@ export default function MacroEditorPage() {
         const defaultMacroData: MacroData = {
           name: "",
           enabled: true,
+          mod: false,
           type: "Hotkey",
           activator: "",
           loopMode: "Held",
@@ -164,7 +168,7 @@ export default function MacroEditorPage() {
       macroName={macroName}
     >
       <main className="min-h-screen bg-background p-4">
-          <MacroEditorLayout />
+        <MacroEditorLayout />
       </main>
     </MacroEditorProvider>
   )

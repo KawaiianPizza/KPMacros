@@ -4,24 +4,40 @@ export interface Profile {
   oldName?: string
 }
 
-export interface Macro {
-  id: string
+export interface MacroData {
+  id?: string
   name: string
+  oldName?: string
+  mod: boolean
   enabled: boolean
   type: "Hotkey" | "Command"
   activator: string
   loopMode: "Held" | "Toggle"
-  modifierMode: "Inclusive" | "Exclusive"
+  interrupt: boolean
   repeatDelay: number
-  start: any[]
-  loop: any[]
-  finish: any[]
+  modifiers: Modifiers
+  modifierMode: "Inclusive" | "Exclusive"
+  start: MacroAction[]
+  loop: MacroAction[]
+  finish: MacroAction[]
   cooldown: number
 }
+export interface MacroAction extends Record<string, any> {
+  id: string
+  type: "keyboard" | "mouse" | "text" | "delay"
+}
 
+export enum Modifiers {
+  Shift = 1 << 0,
+  Control = 1 << 1,
+  Alt = 1 << 2,
+  Win = 1 << 3,
+  Any = 1 << 4,
+  None = 1 << 5,
+}
 export interface BatchMacroUpdate {
   profile: string
-  macro: Macro
+  macro: MacroData
 }
 
 export interface BatchUpdateRequest {
@@ -36,7 +52,7 @@ export interface BatchUpdateResponse {
     macroName: string
     error: string
   }>
-  updatedMacros?: Macro[]
+  updatedMacros?: MacroData[]
 }
 
 export interface Window {

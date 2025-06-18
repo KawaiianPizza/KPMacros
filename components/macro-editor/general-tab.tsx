@@ -33,7 +33,9 @@ export default function GeneralTab() {
   const handleInterruptChange = (checked: boolean) => {
     updateMacro({ interrupt: checked })
   }
-
+  const handleModChange = (checked: boolean) => {
+    updateMacro({ mod: checked })
+  }
   const handleRepeatDelayChange = (value: number) => {
     updateMacro({ repeatDelay: value })
   }
@@ -48,6 +50,7 @@ export default function GeneralTab() {
     const activeModifiers = new Set<string>()
 
     const keyMap: Record<string, string> = {
+      15: "Mod",
       Control: "Ctrl",
       Shift: "Shift",
       Alt: "Alt",
@@ -56,9 +59,9 @@ export default function GeneralTab() {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault()
-
-      if (keyMap[e.key]) {
-        activeModifiers.add(keyMap[e.key])
+      const mod = keyMap[e.key === "Unidentified" ? e.keyCode : e.key]
+      if (mod) {
+        activeModifiers.add(mod)
 
         const modifiersText = Array.from(activeModifiers).join("+")
         updateMacro({ activator: modifiersText ? `${modifiersText}+` : "" })
@@ -83,8 +86,9 @@ export default function GeneralTab() {
     }
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (keyMap[e.key]) {
-        activeModifiers.delete(keyMap[e.key])
+      const mod = keyMap[e.key === "Unidentified" ? e.keyCode : e.key]
+      if (mod) {
+        activeModifiers.delete(mod)
 
         const modifiersText = Array.from(activeModifiers).join("+")
         updateMacro({ activator: modifiersText ? `${modifiersText}+` : "" })
@@ -115,7 +119,7 @@ export default function GeneralTab() {
           <CardDescription>Choose how this macro will be triggered</CardDescription>
         </CardHeader>
         <CardContent>
-          <TypeSwitch options={["Hotkey", "Command"]} value={macro.type || "Hotkey"} onValueChange={handleMacroTypeChange} />
+          <TypeSwitch options={["Hotkey", "Command"]} value={macro.type || "Hotkey"} onValueChange={handleMacroTypeChange} disabled={macro.mod ? "Command" : undefined} />
         </CardContent>
       </Card>
 
@@ -199,7 +203,7 @@ export default function GeneralTab() {
 
           <Separator />
 
-          <div className="space-y-2">
+          <div className="space-y-2 flex justify-between">
             <div className="flex items-center space-x-2">
               <Checkbox id="interrupt" checked={macro.interrupt} onCheckedChange={handleInterruptChange} />
               <Label htmlFor="interrupt" className="flex items-center gap-2">
@@ -218,9 +222,25 @@ export default function GeneralTab() {
                 </TooltipProvider>
               </Label>
             </div>
+            {macro.type === "Hotkey" && <div className="flex items-center space-x-2">
+              <Checkbox id="mod" checked={macro.mod} onCheckedChange={handleModChange} />
+              <Label htmlFor="mod" className="flex items-center gap-2">
+                Is Mod key
+                <TooltipProvider delayDuration={300}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-foreground/65" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Disables this key for macro function and instead acts as Mod. Mod is treated like the Ctrl, Shift, Win, Alt, modifier keys. (Note: Mod is not a real key and cannot be used outside KPMacros)
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </Label>
+            </div>}
           </div>
 
-          {macro.type === "Hotkey" && (
+          {macro.type === "Hotkey" && !macro.mod && (
             <div className="space-y-2 pt-2">
               <Label htmlFor="repeatDelay" className="text-foreground flex items-center gap-2">
                 Repeat Delay (ms)

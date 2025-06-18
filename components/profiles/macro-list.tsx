@@ -10,12 +10,12 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronDown, ChevronRight, Edit, Trash, FileEdit, Plus, Zap } from "lucide-react"
 import LoadingSpinner from "@/components/common/loading-spinner"
-import { Macro } from "@/lib/types"
+import { MacroData } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { ScrollArea } from "../ui/scroll-area"
 
 interface MacroListProps {
-  macros: Macro[]
+  macros: MacroData[]
   isLoading: boolean
   selectedProfile: string
   onToggleEnabled: (macroId: string, enabled: boolean) => void
@@ -46,7 +46,7 @@ export default function MacroList({
 
   const selectedMacro = selectedMacroId ? macros.find((m) => m.id === selectedMacroId) : null
 
-  const renderMacroRow = (macro: Macro) => {
+  const renderMacroRow = (macro: MacroData) => {
     const isSelected = selectedMacroId === macro.id
 
     return (

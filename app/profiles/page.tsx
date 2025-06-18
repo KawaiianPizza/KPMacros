@@ -19,6 +19,7 @@ import { SettingsButton } from "@/components/settings/settings-button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ThemeSelector } from "@/components/theme/theme-selector"
 import { ColorPicker } from "@/components/theme/color-picker"
+import websocketService from "@/lib/websocket-service"
 
 function ProfilesContent() {
   const router = useRouter()
@@ -41,6 +42,7 @@ function ProfilesContent() {
     renameMacro,
     deleteMacro,
     sendBatchedUpdates,
+    sendModMacros
   } = useMacros(selectedProfile)
 
   const [showProfileForm, setShowProfileForm] = useState(false)
@@ -50,6 +52,7 @@ function ProfilesContent() {
   const [isDeletingProfile, setIsDeletingProfile] = useState(false)
 
   React.useEffect(() => {
+    websocketService?.send("testMacroStop", { clearMods: true })
     loadProfiles()
   }, [loadProfiles])
 
@@ -140,6 +143,7 @@ function ProfilesContent() {
       if (!macro) return
 
       sendBatchedUpdates()
+      sendModMacros()
 
       const queryParams = new URLSearchParams({
         profile: selectedProfile,
@@ -149,7 +153,7 @@ function ProfilesContent() {
       })
       router.push(`/macro-editor?${queryParams.toString()}`)
     },
-    [macros, selectedProfile, router, sendBatchedUpdates],
+    [macros, selectedProfile, router, sendBatchedUpdates, sendModMacros],
   )
 
   const handleRenameMacro = useCallback(
@@ -190,10 +194,11 @@ function ProfilesContent() {
 
   const handleCreateNewMacro = useCallback(() => {
     sendBatchedUpdates()
+    sendModMacros()
 
     const queryParams = new URLSearchParams({ profile: selectedProfile })
     router.push(`/macro-editor?${queryParams.toString()}`)
-  }, [selectedProfile, router, sendBatchedUpdates])
+  }, [selectedProfile, router, sendBatchedUpdates, sendModMacros])
 
   return (
     <main className="min-h-screen bg-background">

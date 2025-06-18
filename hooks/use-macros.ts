@@ -4,24 +4,24 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { useWebSocket } from "./use-websocket"
 import { useToast } from "@/hooks/use-toast"
 import { v4 as uuidv4 } from "uuid"
-import { Macro } from "@/lib/types"
+import { MacroData } from "@/lib/types"
 
 interface PendingChange {
   macroId: string
-  macro: Macro 
+  macro: MacroData
   timestamp: number
 }
 
 const AUTO_SAVE_DELAY = 10000
 
 export function useMacros(profileName: string) {
-  const [macros, setMacros] = useState<Macro[]>([])
+  const [macros, setMacros] = useState<MacroData[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const pendingChangesRef = useRef<Map<string, PendingChange>>(new Map())
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const { send, on, off } = useWebSocket()
 
-  const ensureMacroUUIDs = useCallback((macrosData: any[]): Macro[] => {
+  const ensureMacroUUIDs = useCallback((macrosData: any[]): MacroData[] => {
     return macrosData.map((macro) => ({
       ...macro,
       id: macro.id || uuidv4(),
@@ -53,6 +53,12 @@ export function useMacros(profileName: string) {
     }
   }, [profileName, send])
 
+  const sendModMacros = useCallback(async (): Promise<void> => {
+    const mods = macros.filter(e => e.mod)
+    for (const mod of mods)
+      send("testMacro", { profile: profileName, macro: mod })
+  }, [macros, profileName, send])
+
   const scheduleAutoSave = useCallback((): void => {
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current)
@@ -61,7 +67,7 @@ export function useMacros(profileName: string) {
   }, [sendBatchedUpdates])
 
   const addPendingChange = useCallback(
-    (macro: Macro): void => {
+    (macro: MacroData): void => {
       const newChange: PendingChange = {
         macroId: macro.id,
         macro: { ...macro },
@@ -75,7 +81,7 @@ export function useMacros(profileName: string) {
   )
 
   const updateMacro = useCallback(
-    (macroId: string, updates: Partial<Pick<Macro, "enabled" | "loopMode">>) => {
+    (macroId: string, updates: Partial<Pick<MacroData, "enabled" | "loopMode">>) => {
       const macro = macros.find((m) => m.id === macroId)
       if (!macro) return
 
@@ -166,5 +172,6 @@ export function useMacros(profileName: string) {
     renameMacro,
     deleteMacro,
     sendBatchedUpdates,
+    sendModMacros
   }
 }
