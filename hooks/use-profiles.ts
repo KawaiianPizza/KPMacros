@@ -14,6 +14,7 @@ const DEFAULT_PROFILES: Profile[] = [
 export function useProfiles() {
   const [profiles, setProfiles] = useState<Profile[]>(DEFAULT_PROFILES)
   const [selectedProfile, setSelectedProfile] = useState<string>("Global")
+  const [deletingProfile, setDeletingProfile] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
   const { send, on, off } = useWebSocket()
   const { toast } = useToast()
@@ -46,6 +47,7 @@ export function useProfiles() {
   const deleteProfile = useCallback(
     (profileName: string) => {
       send("deleteProfile", { name: profileName })
+      setDeletingProfile(profileName)
     },
     [send],
   )
@@ -56,7 +58,7 @@ export function useProfiles() {
       const globalExclusiveProfile = data.find((p) => p.name === "Global Exclusive") || DEFAULT_PROFILES[1]
       const otherProfiles = data.filter((p) => !["Global", "Global Exclusive"].includes(p.name))
       const profile = searchParams.get("profile")
-      
+
       setProfiles([globalProfile, globalExclusiveProfile, ...otherProfiles])
       setIsLoading(false)
       setSelectedProfile(profile || "Global")
@@ -83,6 +85,7 @@ export function useProfiles() {
           title: "Profile deleted",
           description: "Profile has been deleted successfully.",
         })
+        setProfiles(prev => prev.filter(e => e.name !== deletingProfile))
       } else if (response.error) {
         toast({
           title: "Error deleting profile",

@@ -1,12 +1,11 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
-import { useMacroEditor, type MacroAction } from "@/contexts/macro-editor-context"
+import { useMacroEditor } from "@/contexts/macro-editor-context"
 import { Droppable, Draggable } from "@hello-pangea/dnd"
 import ActionDisplay from "./action-display"
 import { ScrollArea } from "../ui/scroll-area"
+import type { MacroAction } from "@/lib/types"
 
 interface ActionListProps {
   listType: "start" | "loop" | "finish"
@@ -16,20 +15,20 @@ interface ActionListProps {
 }
 
 export default function ActionList({ listType, title, description, compact = false }: ActionListProps) {
-  const { macro, addAction, updateAction, removeAction } = useMacroEditor()
+  const { macro, addAction, updateAction, removeAction, reorderActions } = useMacroEditor()
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null)
   const actions = macro[listType]
 
   const handleMoveUp = (index: number) => {
     if (index <= 0) return
     const items = Array.from(actions)
-      ;[items[index - 1], items[index]] = [items[index], items[index - 1]]
+    reorderActions(listType, [items[index - 1], items[index]] = [items[index], items[index - 1]])
   }
 
   const handleMoveDown = (index: number) => {
     if (index >= actions.length - 1) return
     const items = Array.from(actions)
-      ;[items[index], items[index + 1]] = [items[index + 1], items[index]]
+    reorderActions(listType, [items[index], items[index + 1]] = [items[index + 1], items[index]])
   }
 
   const handleDuplicateAction = (action: MacroAction) => {
@@ -42,7 +41,7 @@ export default function ActionList({ listType, title, description, compact = fal
   }
 
   return (
-    <div className="space-y-4 h-full flex flex-col">
+    <div className="space-y-4 h-full flex flex-col w-full overflow-hidden">
       {title && description && !compact && (
         <div className="mb-3">
           <h4 className="text-sm font-medium mb-1">{title}</h4>
@@ -50,14 +49,14 @@ export default function ActionList({ listType, title, description, compact = fal
         </div>
       )}
 
-      <div className="flex-1 min-h-0 h-full">
+      <div className="flex-1 min-h-0 h-full w-full overflow-hidden">
         <Droppable droppableId={`${listType}-actions`}>
           {(provided, snapshot) => (
-            <ScrollArea className="h-96">
+            <ScrollArea className="h-96 w-full">
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={`space-y-2 min-h-48 transition-colors ${snapshot.isDraggingOver ? "bg-primary/65 rounded-md" : ""
+                className={`space-y-2 min-h-48 transition-colors w-full overflow-hidden ${snapshot.isDraggingOver ? "bg-primary/65 rounded-md" : ""
                   }`}
               >
                 {actions.length === 0 ? (

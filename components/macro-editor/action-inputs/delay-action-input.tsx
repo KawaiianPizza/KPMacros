@@ -5,8 +5,8 @@ import type React from "react"
 import { useRef, useEffect } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import type { MacroAction } from "@/contexts/macro-editor-context"
 import { NumberInput } from "@/components/common/number-input"
+import { MacroAction } from "@/lib/types"
 
 interface DelayActionInputProps {
   action: Omit<MacroAction, "id">
@@ -28,7 +28,7 @@ export default function DelayActionInput({ action, onChange, onKeyDown }: DelayA
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 h-[calc(100%_-_2rem)] content-center">
       <Label htmlFor="delay-value">Wait Duration (ms)</Label>
       <NumberInput
         id="delay-value"

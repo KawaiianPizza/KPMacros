@@ -1,5 +1,5 @@
 "use client"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Save, AlertTriangle, Loader2 } from "lucide-react"
@@ -29,12 +29,12 @@ export default function MacroEditorLayout() {
     toggleTesting,
     isTesting,
   } = useMacroEditor()
-
+  
   const handleTabChange = (value: string) => {
     if (!macro.mod)
       setActiveTab(value)
   }
-
+  
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
@@ -43,7 +43,7 @@ export default function MacroEditorLayout() {
         return ""
       }
     }
-
+    
     window.addEventListener("beforeunload", handleBeforeUnload)
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload)

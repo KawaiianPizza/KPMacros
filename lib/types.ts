@@ -24,8 +24,10 @@ export interface MacroData {
 }
 export interface MacroAction extends Record<string, any> {
   id: string
-  type: "keyboard" | "mouse" | "text" | "delay"
+  type: typeof MacroActionType[number]
 }
+
+export const MacroActionType = <const>["keyboard", "mouse", "text", "delay", "sound", "process"]
 
 export enum Modifiers {
   Shift = 1 << 0,

@@ -21,9 +21,9 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react"
-import type { MacroAction } from "@/contexts/macro-editor-context"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { NumberInput } from "@/components/common/number-input"
+import { MacroAction } from "@/lib/types"
 
 interface MouseActionInputProps {
   action: Omit<MacroAction, "id">
@@ -164,8 +164,8 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
     <div className="space-y-2">
       <Label>Mouse Action</Label>
       <div className="space-y-4">
-        <Tabs value={currentTab} onValueChange={handleMouseActionTypeChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 h-auto">
+        <Tabs value={currentTab} onValueChange={handleMouseActionTypeChange} className="w-full bg-transparent">
+          <TabsList className="grid w-full grid-cols-3 h-auto bg-transparent">
             <TabsTrigger value="buttons" className="flex items-center gap-1">
               <MousePointerClick className="h-3.5 w-3.5" />
               <span>Buttons</span>
@@ -234,48 +234,46 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
         )}
 
         {currentTab === "move" && (
-          <div className="pt-2 space-y-3 flex flex-wrap  gap-4">
-            <div className="flex flex-col-reverse items-center space-x-2 min-w-[200px]">
-              <Switch id="relative-position" checked={!!action.relative} onCheckedChange={handlePositionModeChange} />
-              <Label htmlFor="relative-position" className="text-xs">
-                {!!action.relative ? "Relative to current" : "Absolute"} position
-              </Label>
-            </div>
+          <div className="flex flex-wrap gap-2">
 
-            <div className="flex flex-wrap gap-4">
-              <div className="space-y-1 min-w-[200px]">
-                <div className="flex items-center">
-                  <MoveHorizontal className="h-3.5 w-3.5 mr-1" />
-                  <Label className="text-xs">X {action.relative ? "offset" : "position"}</Label>
-                </div>
-                <NumberInput
-                  type="number"
-                  value={action.x || 0}
-                  onChange={(e) => handleCoordinateChange("x", e || 0)}
-                  onKeyDown={onKeyDown}
-                  className="h-8"
-                />
+            <div className="space-y-1 min-w-[80px] flex-1">
+              <div className="flex items-center">
+                <MoveHorizontal className="h-3.5 w-3.5 mr-1" />
+                <Label className="text-xs">X {action.relative ? "offset" : "position"}</Label>
               </div>
-              <div className="space-y-1 min-w-[200px]">
-                <div className="flex items-center">
-                  <MoveVertical className="h-3.5 w-3.5 mr-1" />
-                  <Label className="text-xs">Y {action.relative ? "offset" : "position"}</Label>
-                </div>
-                <NumberInput
-                  type="number"
-                  value={action.y || 0}
-                  onChange={(e) => handleCoordinateChange("y", e || 0)}
-                  onKeyDown={onKeyDown}
-                  className="h-8"
-                />
+              <NumberInput
+                type="number"
+                value={action.x || 0}
+                onChange={(e) => handleCoordinateChange("x", e || 0)}
+                onKeyDown={onKeyDown}
+                className="h-8"
+              />
+            </div>
+            <div className="space-y-1 min-w-[80px] flex-1">
+              <div className="flex items-center">
+                <MoveVertical className="h-3.5 w-3.5 mr-1" />
+                <Label className="text-xs">Y {action.relative ? "offset" : "position"}</Label>
               </div>
+              <NumberInput
+                type="number"
+                value={action.y || 0}
+                onChange={(e) => handleCoordinateChange("y", e || 0)}
+                onKeyDown={onKeyDown}
+                className="h-8"
+              />
+            </div>
+            <div className="flex flex-col items-center space-y-1.5 min-w-[80px]">
+              <Label htmlFor="relative-position" className="text-xs">
+                {!!action.relative ? "Relative" : "Absolute"} position
+              </Label>
+              <Switch id="relative-position" checked={!!action.relative} onCheckedChange={handlePositionModeChange} />
             </div>
           </div>
         )}
 
         {currentTab === "scroll" && (
-            <div className="flex flex-wrap gap-4">
-              <div className="space-y-1 min-w-[200px]">
+          <div className="flex flex-wrap gap-4">
+            <div className="space-y-1 min-w-[180]">
               <Label className="text-xs">Direction</Label>
               <ToggleGroup
                 type="single"
@@ -293,7 +291,7 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
                 </ToggleGroupItem>
               </ToggleGroup>
             </div>
-            <div className="space-y-1 flex-1 min-w-[200px]">
+            <div className="space-y-1 flex-1 min-w-[80px]">
               <Label className="text-xs">Amount (clicks)</Label>
               <NumberInput
                 type="number"

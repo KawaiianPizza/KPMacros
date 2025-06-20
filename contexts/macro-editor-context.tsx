@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useState, useEffect, useCallback } from "react"
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { v4 as uuidv4 } from "uuid"
 import websocketService from "@/lib/websocket-service"
@@ -48,6 +48,7 @@ interface MacroEditorContextType {
   setSidebarCollapsed: (collapsed: boolean) => void
   activeActionList: "start" | "loop" | "finish"
   setActiveActionList: (list: "start" | "loop" | "finish") => void
+  audioDevices: string[]
 
   // Form state
   hasUnsavedChanges: boolean
@@ -141,6 +142,7 @@ export function MacroEditorProvider({
   const [error, setError] = useState<string | null>(null)
   const [isActivatorValid, setIsActivatorValid] = useState(validateActivator(macro.activator, macro.type).isValid)
   const [isTesting, setIsTesting] = useState(false)
+  const [audioDevices, setAudioDevices] = useState<string[]>([])
 
   useEffect(() => {
     if (initialMacroData) {
@@ -157,6 +159,9 @@ export function MacroEditorProvider({
 
   const updateMacro = useCallback((updates: Partial<MacroData>) => {
     try {
+      if (isTesting)
+        toggleTesting()
+
       setMacro((prev) => {
         const updated = { ...prev, ...updates }
         const validation = validateActivator(updated.activator, updated.type)
@@ -171,10 +176,13 @@ export function MacroEditorProvider({
       console.error("Error updating macro:", errorMessage)
       setError(errorMessage)
     }
-  }, [])
+  }, [isTesting])
 
   const resetMacro = useCallback(() => {
     try {
+      if (isTesting)
+        toggleTesting()
+
       const defaultMacro = initialMacroData || createDefaultMacroData()
       setMacro(defaultMacro)
       setHasUnsavedChanges(false)
@@ -185,10 +193,13 @@ export function MacroEditorProvider({
       console.error("Error resetting macro:", errorMessage)
       setError(errorMessage)
     }
-  }, [initialMacroData])
+  }, [initialMacroData, isTesting])
 
   const addAction = useCallback((listType: "start" | "loop" | "finish", action: Omit<MacroAction, "id">) => {
     try {
+      if (isTesting)
+        toggleTesting()
+
       const newAction: MacroAction = {
         id: uuidv4(),
         type: action.type,
@@ -207,11 +218,14 @@ export function MacroEditorProvider({
       console.error("Error adding action:", errorMessage)
       setError(errorMessage)
     }
-  }, [])
+  }, [isTesting])
 
   const updateAction = useCallback(
     (listType: "start" | "loop" | "finish", actionId: string, updates: Partial<Omit<MacroAction, "id">>) => {
       try {
+        if (isTesting)
+          toggleTesting()
+
         setMacro((prev) => ({
           ...prev,
           [listType]: prev[listType].map((action) => (action.id === actionId ? { ...action, ...updates } : action)),
@@ -225,11 +239,14 @@ export function MacroEditorProvider({
         setError(errorMessage)
       }
     },
-    [],
+    [isTesting],
   )
 
   const removeAction = useCallback((listType: "start" | "loop" | "finish", actionId: string) => {
     try {
+      if (isTesting)
+        toggleTesting()
+
       setMacro((prev) => ({
         ...prev,
         [listType]: prev[listType].filter((action) => action.id !== actionId),
@@ -242,10 +259,13 @@ export function MacroEditorProvider({
       console.error("Error removing action:", errorMessage)
       setError(errorMessage)
     }
-  }, [])
+  }, [isTesting])
 
   const reorderActions = useCallback((listType: "start" | "loop" | "finish", newOrder: MacroAction[]) => {
     try {
+      if (isTesting)
+        toggleTesting()
+
       setMacro((prev) => ({
         ...prev,
         [listType]: newOrder,
@@ -258,7 +278,7 @@ export function MacroEditorProvider({
       console.error("Error reordering actions:", errorMessage)
       setError(errorMessage)
     }
-  }, [])
+  }, [isTesting])
 
   const moveActionBetweenLists = useCallback(
     (
@@ -268,6 +288,8 @@ export function MacroEditorProvider({
       destinationIndex: number,
     ) => {
       try {
+        if (isTesting)
+          toggleTesting()
         setMacro((prev) => {
           if (sourceListType === destinationListType) {
             const items = Array.from(prev[sourceListType])
@@ -304,7 +326,7 @@ export function MacroEditorProvider({
         setError(errorMessage)
       }
     },
-    [],
+    [isTesting],
   )
 
   const saveMacro = useCallback(async (): Promise<void> => {
@@ -475,6 +497,21 @@ export function MacroEditorProvider({
     }
   }, [macro.modifierMode, updateMacro])
 
+  useMemo(() => {
+    if (!websocketService) return
+
+    const handleAudioDevices = (data: string[]) => {
+      setAudioDevices(data)
+    }
+
+    websocketService.on("audioDevices", handleAudioDevices)
+    websocketService.send("getAudioDevices", {})
+
+    return () => {
+      websocketService?.off("audioDevices", handleAudioDevices)
+    }
+  }, [])
+
   const contextValue: MacroEditorContextType = {
     macro,
     updateMacro,
@@ -506,7 +543,8 @@ export function MacroEditorProvider({
     error,
     isActivatorValid,
     isTesting,
-    toggleTesting
+    toggleTesting,
+    audioDevices
   }
 
   return <MacroEditorContext.Provider value={contextValue}>{children}</MacroEditorContext.Provider>

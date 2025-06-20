@@ -10,10 +10,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowUp, Play, RotateCcw, Square, Plus, ArrowUpFromLine, ArrowDownToLine } from "lucide-react"
-import type { MacroAction } from "@/contexts/macro-editor-context"
+import { RotateCcw, Plus, ArrowUpFromLine, ArrowDownToLine } from "lucide-react"
 import ActionInputFactory from "@/components/macro-editor/action-inputs/action-input-factory"
 import { cn } from "@/lib/utils"
+import type { MacroAction } from "@/lib/types"
+import { MacroActionType } from "@/lib/types"
+import websocketService from "@/lib/websocket-service"
+import TypeRowSelect from "../common/type-row-select"
+
 
 export default function ActionsTab() {
   const { macro, addAction, moveActionBetweenLists } = useMacroEditor()
@@ -40,12 +44,14 @@ export default function ActionsTab() {
 
   const handleActionTypeChange = (value: string) => {
     const actionMap = {
-      keyboard: { type: "keyboard" },
-      mouse: { type: "mouse", button: "left", state: "click" },
-      text: { type: value },
-      delay: { type: value, duration: 25 },
+      keyboard: { state: "press" },
+      mouse: { button: "left", state: "click" },
+      text: { text: "" },
+      delay: { duration: 25 },
+      sound: {},
+      process: {},
     }
-    setNewAction(actionMap[value as keyof typeof actionMap] || { type: value })
+    setNewAction({ type: value, ...actionMap[value as keyof typeof actionMap] })
   }
 
   const handleDragEnd = (result: DropResult) => {
@@ -90,6 +96,8 @@ export default function ActionsTab() {
     if (type === "keyboard" && !newAction.key) return false
     if (type === "text" && !newAction.text) return false
     if (type === "delay" && !newAction.duration) return false
+    if (type === "sound" && !newAction.filePath) return false
+    if (type === "process" && !newAction.filePath) return false
     return true
   }
 
@@ -158,23 +166,16 @@ export default function ActionsTab() {
             if (hidden) return null
 
             const count = actionCounts[type]
-
             return (
               <div key={type} className="flex flex-col space-y-2">
                 <Card className="flex-1">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-base">
-                      <div
-                        className={`flex items-center justify-center w-6 h-6 rounded-full`}
-                      >
+                      <div className={`flex items-center justify-center w-6 h-6 rounded-full`}>
                         <Icon className={`h-3 w-3`} />
                       </div>
                       {title}
-                      {count > 0 && (
-                        <Badge className="ml-auto">
-                          {count}
-                        </Badge>
-                      )}
+                      {count > 0 && <Badge className="ml-auto">{count}</Badge>}
                     </CardTitle>
                     <p className="text-xs text-foreground/65">{description}</p>
                   </CardHeader>
@@ -182,7 +183,6 @@ export default function ActionsTab() {
                     <ActionList listType={type} compact={true} />
                   </CardContent>
                 </Card>
-
               </div>
             )
           })}
@@ -199,26 +199,16 @@ export default function ActionsTab() {
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="px-4 pb-4 pt-0">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <CardContent className="px-4 py-0">
+          <div className="flex flex-1 gap-x-6">
             <div className="space-y-2">
               <Label htmlFor="action-type" className="text-xs">
                 Type
               </Label>
-              <Select value={getCurrentActionType()} onValueChange={handleActionTypeChange}>
-                <SelectTrigger id="action-type">
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="keyboard">Keyboard</SelectItem>
-                  <SelectItem value="mouse">Mouse</SelectItem>
-                  <SelectItem value="text">Text</SelectItem>
-                  <SelectItem value="delay">Wait</SelectItem>
-                </SelectContent>
-              </Select>
+              <TypeRowSelect columns={2} rows={3} id="action-type" options={[...MacroActionType]} value={getCurrentActionType()} onValueChange={handleActionTypeChange}></TypeRowSelect>
             </div>
 
-            <div className="space-y-2 md:col-span-2">
+            <div className="space-y-2 flex-grow border border-border rounded-lg px-3 py-1">
               <ActionInputFactory
                 actionType={getCurrentActionType()}
                 action={newAction}
@@ -226,50 +216,62 @@ export default function ActionsTab() {
                 onKeyDown={handleKeyDown}
               />
             </div>
-          </div>
-
-          <div className="flex items-center justify-end gap-x-6">
-            <div className="text-sm text-foreground/65 flex">
-              <div className="text-center place-items-end flex flex-col gap-y-2">
-                <p className="text-xs text-foreground/35 pt-3">
-                  <span className="font-medium">Multi-select mode:</span>
-                  Hold Ctrl and click to select multiple lists
-                </p>
-                <div className="flex">
-                  {actionListConfigs.map(({ type, title, icon: Icon }) => {
-                    const isSelected = selectedLists.includes(type)
-                    return <Button
-                      variant={isSelected ? "default" : "outline"}
-                      className={cn("w-min flex items-center justify-center gap-1 rounded-none first:rounded-l-md last:rounded-r-md", isSelected && "border border-accent text-accent")}
-                      onClick={() => handleListSelect(type)}
-                    >
-                      <Icon className="h-3 w-3" />
-                      <span className="text-xs">{title.split(" ")[0]}</span>
-                    </Button>
-                  })}
+            <div className="flex items-center justify-end gap-x-6 flex-shrink">
+              <div className="text-center border border-border rounded-lg px-3 gap-x-3 pb-3">
+                <Button
+                  onClick={handleAddAction}
+                  disabled={!isActionValid() || selectedLists.length === 0}
+                  className={cn("mt-2", isActionValid() && selectedLists.length >= 0 && "border-accent")}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Action
+                </Button>
+                <div className="text-sm text-foreground/65 flex">
+                  <div className="place-items-end flex flex-col gap-y-2 items-center">
+                    <p className="text-xs text-foreground/35 pt-3 text-center">
+                      <span className="font-medium block">Multi-select mode: </span>
+                      Hold Ctrl and click to select multiple lists
+                    </p>
+                    <div className="flex">
+                      {actionListConfigs.map(({ type, title, icon: Icon }) => {
+                        const isSelected = selectedLists.includes(type)
+                        return (
+                          <Button
+                            key={type}
+                            variant={isSelected ? "default" : "outline"}
+                            className={cn(
+                              "w-min flex items-center justify-center gap-1 rounded-none first:rounded-l-md last:rounded-r-md",
+                              isSelected && "border border-accent text-accent",
+                            )}
+                            onClick={() => handleListSelect(type)}
+                          >
+                            <Icon className="h-3 w-3" />
+                            <span className="text-xs">{title.split(" ")[0]}</span>
+                          </Button>
+                        )
+                      })}
+                    </div>
+                    {selectedLists.length === 0 ? (
+                      <span>Select a list above to add this action</span>
+                    ) : (
+                      <span>
+                        Adding to:{" "}
+                        {selectedLists.map((list, i) => (
+                          <>
+                            <span key={list} className="font-medium text-secondary-foreground">
+                              {list.replace(/^./, (char) => char.toUpperCase())}
+                            </span>
+                            {i < selectedLists.length - 1 ? ", " : ""}
+                          </>
+                        ))}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                {selectedLists.length === 0 ? (
-                  <span>Select a list above to add this action</span>
-                ) : (
-                  <span>
-                    Adding to:{" "}
-                    {selectedLists.map((list, i) => (
-                      <>
-                        <span key={list} className="font-medium text-secondary-foreground">
-                          {list.replace(/^./, (char) => char.toUpperCase())}
-                        </span>
-                        {i < selectedLists.length - 1 ? ", " : ""}
-                      </>
-                    ))}
-                  </span>
-                )}
               </div>
             </div>
-            <Button onClick={handleAddAction} disabled={!isActionValid() || selectedLists.length === 0} className="mt-2">
-              <Plus className="h-4 w-4 mr-1" />
-              Add Action
-            </Button>
           </div>
+
         </CardContent>
       </Card>
     </div>

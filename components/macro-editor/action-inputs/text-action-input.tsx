@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Copy, RotateCcw, Type } from "lucide-react"
-import type { MacroAction } from "@/contexts/macro-editor-context"
 import { Badge } from "@/components/ui/badge"
+import { MacroAction } from "@/lib/types"
 
 interface TextActionInputProps {
   action: Omit<MacroAction, "id">

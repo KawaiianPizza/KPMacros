@@ -1,14 +1,14 @@
 "use client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { ArrowUp, ArrowDown, Trash, GripVertical, Copy, ChevronDown, ChevronUp } from "lucide-react"
+import { ArrowUp, ArrowDown, Trash, GripVertical, Copy } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import type { MacroAction } from "@/contexts/macro-editor-context"
 import ActionInputFactory from "./action-inputs/action-input-factory"
+import { MacroActionType, type MacroAction } from "@/lib/types"
+import TypeRowSelect from "../common/type-row-select"
 
 interface ActionDisplayProps {
   action: MacroAction
@@ -40,49 +40,125 @@ export default function ActionDisplay({
   const getActionDescription = () => {
     switch (action.type) {
       case "keyboard":
-        return <span>
-          {action.state === "down" && "Hold" || action.state === "press" && "Press" || action.state === "up" && "Release"}{" "}
-          <span className="text-secondary-foreground">{action.key}</span>
-        </span>
+        return (
+          <span>
+            {(action.state === "down" && "Hold") ||
+              (action.state === "press" && "Press") ||
+              (action.state === "up" && "Release")}{" "}
+            <span className="text-secondary-foreground">{action.key}</span>
+          </span>
+        )
       case "text":
-        return <span>Type <span className="text-secondary-foreground">{action.text}</span></span>
+        return (
+          <span>
+            Type <span className="text-secondary-foreground">{action.text}</span>
+          </span>
+        )
       case "mouse":
         if (action.state)
-          return <span>
-            <span className="text-secondary-foreground">{action.button}</span> mouse {" "}
-            <span className="text-secondary-foreground">{action.state}</span>
-          </span>
+          return (
+            <span>
+              <span className="text-secondary-foreground">{action.button}</span> mouse{" "}
+              <span className="text-secondary-foreground">{action.state}</span>
+            </span>
+          )
         if (action.x !== undefined || action.y !== undefined) {
           const relative = action.relative
           const x = action.x || 0
           const y = action.y || 0
-          return relative
-            ? <span>Move mouse <span className="text-secondary-foreground">{x >= 0 ? "right" : "left"} {Math.abs(x)}px</span>, <span className="text-secondary-foreground">{y >= 0 ? "down" : "up"} {Math.abs(y)}px</span></span>
-            : <span>Move mouse to (<span className="text-secondary-foreground">{x}</span>, <span className="text-secondary-foreground">{y}</span>)</span>
+          return relative ? (
+            <span>
+              Move mouse{" "}
+              <span className="text-secondary-foreground">
+                {x >= 0 ? "right" : "left"} {Math.abs(x)}px
+              </span>
+              ,{" "}
+              <span className="text-secondary-foreground">
+                {y >= 0 ? "down" : "up"} {Math.abs(y)}px
+              </span>
+            </span>
+          ) : (
+            <span>
+              Move mouse to (<span className="text-secondary-foreground">{x}</span>,{" "}
+              <span className="text-secondary-foreground">{y}</span>)
+            </span>
+          )
         }
         if (action.scroll)
-          return <span>Scroll <span className="text-secondary-foreground">{action.scroll} {action.amount}</span> time{action.amount > 1 && "s"}</span>
-        break;
+          return (
+            <span>
+              Scroll{" "}
+              <span className="text-secondary-foreground">
+                {action.scroll} {action.amount}
+              </span>{" "}
+              time{action.amount > 1 && "s"}
+            </span>
+          )
+        break
       case "delay":
-        return <span>Delay <span className="text-secondary-foreground">{action.duration}ms</span></span>
+        return (
+          <span>
+            Delay <span className="text-secondary-foreground">{action.duration}ms</span>
+          </span>
+        )
+      case "sound":
+        return (
+          <span>
+            Play <span className="text-secondary-foreground">{action.filePath?.split("\\").at(-1)}</span>
+          </span>
+        )
+      case "process":
+        return (
+          <span>
+            Run <span className="text-secondary-foreground">{action.filePath}</span>
+            {action.arguments && (
+              <>
+                {" "}
+                with args <span className="text-secondary-foreground">{action.arguments}</span>
+              </>
+            )}{" "}
+            ({<span className="text-secondary-foreground">{action.hidden ? "Inv" : "V"}isible</span>})
+          </span>
+        )
       default:
         return `${action.type}: ${action.value}`
     }
   }
 
-  const getCurrentActionType = () => {
-    return action.type
+  const isActionValid = () => {
+    const type = action.type
+    if (type === "keyboard" && !action.key) return false
+    if (type === "text" && !action.text) return false
+    if (type === "delay" && !action.duration) return false
+    if (type === "sound" && !action.filePath) return false
+    if (type === "process" && !action.filePath) return false
+    return true
+  }
+
+  const handleActionTypeChange = (value: string) => {
+    const actionMap = {
+      keyboard: { state: "press" },
+      mouse: { button: "left", state: "click" },
+      text: { text: "" },
+      delay: { duration: 25 },
+      sound: {},
+      process: {},
+    }
+    onUpdate({ type: value, ...actionMap[value as keyof typeof actionMap] })
   }
 
   return (
     <Card
       ref={provided.innerRef}
       {...provided.draggableProps}
-      className={cn("border-border transition-all duration-200 select-none bg-primary group", isSelected ? "shadow-md" : "shadow-sm")}
+      className={cn(
+        "border-border transition-all duration-200 select-none bg-primary group w-full overflow-hidden",
+        isSelected ? "shadow-md" : "shadow-sm",
+      )}
     >
       <CardHeader
         className={cn(
-          "py-3 px-4 flex flex-row items-center justify-between cursor-pointer",
+          "py-3 px-4 flex flex-row items-center justify-between cursor-pointer w-full",
           isSelected ? "border-b" : "",
         )}
         {...dragHandleProps}
@@ -91,24 +167,28 @@ export default function ActionDisplay({
           onSelect()
         }}
       >
-        <div className="flex items-center cursor-grab">
-          <div className="mr-2">
+        <div className="flex items-center cursor-grab w-0 flex-1 min-w-0">
+          <div className="mr-2 flex-shrink-0">
             <GripVertical className="h-4 w-4 text-foreground/65" />
           </div>
-          <CardTitle className="text-sm font-medium">
-            {getActionDescription()}
+          <CardTitle className="text-sm font-medium w-0 flex-1 min-w-0 break-all hyphens-auto overflow-hidden">
+            <div className="w-full break-all hyphens-auto overflow-hidden">{getActionDescription()}</div>
           </CardTitle>
         </div>
-        <div className={cn("flex space-x-1 transition-all duration-200 overflow-x-hidden opacity-0 min-w-0 w-0 group-hover:w-28 group-hover:min-w-28 group-hover:opacity-100",
-          isSelected && "w-28 min-w-28 opacity-100"
-        )}>
+        <div
+          className={cn(
+            "flex space-x-1 transition-all duration-200 flex-shrink-0",
+            "opacity-0 w-0 min-w-0 overflow-hidden group-hover:w-28 group-hover:min-w-28 group-hover:opacity-100",
+            isSelected && "w-28 min-w-28 opacity-100",
+          )}
+        >
           <TooltipProvider delayDuration={300}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
+                  className="h-6 w-6 flex-shrink-0"
                   onClick={(e) => {
                     e.stopPropagation()
                     onMoveUp()
@@ -127,7 +207,7 @@ export default function ActionDisplay({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
+                  className="h-6 w-6 flex-shrink-0"
                   onClick={(e) => {
                     e.stopPropagation()
                     onMoveDown()
@@ -146,7 +226,7 @@ export default function ActionDisplay({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
+                  className="h-6 w-6 flex-shrink-0"
                   onClick={(e) => {
                     e.stopPropagation()
                     onDuplicate()
@@ -165,7 +245,7 @@ export default function ActionDisplay({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 text-destructive hover:text-gray-800 hover:bg-destructive"
+                  className="h-6 w-6 flex-shrink-0 text-destructive hover:text-gray-800 hover:bg-destructive"
                   onClick={(e) => {
                     e.stopPropagation()
                     onDelete()
@@ -181,32 +261,24 @@ export default function ActionDisplay({
       </CardHeader>
 
       {isSelected && (
-        <CardContent className="px-4 pb-4 pt-3">
-          <div className="space-y-4">
-            <div className="grid grid-row-1 gap-4">
-              <div className="space-y-1">
+        <CardContent className={cn("px-4 pb-4 pt-3 w-full overflow-hidden bg-primary/65", !isActionValid() && "ring-inset ring-1 ring-destructive")}>
+          <div className="space-y-4 w-full overflow-hidden">
+            <div className="grid grid-row-1 gap-4 w-full overflow-hidden">
+              <div className="space-y-1 w-full overflow-hidden">
                 <Label className="text-xs">Type</Label>
-                <Select value={action.type} onValueChange={(value) => onUpdate({ type: value })}>
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="keyboard">Keyboard</SelectItem>
-                    <SelectItem value="mouse">Mouse</SelectItem>
-                    <SelectItem value="text">Type Text</SelectItem>
-                    <SelectItem value="delay">Delay</SelectItem>
-                  </SelectContent>
-                </Select>
+                <TypeRowSelect columns={3} rows={2} id="action-type" options={[...MacroActionType]} value={action.type} onValueChange={handleActionTypeChange}></TypeRowSelect>
               </div>
-              <div className="row-span-2">
-                <ActionInputFactory
-                  actionType={getCurrentActionType()}
-                  action={action}
-                  onChange={(updatedAction) => {
-                    const { id, ...updates } = updatedAction
-                    onUpdate(updates)
-                  }}
-                />
+              <div className="row-span-2 w-full overflow-hidden">
+                <div className="w-full overflow-hidden">
+                  <ActionInputFactory
+                    actionType={action.type}
+                    action={action}
+                    onChange={(updatedAction) => {
+                      const { id, ...updates } = updatedAction
+                      onUpdate(updates)
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
