@@ -52,10 +52,10 @@ export default function MacroList({
     return (
       <div key={macro.id}>
         <div
-          className={cn("p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:border-accent bg-card",
-            isSelected ? "border-accent shadow-sm border-b-0 rounded-b-none" : "border-border"
+          className={cn("cursor-pointer rounded-lg border bg-card p-4 transition-all duration-200 hover:border-accent",
+            isSelected ? "rounded-b-none border-b-0 border-accent shadow-sm" : "border-border delay-200"
           )}
-          onClick={(e) => handleMacroSelect(macro.id, e)}
+          onClick={(e) => handleMacroSelect(macro.id!, e)}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -75,22 +75,22 @@ export default function MacroList({
                     {macro.enabled ? "Enabled" : "Disabled"}
                   </Badge>
                 </div>
-                <p className="text-sm text-foreground mt-1 flex">
+                <p className="mt-1 flex text-sm text-foreground">
                   Activator:
-                  <Badge className="font-mono bg-primary text-secondary-foreground px-1 content-center h-6 text-sm flex items-center justify-between border rounded border-input">{macro.activator}</Badge>
+                  <Badge className="mx-1 flex h-6 content-center items-center justify-between rounded px-1 font-mono text-sm">{macro.activator}</Badge>
                   {macro.type === "Hotkey" && (<> • Loop:
                     <Select
                       value={macro.loopMode}
                       onValueChange={(value: "Held" | "Toggle") => {
-                        onUpdateLoopMode(macro.id, value)
+                        onUpdateLoopMode(macro.id!, value)
                       }}
                     >
-                      <SelectTrigger className="h-6 w-24 font-mono bg-primary text-primary-foreground px-1 rounded" onClick={(e) => e.stopPropagation()}>
+                      <SelectTrigger className="h-6 w-24 rounded px-1" onClick={(e) => e.stopPropagation()}>
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="text-primary-foreground bg-primary">
-                        <SelectItem value="Held" className="focus:text-primary-foreground focus:bg-primary/65 cursor-pointer">Held</SelectItem>
-                        <SelectItem value="Toggle" className="focus:text-primary-foreground focus:bg-primary/65 cursor-pointer">Toggle</SelectItem>
+                      <SelectContent>
+                        <SelectItem value="Held" className="cursor-pointer">Held</SelectItem>
+                        <SelectItem value="Toggle" className="cursor-pointer">Toggle</SelectItem>
                       </SelectContent>
                     </Select>
                   </>)}
@@ -100,28 +100,27 @@ export default function MacroList({
 
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                <Switch checked={macro.enabled} onCheckedChange={(enabled) => onToggleEnabled(macro.id, enabled)} />
+                <Switch checked={macro.enabled} onCheckedChange={(enabled) => onToggleEnabled(macro.id!, enabled)} />
               </div>
             </div>
           </div>
         </div>
 
-        <CardContent className={cn("px-0 pb-4 overflow-hidden transition-all duration-300", isSelected ? "h-[70px]" : "h-0 p-0")}>
-          <div className="p-4 bg-card/35 rounded-lg border border-dashed border-accent rounded-t-none">
+        <CardContent className={cn("px-0 pb-4 overflow-hidden transition-all duration-300", isSelected ? "h-[70px] delay-200" : "h-0 p-0")}>
+          <div className="p-4 bg-card/65 rounded-lg border border-dashed border-accent rounded-t-none">
             <div className="flex items-center gap-2 justify-end *:bg-primary">
-              <Button variant="outline" size="sm" onClick={() => onEditMacro(macro.id)} className="gap-2 text-primary-foreground hover:bg-primary/65">
+              <Button size="sm" onClick={() => onEditMacro(macro.id!)}>
                 <Edit className="h-4 w-4" />
                 Edit
               </Button>
-              <Button variant="outline" size="sm" onClick={() => onRenameMacro(macro.id)} className="gap-2 text-primary-foreground hover:bg-primary/65">
+              <Button size="sm" onClick={() => onRenameMacro(macro.id!)}>
                 <FileEdit className="h-4 w-4" />
                 Rename
               </Button>
               <Button
-                variant="outline"
+                variant="destructive"
                 size="sm"
-                onClick={() => onDeleteMacro(macro.id)}
-                className="gap-2 text-destructive hover:text-destructive hover:bg-primary/65"
+                onClick={() => onDeleteMacro(macro.id!)}
               >
                 <Trash className="h-4 w-4" />
                 Delete
@@ -166,8 +165,8 @@ export default function MacroList({
             </Button>
           </div>
         ) : (
-          <ScrollArea className="h-full pb-4 border border-border p-1 rounded-md bg-background">
-            <div className="space-y-2 max-h-[75dvh]">{macros.map(renderMacroRow)}</div>
+          <ScrollArea className="h-full pb-4 border border-border p-1 rounded-md bg-background before:absolute before:inset-0 before:bg-card/35 overflow-clip">
+            <div className="space-y-2 max-h-[75dvh] z-10 relative">{macros.map(renderMacroRow)}</div>
           </ScrollArea>
         )}
       </CardContent>

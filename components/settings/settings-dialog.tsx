@@ -110,14 +110,14 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   placeholder="Search settings..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-9 bg-primary placeholder:text-primary-foreground/65"
+                  className="pl-9 pr-9"
                 />
                 {searchQuery && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={clearSearch}
-                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-primary/65"
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
                   >
                     <X className="h-3 w-3" />
                   </Button>

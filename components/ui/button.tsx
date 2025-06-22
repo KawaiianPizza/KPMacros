@@ -5,15 +5,15 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap border border-border rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "relative z-10 inline-flex items-center justify-center gap-2 overflow-clip whitespace-nowrap rounded-md border border-border bg-primary text-sm font-medium text-primary-foreground ring-offset-background transition-colors before:absolute before:inset-0 before:-z-10 before:bg-primary/65 hover:bg-background hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/65",
-        destructive: "bg-primary text-destructive hover:bg-destructive/65 hover:text-gray-800",
-        outline: "border border-border bg-primary hover:bg-primary/65 hover:text-primary-foreground text-primary-foreground",
+        default: "text-primary-foreground",
+        destructive: "bg-primary text-destructive hover:bg-destructive hover:text-primary",
+        outline: "border border-border",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/65",
-        ghost: "hover:bg-accent hover:text-primary",
+        ghost: "hover:border-accent hover:text-accent",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
@@ -32,7 +32,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean
 }
 

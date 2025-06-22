@@ -89,20 +89,25 @@ export default function KeyboardActionInput({ action, onChange, onKeyDown }: Key
               {action.key ? action.key : "Select key..."}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className=" p-0">
+          <PopoverContent className="p-0 md:w-96">
             <Command filter={handleFilterCommand} onChange={(e) => handleSearchChange((e.target as HTMLInputElement).value)}>
               <CommandInput placeholder="Search key..." />
               <CommandEmpty>No key found.</CommandEmpty>
               <CommandGroup>
                 <ScrollArea className="h-[300px]">
                   <CommandList>
-                    <div className="flex flex-wrap gap-2 p-2">
-                      {KEYCODES.map((keycode) => keycode.hidden ? undefined : (
-                        <CommandItem key={keycode.value} value={keycode.value + keycode.label} onSelect={() => handleKeycodeSelect(keycode.value)}
-                          className="flex-shrink-0 w-auto min-w-fit">
-                          {keycode.label == "Space bar" ? "Spacebar" : keycode.label}
-                        </CommandItem>
-                      ))}
+                    <div className="flex flex-wrap gap-2 border-0 p-2">
+                      {KEYCODES.map((keycode) => {
+                        if (keycode.hidden) return undefined
+
+                        return (<CommandItem key={keycode.value} value={keycode.value + keycode.label} onSelect={() => handleKeycodeSelect(keycode.value)}
+                          className="group w-auto min-w-fit flex-shrink-0 gap-0.5">
+                          {keycode.label == "Space bar" ? "Spacebar" :
+                            keycode.label.length === 3 && keycode.label[1] === ' '
+                              ? <>{keycode.label[0]}<span className="text-xs font-semibold text-primary-foreground/65 group-data-[selected='true']:text-accent/65">{keycode.label[2]}</span></>
+                              : keycode.label}
+                        </CommandItem>)
+                      })}
                     </div>
                   </CommandList>
                 </ScrollArea>

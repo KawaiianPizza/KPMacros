@@ -90,8 +90,8 @@ export function validateCommandActivator(activator: string): ValidationResult {
     errors.push("Command activator is required")
   } else if (activator.trim().length < 2) {
     errors.push("Command must be at least 2 characters long")
-  } else if (!activator.trim().startsWith("/") && !activator.trim().startsWith("!")) {
-    errors.push("Command must start with '/' or '!'")
+  } else if (activator.length > 32) {
+    errors.push("Command must be 32 characters or less")
   }
 
   return {

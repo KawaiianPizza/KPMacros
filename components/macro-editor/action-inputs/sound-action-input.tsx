@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { MacroAction } from "@/lib/types"
 import websocketService from "@/lib/websocket-service"
 import { useMacroEditor } from "@/contexts/macro-editor-context"
+import { Slider } from "@/components/ui/slider"
 
 interface SoundActionInputProps {
   action: Omit<MacroAction, "id">
@@ -20,6 +21,7 @@ export default function SoundActionInput({ action, onChange, onKeyDown }: SoundA
   const { audioDevices } = useMacroEditor()
   const [filePath, setFilePath] = useState<string>(action.filePath || "")
   const [selectedDevice, setSelectedDevice] = useState<string>(action.audioDevice || "")
+  const [volume, setVolume] = useState<number>(action.volume || 100)
   const debounceTimeoutRef = useRef<NodeJS.Timeout>(null)
 
   useEffect(() => {
@@ -31,7 +33,7 @@ export default function SoundActionInput({ action, onChange, onKeyDown }: SoundA
   }, [])
 
   const debouncedOnChange = useCallback(
-    (prop: string, newValue: string | boolean) => {
+    (prop: string, newValue: string | boolean | number) => {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current)
       }
@@ -75,7 +77,11 @@ export default function SoundActionInput({ action, onChange, onKeyDown }: SoundA
     setSelectedDevice(deviceId)
     debouncedOnChange("audioDevice", deviceId.trim())
   }
-
+  const handleVolumeChange = (value: number[]) => {
+    const volume = value[0]
+    setVolume(volume)
+    debouncedOnChange("volume", volume)
+  }
   return (
     <div className="flex flex-wrap gap-4 items-start h-[calc(100%_-_2rem)] content-center">
       <div className="flex-1 space-y-2 min-w-[220px]">
@@ -109,6 +115,10 @@ export default function SoundActionInput({ action, onChange, onKeyDown }: SoundA
             ))}
           </SelectContent>
         </Select>
+      </div>
+      <div className="flex-1 space-y-2 min-w-[220px]">
+        <Label htmlFor="volume">Volume: {volume}%</Label>
+        <Slider id="volume" min={0} max={200} step={1} value={[volume]} onValueChange={handleVolumeChange}></Slider>
       </div>
     </div>
   )

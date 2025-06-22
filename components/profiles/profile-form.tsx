@@ -214,8 +214,8 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
               </Alert>
             )}
 
-            <div className="border border-border rounded-md bg-background">
-              <ScrollArea className="h-[250px] p-3">
+            <div className="border border-border rounded-md overflow-clip bg-background">
+              <ScrollArea className="h-[250px] p-3 bg-card/65">
                 {isLoadingWindows ? (
                   <div className="flex items-center justify-center py-8 text-foreground/65">
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -238,7 +238,7 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
                         if (bIndex !== -1) return 1;
                         return a.index - b.index;
                       }).map((window) => (
-                        <div key={window.pid} className="flex items-start space-x-3 p-2 border border-border rounded bg-card text-primary-foreground hover:bg-secondary/65 hover:border-accent" onClick={() => toggleWindow(window)}>
+                        <div key={window.pid} className="flex items-start space-x-3 p-2 border border-border rounded bg-primary hover:bg-primary/65 hover:border-accent" onClick={() => toggleWindow(window)}>
                           <Checkbox
                             id={`window-${window.executable}`}
                             checked={selectedWindows.includes(window.executable)}
@@ -248,12 +248,12 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
                           <div className="flex-1 min-w-0">
                             <Label
                               htmlFor={`window-${window.executable}`}
-                              className="text-foreground font-medium block pointer-events-none"
+                              className="text-primary-foreground font-medium block pointer-events-none"
                             >
                               {window.title || window.executable}
                             </Label>
                             {window.title && window.title !== window.executable && (
-                              <p className="text-xs text-foreground/65 mt-1 font-mono cursor-default">{window.executable}</p>
+                              <p className="text-xs text-primary-foreground/65 mt-1 font-mono cursor-default">{window.executable}</p>
                             )}
                           </div>
                         </div>

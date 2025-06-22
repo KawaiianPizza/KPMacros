@@ -36,8 +36,8 @@ export default function ProfileButtons({
               <div key={profile.name} className="relative flex-shrink-0">
                 <div className={cn("flex rounded-md h-16", isSelected && "border-2 border-accent overflow-hidden")}>
                   <Button
-                    variant={isSelected ? "default" : "outline"}
-                    className={cn("h-16 whitespace-normal text-center transition-all duration-200 min-w-[120px] self-center", isSelected && "border-none"
+                    variant="default"
+                    className={cn("h-16 whitespace-normal text-center transition-all duration-200 min-w-[120px] self-center", isSelected && "text-accent border-none rounded-none"
                     )}
                     onClick={() => onSelectProfile(profile.name)}
                   >

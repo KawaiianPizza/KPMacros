@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
@@ -19,12 +19,13 @@ import { NumberInput } from "../common/number-input"
 
 export default function GeneralTab() {
   const { macro, updateMacro, isRecording, setIsRecording, startRecording, toggleModifierMode, isActivatorValid } = useMacroEditor()
+  const [activator, setActivator] = useState<string>(macro.activator || "")
 
   const recordingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleActivatorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    updateMacro({ activator: value })
+    setActivator(value)
 
     if (macro.type === "Hotkey" && value.trim()) {
     }
@@ -64,7 +65,7 @@ export default function GeneralTab() {
         activeModifiers.add(mod)
 
         const modifiersText = Array.from(activeModifiers).join("+")
-        updateMacro({ activator: modifiersText ? `${modifiersText}+` : "" })
+        setActivator(modifiersText ? `${modifiersText}+` : "")
       } else {
         let keyName = KEYCODES.find(k => k.keyCode === e.keyCode)?.value || e.key
 
@@ -81,6 +82,7 @@ export default function GeneralTab() {
         const fullHotkey = modifiersArray.length > 0 ? `${modifiersArray.join("+")}+${keyName}` : keyName
 
         updateMacro({ activator: fullHotkey })
+        setActivator(fullHotkey)
         setIsRecording(false)
       }
     }
@@ -91,7 +93,7 @@ export default function GeneralTab() {
         activeModifiers.delete(mod)
 
         const modifiersText = Array.from(activeModifiers).join("+")
-        updateMacro({ activator: modifiersText ? `${modifiersText}+` : "" })
+        setActivator(modifiersText ? `${modifiersText}+` : "")
       }
     }
 
@@ -100,6 +102,7 @@ export default function GeneralTab() {
 
     recordingTimeoutRef.current = setTimeout(() => {
       setIsRecording(false)
+      setActivator(macro.activator)
     }, 5000)
 
     return () => {
@@ -143,7 +146,6 @@ export default function GeneralTab() {
                         type="button"
                         onClick={toggleModifierMode}
                         className="rounded-r-none border border-r-0 border-border min-w-[70px]"
-                        variant={macro.type === "Hotkey" ? "default" : "outline"}
                       >
                         {macro.modifierMode === "Inclusive" ? "Any" : "None"}+
                       </Button>
@@ -169,11 +171,13 @@ export default function GeneralTab() {
                       ? "e.g. Ctrl+Alt+A, Mod+F1"
                       : "e.g. /mycommand"
                 }
-                value={macro.activator}
+                maxLength={macro.type === "Command" ? 32 : 0}
+                value={activator}
                 onChange={handleActivatorChange}
+                onFocusCapture={() => { setActivator(""); startRecording() }}
                 className={cn("border-border",
                   macro.type === "Hotkey" ? "rounded-none" : "rounded-l-md",
-                  isRecording && "border-primary animate-pulse",
+                  isRecording && "border-accent animate-breathing",
                   !isActivatorValid && "border-destructive focus-visible:ring-destructive")}
                 readOnly={isRecording}
               />
@@ -181,7 +185,7 @@ export default function GeneralTab() {
               {macro.type === "Hotkey" && (
                 <Button
                   type="button"
-                  onClick={startRecording}
+                  onClick={() => { setActivator(""); startRecording() }}
                   disabled={isRecording}
                   className={`rounded-l-none border border-l-0 border-border ${isRecording ? "bg-primary text-primary-foreground" : ""}`}
                 >

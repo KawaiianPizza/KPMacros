@@ -470,12 +470,10 @@ export function MacroEditorProvider({
 
   const startRecording = useCallback(() => {
     try {
+      if (macro.type !== "Hotkey") return
+
       setIsRecording(true)
       setHasUnsavedChanges(true)
-
-      if (macro.activator) {
-        updateMacro({ activator: "" })
-      }
 
       console.log("Started recording")
     } catch (err) {
@@ -483,7 +481,7 @@ export function MacroEditorProvider({
       console.error("Error starting recording:", errorMessage)
       setError(errorMessage)
     }
-  }, [macro.activator, updateMacro])
+  }, [macro.activator, macro.type, updateMacro])
 
   const toggleModifierMode = useCallback(() => {
     try {

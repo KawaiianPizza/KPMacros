@@ -25,15 +25,19 @@ export default function TypeRowSelect<T extends readonly string[]>({ options, va
     }
 
     return (
-        <div {...props} className={cn("relative overflow-clip rounded-md border border-border", `grid grid-cols-${columns} w-${24 * columns}`, className)} >
+        <div {...props} className={cn("relative overflow-clip rounded-md border border-border grid bg-primary", className)}
+            style={{
+                width: 6 * columns + "rem",
+                gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`
+            }} >
             <div className="absolute bg-accent shadow-sm transition-all duration-300 ease-in-out pointer-events-none z-10" style={getBackgroundPosition()} />
 
             {options.map((text, index) => (
                 <Button key={index} className={cn(
-                    "relative transition-colors duration-300 ease-in-out rounded-none border-0 capitalize z-20 bg-transparent",
-                    text === value && "text-primary hover:bg-transparent",
+                    "relative transition-colors duration-300 ease-in-out rounded-none border-0 capitalize z-20 bg-transparent hover:bg-primary/65 before:content-none",
+                    text === value ? "text-primary hover:bg-transparent hover:text-primary" : "hover:bg-background/35",
                     cn("",
-                        index <= rows && "border-b-2",
+                        index <= columns * rows - columns - 1 && "border-b-2",
                         index % columns !== columns - 1 && "border-r-2"
                     ),
                 )}

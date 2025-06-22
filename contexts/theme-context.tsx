@@ -17,9 +17,9 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(defaultThemes[1])
+  const [currentTheme, setCurrentTheme] = useState<Theme>(defaultThemes[0])
   const [themes, setThemes] = useState<Theme[]>(defaultThemes)
-  const [first, setFirst] = useState(3)
+  const [first, setFirst] = useState(2)
   // useEffect(() => {
   //   const savedThemeId = localStorage.getItem("app-theme")
   //   const savedCustomThemes = localStorage.getItem("custom-themes")
@@ -43,11 +43,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     applyThemeColors(currentTheme.colors)
-    // document.onkeydown = (e) => {
-    //   setFirst((first + 1) % 4)
-    //   setCurrentTheme(defaultThemes[first])
-    // }
-    //localStorage.setItem("app-theme", currentTheme.id)
+    document.onkeydown = (e) => {
+      if (e.key !== "F2") return;
+      setFirst((first + 1) % defaultThemes.length)
+      setCurrentTheme(defaultThemes[first])
+    }
+    localStorage.setItem("app-theme", currentTheme.id)
   }, [currentTheme])
 
   const setTheme = (themeId: string) => {

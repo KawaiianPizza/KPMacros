@@ -29,12 +29,12 @@ export default function MacroEditorLayout() {
     toggleTesting,
     isTesting,
   } = useMacroEditor()
-  
+
   const handleTabChange = (value: string) => {
     if (!macro.mod)
       setActiveTab(value)
   }
-  
+
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
@@ -43,7 +43,7 @@ export default function MacroEditorLayout() {
         return ""
       }
     }
-    
+
     window.addEventListener("beforeunload", handleBeforeUnload)
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload)
@@ -80,7 +80,7 @@ export default function MacroEditorLayout() {
         {hasUnsavedChanges && (
           <span className="ml-3 text-sm text-accent">• Unsaved changes</span>
         )}
-        <Button onClick={toggleTesting} className={cn("ml-auto", isTesting && "border-accent")}>Test{isTesting && "ing"} Macro</Button>
+        <Button onClick={toggleTesting} className={cn("ml-auto", isTesting && "border-accent")}>{isTesting ? "Testing Macro..." : "Test Macro"}</Button>
       </div>
 
       {error && (

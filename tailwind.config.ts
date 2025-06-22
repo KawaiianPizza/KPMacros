@@ -57,10 +57,33 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "breathing": {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.65' },
+        },
+        "update-a": {
+          '0%': {
+            color: 'hsl(var(--accent))',
+          },
+          '100%': {
+            color: 'hsl(var(--primary-foreground))',
+          },
+        },
+        "update-b": {
+          '0%': {
+            color: 'hsl(var(--accent))',
+          },
+          '100%': {
+            color: 'hsl(var(--primary-foreground))',
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "breathing": 'breathing 3s ease-out infinite',
+        "update-a": 'update-a 2s ease-in-out',
+        "update-b": 'update-b 2s ease-in-out',
       },
     },
   },

@@ -80,18 +80,21 @@ export interface Theme {
   isDefault?: boolean
 }
 
-export interface ThemeColors {
-  background: string
-  foreground: string
-  card: string
-  primary: string
-  primaryForeground: string
-  secondary: string
-  secondaryForeground: string
-  accent: string
-  destructive: string
-  border: string
-}
+export type ThemeColors = typeof themeColors
+export type ThemeColorKeys = keyof ThemeColors
+
+export const themeColors = {
+  background: '',
+  foreground: '',
+  primary: '',
+  primaryForeground: '',
+  secondary: '',
+  secondaryForeground: '',
+  card: '',
+  accent: '',
+  destructive: '',
+  border: ''
+};
 
 export interface WebSocketMessage {
   action: string

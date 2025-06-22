@@ -10,7 +10,7 @@ export function SettingsButton() {
 
   return (
     <>
-      <Button variant="outline" size="icon" onClick={() => setIsOpen(true)} className="h-9 w-9">
+      <Button size="icon" onClick={() => setIsOpen(true)} className="h-9 w-9">
         <Settings className="h-4 w-4" />
         <span className="sr-only">Open settings</span>
       </Button>
