@@ -5,9 +5,11 @@ import { useRef, useEffect, useCallback, useMemo, useState } from "react"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { Copy, RotateCcw, Type } from "lucide-react"
+import { ArrowDownToLine, ArrowUpToLine, Copy, RotateCcw, Type } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { MacroAction } from "@/lib/types"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { cn } from "@/lib/utils"
 
 interface TextActionInputProps {
   action: Omit<MacroAction, "id">
@@ -25,11 +27,6 @@ export default function TextActionInput({ action, onChange, onKeyDown }: TextAct
       setLocalValue(action.text || "")
     }
   }, [action.text, localValue])
-
-  const lineNumbers = useMemo(() => {
-    const lines = localValue.split("\n")
-    return Array.from({ length: Math.max(1, lines.length) }, (_, i) => i + 1)
-  }, [localValue])
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -215,18 +212,6 @@ export default function TextActionInput({ action, onChange, onKeyDown }: TextAct
     }
   }, [localValue])
 
-  const lineNumbersElement = useMemo(
-    () => (
-      <div className="bg-primary/65 px-2 py-2 text-xs text-primary-foreground/65 font-mono select-none border-r">
-        {lineNumbers.map((num) => (
-          <div key={num} className="h-5 leading-5 text-right min-w-[2ch]">
-            {num}
-          </div>
-        ))}
-      </div>
-    ),
-    [lineNumbers],
-  )
 
   return (
     <div className="space-y-4">
@@ -245,25 +230,19 @@ export default function TextActionInput({ action, onChange, onKeyDown }: TextAct
         </div>
       </div>
 
-      <div className="relative">
-        <div className="flex border rounded-md overflow-hidden bg-background">
-          {lineNumbersElement}
+      <ScrollArea>
+        <div className="relative max-h-52">
           <Textarea
+            animateNewText={true}
             id="text-value"
             ref={textareaRef}
             value={localValue}
             onChange={handleTextChange}
             onKeyDown={handleKeyDown}
             placeholder="Enter text to type..."
-            className="border-0 resize-none font-mono text-sm leading-5 min-h-[120px] focus-visible:ring-0 placeholder:text-primary-foreground/65 bg-primary rounded-l-none text-primary-foreground"
-            style={{
-              lineHeight: "1.25rem",
-              paddingTop: "0.5rem",
-              paddingBottom: "0.5rem",
-            }}
           />
         </div>
-      </div>
+      </ScrollArea>
 
       <div className="text-xs text-foreground/65 space-y-1 bg-background/65 p-3 rounded-md">
         <div className="font-medium mb-2">Keyboard Shortcuts:</div>
@@ -279,6 +258,6 @@ export default function TextActionInput({ action, onChange, onKeyDown }: TextAct
           </div>
         </div>
       </div>
-    </div>
+    </div >
   )
 }

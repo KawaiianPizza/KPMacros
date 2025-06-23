@@ -35,14 +35,14 @@ export default function TypeRowSelect<T extends readonly string[]>({ options, va
             {options.map((text, index) => (
                 <Button key={index} className={cn(
                     "relative transition-colors duration-300 ease-in-out rounded-none border-0 capitalize z-20 bg-transparent hover:bg-primary/65 before:content-none",
-                    text === value ? "text-primary hover:bg-transparent hover:text-primary" : "hover:bg-background/35",
+                    text === value ? "hover:bg-transparent hover:text-primary-foreground" : "hover:bg-background/35",
                     cn("",
                         index <= columns * rows - columns - 1 && "border-b-2",
                         index % columns !== columns - 1 && "border-r-2"
                     ),
                 )}
                     onClick={() => onValueChange(text)} >
-                    <span className="">{text}</span>
+                    <span className={cn(text === value && "drop-shadow-text")}>{text}</span>
                 </Button>
             ))}
         </div>

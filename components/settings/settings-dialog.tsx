@@ -70,7 +70,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   }
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] p-0 flex flex-col bg-background text-foreground overflow-hidden">
+      <DialogContent className="max-w-4xl max-h-[80vh] h-full p-0 flex flex-col text-foreground overflow-hidden">
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle>Settings</DialogTitle>
           {isSaving && (
@@ -82,9 +82,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         </DialogHeader>
 
         <div className="flex flex-1 min-h-0">
-          <div className="w-64 border-r border-border bg-background flex flex-col">
+          <div className="w-64 border-r border-border flex flex-col">
             <ScrollArea className="flex-1 p-4">
-              <div className="space-y-2">
+              <div className="space-y-2 ">
                 {groupKeys.map((groupKey) => (
                   <SettingsGroup
                     key={groupKey}
@@ -126,7 +126,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             </div>
           </div>
 
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0 relative bg-background before:absolute before:inset-0 before:bg-card/65">
             <SettingsPanel
               settings={filteredSettings}
               selectedGroup={selectedGroup}

@@ -48,6 +48,9 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      dropShadow: {
+        text: "0px 0px 2px hsl(var(--background)/35%)",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -77,6 +80,22 @@ const config: Config = {
             color: 'hsl(var(--primary-foreground))',
           },
         },
+        "magic-a": {
+          '0%': {
+            filter: 'drop-shadow(0px 0px 2px hsl(var(--accent)/100%))',
+          },
+          '100%': {
+            filter: 'drop-shadow(0px 0px 2px hsl(var(--accent)/0%))',
+          },
+        },
+        "magic-b": {
+          '0%': {
+            filter: 'drop-shadow(0px 0px 2px hsl(var(--accent)/100%))',
+          },
+          '100%': {
+            filter: 'drop-shadow(0px 0px 2px hsl(var(--accent)/0%))',
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -84,6 +103,8 @@ const config: Config = {
         "breathing": 'breathing 3s ease-out infinite',
         "update-a": 'update-a 2s ease-in-out',
         "update-b": 'update-b 2s ease-in-out',
+        "magic-a": 'magic-a 2s ease-in-out, update-a 2s ease-in-out',
+        "magic-b": 'magic-b 2s ease-in-out, update-b 2s ease-in-out',
       },
     },
   },

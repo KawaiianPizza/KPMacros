@@ -26,18 +26,18 @@ export default function ProfileButtons({
 
   return (
     <div className="relative">
-      <div className="flex overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+      <div className="scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent flex overflow-x-auto pb-2">
         <div className="flex space-x-2">
           {profiles.map((profile) => {
             const isSelected = selectedProfile === profile.name
             const isGlobal = isGlobalProfile(profile.name)
 
             return (
-              <div key={profile.name} className="relative flex-shrink-0">
-                <div className={cn("flex rounded-md h-16", isSelected && "border-2 border-accent overflow-hidden")}>
+              <div key={profile.name} className="relative flex-shrink-0 overflow-clip rounded-md border border-border bg-primary">
+                <div className={cn("flex rounded-md h-16", isSelected && "border-accent overflow-hidden")}>
                   <Button
                     variant="default"
-                    className={cn("h-16 whitespace-normal text-center transition-all duration-200 min-w-[120px] self-center", isSelected && "text-accent border-none rounded-none"
+                    className={cn("h-16 min-w-[120px] self-center whitespace-normal rounded-none border-none text-center transition-all duration-200", isSelected && "text-accent"
                     )}
                     onClick={() => onSelectProfile(profile.name)}
                   >
@@ -50,7 +50,7 @@ export default function ProfileButtons({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-full w-auto border-none hover:bg-primary/65 hover:text-accent rounded-none"
+                      className="h-full w-auto rounded-none border-r-0 border-t-0 hover:bg-primary/65 hover:text-accent"
                       onClick={(e) => {
                         e.stopPropagation()
                         onEditProfile(profile)
@@ -62,7 +62,7 @@ export default function ProfileButtons({
                     <Button
                       variant="destructive"
                       size="sm"
-                      className="h-full w-auto border-none rounded-none"
+                      className="h-full w-auto rounded-none border-0 border-l"
                       onClick={(e) => {
                         e.stopPropagation()
                         onDeleteProfile(profile)

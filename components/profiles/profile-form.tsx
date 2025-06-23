@@ -237,27 +237,30 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
                         if (aIndex !== -1) return -1;
                         if (bIndex !== -1) return 1;
                         return a.index - b.index;
-                      }).map((window) => (
-                        <div key={window.pid} className="flex items-start space-x-3 p-2 border border-border rounded bg-primary hover:bg-primary/65 hover:border-accent" onClick={() => toggleWindow(window)}>
-                          <Checkbox
-                            id={`window-${window.executable}`}
-                            checked={selectedWindows.includes(window.executable)}
-                            className="mt-0.5"
-                            disabled={isSaving}
-                          />
-                          <div className="flex-1 min-w-0">
-                            <Label
-                              htmlFor={`window-${window.executable}`}
-                              className="text-primary-foreground font-medium block pointer-events-none"
-                            >
-                              {window.title || window.executable}
-                            </Label>
-                            {window.title && window.title !== window.executable && (
-                              <p className="text-xs text-primary-foreground/65 mt-1 font-mono cursor-default">{window.executable}</p>
-                            )}
+                      }).map((window) => {
+                        const checked = selectedWindows.includes(window.executable)
+                        return (
+                          <div key={window.pid} className="relative z-10 flex items-start space-x-3 overflow-clip rounded border border-border bg-background p-2 before:absolute before:inset-0 before:-z-10 before:bg-primary hover:border-accent before:hover:bg-primary/65" onClick={() => toggleWindow(window)}>
+                            <Checkbox
+                              id={`window-${window.executable}`}
+                              checked={checked}
+                              className="mt-0.5"
+                              disabled={isSaving}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <Label
+                                htmlFor={`window-${window.executable}`}
+                                className={cn("pointer-events-none block font-medium text-primary-foreground", checked && "text-accent")}
+                              >
+                                {window.title || window.executable}
+                              </Label>
+                              {window.title && window.title !== window.executable && (
+                                <p className={cn("mt-1 cursor-default font-mono text-xs text-primary-foreground/65", checked && "text-accent/65")}>{window.executable}</p>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                   </div>
                 )}
               </ScrollArea>

@@ -60,7 +60,7 @@ export function SettingItem({ groupKey, settingKey, setting, onUpdate }: Setting
   }
 
   return (
-    <div className={cn("flex items-start justify-between py-3 px-4 rounded-lg border border-border bg-card text-card-foreground", shouldWrap ? "flex-col space-y-3" : "")}>
+    <div className={cn("flex items-start justify-between py-3 px-4 rounded-lg bg-card border border-border text-card-foreground", shouldWrap ? "flex-col space-y-3" : "")}>
       <div className="flex-1 space-y-1">
         <div className="flex items-center gap-2">
           <h4 className="font-medium leading-none">{setting.label}</h4>
