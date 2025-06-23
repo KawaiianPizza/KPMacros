@@ -17,9 +17,9 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(defaultThemes[0])
-  const [themes, setThemes] = useState<Theme[]>(defaultThemes)
   const [first, setFirst] = useState(2)
+  const [currentTheme, setCurrentTheme] = useState<Theme>(defaultThemes[first])
+  const [themes, setThemes] = useState<Theme[]>(defaultThemes)
   // useEffect(() => {
   //   const savedThemeId = localStorage.getItem("app-theme")
   //   const savedCustomThemes = localStorage.getItem("custom-themes")
@@ -42,13 +42,19 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // }, [])
 
   useEffect(() => {
+    if (process?.env?.NODE_ENV !== "development") return
     applyThemeColors(currentTheme.colors)
-    document.onkeydown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "F2") return;
-      setFirst((first + 1) % defaultThemes.length)
-      setCurrentTheme(defaultThemes[first])
+      setFirst(prev => {
+        const next = (prev + 1) % defaultThemes.length
+        setCurrentTheme(defaultThemes[next])
+        return next
+      })
     }
+    document.onkeydown = handleKeyDown
     localStorage.setItem("app-theme", currentTheme.id)
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [currentTheme])
 
   const setTheme = (themeId: string) => {

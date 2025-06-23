@@ -38,16 +38,16 @@ export const defaultThemes: Theme[] = [
     name: "Bloodclaat",
     colors: {
       background: "#ffaada",
-      foreground: "#ae00ff",
-      primary: "#ff79c5",
-      primaryForeground: "#ffe9f5",
-      secondary: "#fe4cb1",
-      secondaryForeground: "#9a5aff",
+      foreground: "#3a0022",
+      primary: "#ffaada",
+      primaryForeground: "#1a1a1a",
+      secondary: "#ffaada",
+      secondaryForeground: "#D62839",
       card: "#ffffff",
-      accent: "#fd4cfd",
+      accent: "#E63946",
       destructive: "#dc2626",
-      border: "#bae6fd",
-    },
+      border: "#fe4cb1",
+    }
   },
 ]
 

@@ -47,7 +47,6 @@ export function SettingItem({ groupKey, settingKey, setting, onUpdate }: Setting
             const domainReg = /(?<=\/\/|^)(?:.+\.)?([a-zA-Z0-9-]+)(?=\.[a-zA-Z]{2,})/g
             const domain = domainReg.exec(link)
             if (!domain || domain.length !== 2) return
-            console.log(domain)
             return (
               <Button key={link} size="sm" onClick={() => window.open(link, "_blank")} className="gap-2 rounded-none first:rounded-l-md last:rounded-r-md">
                 <Info className="h-4 w-4" />

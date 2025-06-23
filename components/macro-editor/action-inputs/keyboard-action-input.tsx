@@ -9,9 +9,9 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { ArrowDownToLine, ArrowUpFromLine, ArrowDownUp } from "lucide-react"
-import type { MacroAction } from "@/contexts/macro-editor-context"
 import KEYCODES from "@/lib/KEYCODES"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { MacroAction } from "@/lib/types"
 
 interface KeyboardActionInputProps {
   action: Omit<MacroAction, "id">
@@ -104,7 +104,7 @@ export default function KeyboardActionInput({ action, onChange, onKeyDown }: Key
                           className="group w-auto min-w-fit flex-shrink-0 gap-0.5">
                           {keycode.label == "Space bar" ? "Spacebar" :
                             keycode.label.length === 3 && keycode.label[1] === ' '
-                              ? <>{keycode.label[0]}<span className="text-xs font-semibold text-primary-foreground/65 group-data-[selected='true']:text-accent/65">{keycode.label[2]}</span></>
+                              ? <>{keycode.label[0]}<span className="text-[0.625rem] leading-5 tracking-[-0.25rem] text-primary-foreground/65 group-data-[selected='true']:text-accent/65">{keycode.label[2]}</span></>
                               : keycode.label}
                         </CommandItem>)
                       })}

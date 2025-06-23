@@ -188,7 +188,7 @@ export default function ActionsTab() {
           })}
         </div>
       </DragDropContext>
-      <Card className="border border-primary/20 mt-6">
+      <Card className="border-none mt-6">
         <CardHeader className="py-3 px-4">
           <div className="flex justify-between items-center">
             <CardTitle className="text-sm font-medium">Add Action</CardTitle>
@@ -258,7 +258,7 @@ export default function ActionsTab() {
                         Adding to:{" "}
                         {selectedLists.map((list, i) => (
                           <>
-                            <span key={list} className="font-medium text-secondary-foreground">
+                            <span key={list} className="font-medium text-accent">
                               {list.replace(/^./, (char) => char.toUpperCase())}
                             </span>
                             {i < selectedLists.length - 1 ? ", " : ""}

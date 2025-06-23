@@ -42,7 +42,7 @@ export default function TypeRowSelect<T extends readonly string[]>({ options, va
                     ),
                 )}
                     onClick={() => onValueChange(text)} >
-                    <span className={cn(text === value && "drop-shadow-text")}>{text}</span>
+                    <span className={cn(text === value && "")}>{text}</span>
                 </Button>
             ))}
         </div>
