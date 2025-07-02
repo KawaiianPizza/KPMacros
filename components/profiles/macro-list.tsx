@@ -52,17 +52,17 @@ export default function MacroList({
     return (
       <div key={macro.id}>
         <div
-          className={cn("cursor-pointer rounded-lg border bg-card p-4 transition-all duration-200 hover:border-accent",
-            isSelected ? "rounded-b-none border-b-0 border-accent shadow-sm" : "border-border delay-200"
+          className={cn("cursor-pointer rounded-lg border bg-card p-4 transition-all duration-200 hover:border-active",
+            isSelected ? "rounded-b-none border-b-0 border-active shadow-sm" : "border-border delay-200"
           )}
           onClick={(e) => handleMacroSelect(macro.id!, e)}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {isSelected ? (
-                <ChevronDown className="h-4 w-4 text-primary-foreground" />
+                <ChevronDown className="h-4 w-4 text-input-text" />
               ) : (
-                <ChevronRight className="h-4 w-4 text-primary-foreground" />
+                <ChevronRight className="h-4 w-4 text-input-text" />
               )}
               <div>
                 <div className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export default function MacroList({
                   <Badge variant={macro.type === "Hotkey" ? "default" : "secondary"}>{macro.type}</Badge>
                   <Badge
                     variant={macro.enabled ? "default" : "outline"}
-                    className={cn(macro.enabled || "bg-primary/35 text-primary-foreground/65")}
+                    className={cn(macro.enabled || "bg-input/35 text-input-text/65")}
                   >
                     {macro.enabled ? "Enabled" : "Disabled"}
                   </Badge>
@@ -106,9 +106,9 @@ export default function MacroList({
           </div>
         </div>
 
-        <CardContent className={cn("px-0 pb-4 overflow-hidden transition-all duration-300", isSelected ? "h-[70px] delay-200" : "h-0 p-0")}>
-          <div className="p-4 bg-card/65 rounded-lg border border-dashed border-accent rounded-t-none">
-            <div className="flex items-center gap-2 justify-end *:bg-primary">
+        <CardContent className={cn("overflow-clip rounded-b-lg bg-card/65 px-0 pb-4 transition-all duration-300", isSelected ? "h-[70px] delay-200" : "h-0 p-0")}>
+          <div className="p-4 bg-card/65 rounded-lg border border-dashed border-active rounded-t-none">
+            <div className="flex items-center gap-2 justify-end *:bg-input">
               <Button size="sm" onClick={() => onEditMacro(macro.id!)}>
                 <Edit className="h-4 w-4" />
                 Edit

@@ -172,7 +172,7 @@ export function useSettingsData() {
           }
           websocketService.send("saveSettings", flattenSettings)
         }
-      }, 2000)
+      }, 1500)
 
       return newSettings
     })

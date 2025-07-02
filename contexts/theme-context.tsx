@@ -4,46 +4,38 @@ import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import { defaultThemes, applyThemeColors, getThemeById } from "@/lib/theme-config"
 import { Theme, ThemeColors } from "@/lib/types"
+import websocketService from "@/lib/websocket-service"
 
 interface ThemeContextType {
   currentTheme: Theme
   themes: Theme[]
   setTheme: (themeId: string) => void
   updateThemeColors: (colors: Partial<ThemeColors>) => void
-  addCustomTheme: (theme: Theme) => void
-  removeCustomTheme: (themeId: string) => void
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [first, setFirst] = useState(2)
+  const [first, setFirst] = useState(1)
   const [currentTheme, setCurrentTheme] = useState<Theme>(defaultThemes[first])
   const [themes, setThemes] = useState<Theme[]>(defaultThemes)
-  // useEffect(() => {
-  //   const savedThemeId = localStorage.getItem("app-theme")
-  //   const savedCustomThemes = localStorage.getItem("custom-themes")
+  useEffect(() => {
+    const handleGetTheme = ({ message, error }: { message: ThemeColors, success?: string, error?: string }) => {
+      if (error) return;
+      applyThemeColors(message)
+    }
 
-  //   if (savedCustomThemes) {
-  //     try {
-  //       const customThemes = JSON.parse(savedCustomThemes)
-  //       setThemes((prev) => [...prev, ...customThemes])
-  //     } catch (error) {
-  //       console.error("Failed to load custom themes:", error)
-  //     }
-  //   }
+    websocketService?.on("theme", handleGetTheme)
+    websocketService?.send("getTheme", {})
+    return () => {
+      websocketService?.off("theme", handleGetTheme)
+    }
+  }, [])
 
-  //   if (savedThemeId) {
-  //     const theme = getThemeById(savedThemeId) || themes.find((t) => t.id === savedThemeId)
-  //     if (theme) {
-  //       setCurrentTheme(theme)
-  //     }
-  //   }
-  // }, [])
 
   useEffect(() => {
     if (process?.env?.NODE_ENV !== "development") return
-    applyThemeColors(currentTheme.colors)
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "F2") return;
       setFirst(prev => {
@@ -53,8 +45,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       })
     }
     document.onkeydown = handleKeyDown
-    localStorage.setItem("app-theme", currentTheme.id)
     return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [])
+
+
+  useEffect(() => {
+    applyThemeColors(currentTheme.colors)
   }, [currentTheme])
 
   const setTheme = (themeId: string) => {
@@ -70,32 +66,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       colors: { ...currentTheme.colors, ...colors },
     }
     setCurrentTheme(updatedTheme)
-
-    if (currentTheme.id.startsWith("custom-")) {
-      setThemes((prev) => prev.map((t) => (t.id === currentTheme.id ? updatedTheme : t)))
-      saveCustomThemes(themes.filter((t) => t.id.startsWith("custom-")))
-    }
-  }
-
-  const addCustomTheme = (theme: Theme) => {
-    setThemes((prev) => [...prev, theme])
-    saveCustomThemes([...themes.filter((t) => t.id.startsWith("custom-")), theme])
-  }
-
-  const removeCustomTheme = (themeId: string) => {
-    if (!themeId.startsWith("custom-")) return
-
-    setThemes((prev) => prev.filter((t) => t.id !== themeId))
-    const customThemes = themes.filter((t) => t.id.startsWith("custom-") && t.id !== themeId)
-    saveCustomThemes(customThemes)
-
-    if (currentTheme.id === themeId) {
-      setTheme(defaultThemes[0].id)
-    }
-  }
-
-  const saveCustomThemes = (customThemes: Theme[]) => {
-    //localStorage.setItem("custom-themes", JSON.stringify(customThemes))
   }
 
   return (
@@ -105,8 +75,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         themes,
         setTheme,
         updateThemeColors,
-        addCustomTheme,
-        removeCustomTheme,
       }}
     >
       {children}

@@ -20,27 +20,24 @@ const config: Config = {
     extend: {
       colors: {
         border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+        input: {
+          DEFAULT: "hsl(var(--input))",
+          text: "hsl(var(--input-text))",
         },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          text: "hsl(var(--info-text))",
         },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
+        active: {
+          DEFAULT: "hsl(var(--active))",
+          text: "hsl(var(--active-text))",
         },
         card: {
           DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--foreground))",
+          text: "hsl(var(--card-text))",
         },
       },
       borderRadius: {
@@ -63,34 +60,34 @@ const config: Config = {
         },
         "update-a": {
           '0%': {
-            color: 'hsl(var(--accent))',
+            color: 'hsl(var(--active))',
           },
           '100%': {
-            color: 'hsl(var(--primary-foreground))',
+            color: 'hsl(var(--input-text))',
           },
         },
         "update-b": {
           '0%': {
-            color: 'hsl(var(--accent))',
+            color: 'hsl(var(--active))',
           },
           '100%': {
-            color: 'hsl(var(--primary-foreground))',
+            color: 'hsl(var(--input-text))',
           },
         },
         "magic-a": {
           '0%': {
-            filter: 'drop-shadow(0px 0px 2px hsl(var(--accent)/100%))',
+            filter: 'drop-shadow(0px 0px 2px hsl(var(--active)/100%))',
           },
           '100%': {
-            filter: 'drop-shadow(0px 0px 2px hsl(var(--accent)/0%))',
+            filter: 'drop-shadow(0px 0px 2px hsl(var(--active)/0%))',
           },
         },
         "magic-b": {
           '0%': {
-            filter: 'drop-shadow(0px 0px 2px hsl(var(--accent)/100%))',
+            filter: 'drop-shadow(0px 0px 2px hsl(var(--active)/100%))',
           },
           '100%': {
-            filter: 'drop-shadow(0px 0px 2px hsl(var(--accent)/0%))',
+            filter: 'drop-shadow(0px 0px 2px hsl(var(--active)/0%))',
           },
         },
       },

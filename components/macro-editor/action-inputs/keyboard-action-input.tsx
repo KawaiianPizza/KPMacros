@@ -104,7 +104,7 @@ export default function KeyboardActionInput({ action, onChange, onKeyDown }: Key
                           className="group w-auto min-w-fit flex-shrink-0 gap-0.5">
                           {keycode.label == "Space bar" ? "Spacebar" :
                             keycode.label.length === 3 && keycode.label[1] === ' '
-                              ? <>{keycode.label[0]}<span className="text-[0.625rem] leading-5 tracking-[-0.25rem] text-primary-foreground/65 group-data-[selected='true']:text-accent/65">{keycode.label[2]}</span></>
+                              ? <>{keycode.label[0]}<span className="text-[0.625rem] leading-5 tracking-[-0.25rem] text-input-text/65 group-data-[selected='true']:text-active/65">{keycode.label[2]}</span></>
                               : keycode.label}
                         </CommandItem>)
                       })}

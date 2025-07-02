@@ -177,8 +177,8 @@ export default function GeneralTab() {
                 onFocusCapture={() => { setActivator(""); startRecording() }}
                 className={cn("border-border",
                   macro.type === "Hotkey" ? "rounded-none" : "rounded-l-md",
-                  isRecording && "border-accent animate-breathing",
-                  !isActivatorValid && "border-destructive focus-visible:ring-destructive")}
+                  isRecording && "border-active animate-breathing",
+                  !isActivatorValid && "border-red-600 focus-visible:ring-red-600")}
                 readOnly={isRecording}
               />
 
@@ -187,7 +187,7 @@ export default function GeneralTab() {
                   type="button"
                   onClick={() => { setActivator(""); startRecording() }}
                   disabled={isRecording}
-                  className={`rounded-l-none border border-l-0 border-border ${isRecording ? "bg-primary text-primary-foreground" : ""}`}
+                  className={`rounded-l-none border border-l-0 border-border ${isRecording ? "bg-input text-input-text" : ""}`}
                 >
                   {isRecording ? "Recording..." : "Record"}
                 </Button>

@@ -78,9 +78,9 @@ export default function MacroEditorLayout() {
         </Button>
         <h1 className="text-2xl font-bold text-foreground">{getPageTitle()}</h1>
         {hasUnsavedChanges && (
-          <span className="ml-3 text-sm text-accent">• Unsaved changes</span>
+          <span className="ml-3 text-sm text-active">• Unsaved changes</span>
         )}
-        <Button onClick={toggleTesting} className={cn("ml-auto", isTesting && "border-accent")}>{isTesting ? "Testing Macro..." : "Test Macro"}</Button>
+        <Button onClick={toggleTesting} className={cn("ml-auto", isTesting && "border-active")}>{isTesting ? "Testing Macro..." : "Test Macro"}</Button>
       </div>
 
       {error && (

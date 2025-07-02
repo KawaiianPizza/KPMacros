@@ -7,12 +7,13 @@ export const defaultThemes: Theme[] = [
     colors: {
       background: "#000000",
       foreground: "#ffffff",
-      primary: "#ffaaaa",
-      primaryForeground: "#aaffff",
-      secondary: "#aaffaa",
-      secondaryForeground: "#ff00ff",
+      input: "#ffaaaa",
+      inputText: "#aaffff",
+      info: "#aaffaa",
+      infoText: "#ff00ff",
       card: "#aaaaff",
-      accent: "#ffffaa",
+      active: "#ffffaa",
+      activeText: "#ffffaa",
       destructive: "#dc2626",
       border: "#bb00bb",
     },
@@ -23,12 +24,13 @@ export const defaultThemes: Theme[] = [
     colors: {
       background: "#14161b",
       foreground: "#E3E5E8",
-      primary: "#252629",
-      primaryForeground: "#E3E5E8",
-      secondary: "#3e3f41",
-      secondaryForeground: "#80FFDF",
+      input: "#252629",
+      inputText: "#E3E5E8",
+      info: "#3e3f41",
+      infoText: "#80FFDF",
       card: "#2f3034",
-      accent: "#80FFDF",
+      active: "#80FFDF",
+      activeText: "#252629",
       destructive: "#ff0000",
       border: "#80888B"
     },
@@ -39,12 +41,13 @@ export const defaultThemes: Theme[] = [
     colors: {
       background: "#ffaada",
       foreground: "#3a0022",
-      primary: "#ffaada",
-      primaryForeground: "#1a1a1a",
-      secondary: "#ffaada",
-      secondaryForeground: "#D62839",
+      input: "#ffaada",
+      inputText: "#1a1a1a",
+      info: "#ffaada",
+      infoText: "#D62839",
       card: "#ffffff",
-      accent: "#E63946",
+      active: "#E63946",
+      activeText: "#E63946",
       destructive: "#dc2626",
       border: "#fe4cb1",
     }
@@ -93,13 +96,4 @@ export function applyThemeColors(colors: ThemeColors): void {
 
 export function getThemeById(id: string): Theme | undefined {
   return defaultThemes.find((theme) => theme.id === id)
-}
-
-export function createCustomTheme(name: string, colors: Partial<ThemeColors>): Theme {
-  const baseTheme = defaultThemes[0]
-  return {
-    id: `custom-${Date.now()}`,
-    name,
-    colors: { ...baseTheme.colors, ...colors },
-  }
 }

@@ -20,6 +20,7 @@ interface SoundActionInputProps {
 export default function SoundActionInput({ action, onChange, onKeyDown }: SoundActionInputProps) {
   const { audioDevices } = useMacroEditor()
   const [filePath, setFilePath] = useState<string>(action.filePath || "")
+  const [isSelecting, setIsSelecting] = useState<boolean>(false)
   const [selectedDevice, setSelectedDevice] = useState<string>(action.audioDevice || "")
   const [volume, setVolume] = useState<number>(action.volume || 100)
   const debounceTimeoutRef = useRef<NodeJS.Timeout>(null)
@@ -44,22 +45,25 @@ export default function SoundActionInput({ action, onChange, onKeyDown }: SoundA
     },
     [action, onChange],
   )
-  useEffect(() => {
-    if (!websocketService) return
-    const handleFilePath = (data: { message: string, error?: string, success?: string }) => {
-      if (data.error) return
-      setFilePath(data.message)
-      onChange({
-        ...action,
-        filePath: data.message,
-      })
-    }
 
+  const handleFilePath = (data: { message: string, error?: string, success?: string }) => {
+    setIsSelecting(false)
+    if (data.error) return
+    setFilePath(data.message)
+    onChange({
+      ...action,
+      filePath: data.message,
+    })
+  }
+  
+  useEffect(() => {
+    if (!isSelecting || !websocketService) return
+    websocketService.send("getFilePath", { filePath, filter: "Audio Files|*.wav;*.mp3;*.ogg;*.flac;*.aac" })
     websocketService.on("filePath", handleFilePath)
     return () => {
       websocketService?.off("filePath", handleFilePath)
     }
-  }, [action, onChange])
+  }, [isSelecting])
 
   const handleFilePathChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFilePath = e.target.value
@@ -68,9 +72,7 @@ export default function SoundActionInput({ action, onChange, onKeyDown }: SoundA
   }
 
   const handleBrowseFile = () => {
-    if (websocketService) {
-      websocketService.send("getFilePath", { filePath, filter: "Audio Files|*.wav;*.mp3;*.ogg;*.flac;*.aac" })
-    }
+    setIsSelecting(true)
   }
 
   const handleDeviceChange = (deviceId: string) => {

@@ -3,101 +3,35 @@
 @tailwind utilities;
 
 @layer utilities {
-  /* Text */
-  .text-primary {
-    color: hsl(var(--primary));
-  }
-  .text-secondary {
-    color: hsl(var(--secondary));
-  }
-  .text-muted {
-    color: hsl(var(--text-muted));
-  }
-  .text-disabled {
-    color: hsl(var(--text-disabled));
-  }
-  .text-accent {
-    color: hsl(var(--accent));
-  }
-
-  /* Background */
-  .bg-primary {
-    background-color: hsl(var(--primary));
-  }
-  .bg-secondary {
-    background-color: hsl(var(--secondary));
-  }
-  .bg-accent {
-    background-color: hsl(var(--accent));
-  }
   .bg-input {
-    background-color: hsl(var(--input));
-  }
-  .bg-background-lighter {
-    background-color: hsl(var(--background-lighter));
-  }
-  .bg-background-darker {
-    background-color: hsl(var(--background-darker));
+    position: relative;
+    z-index: 10;
+    background-color: hsl(var(--background));
+    overflow: clip;
   }
 
-  /* Interactive state */
-  .bg-primary-hover:hover {
-    background-color: hsl(var(--primary-hover));
-  }
-  .bg-primary-active:active {
-    background-color: hsl(var(--primary-active));
-  }
-  .bg-secondary-hover:hover {
-    background-color: hsl(var(--secondary-hover));
-  }
-  .bg-secondary-active:active {
-    background-color: hsl(var(--secondary-active));
-  }
-  .bg-accent-hover:hover {
-    background-color: hsl(var(--accent-hover));
-  }
-  .bg-accent-active:active {
-    background-color: hsl(var(--accent-active));
-  }
-  .bg-input-hover:hover {
-    background-color: hsl(var(--input-hover));
-  }
-  .bg-input-focus:focus {
-    background-color: hsl(var(--input-focus));
+  .bg-input::before {
+    content: var(--tw-content);
+    position: absolute;
+    inset: 0;
+    z-index: -10;
+    background-color: hsl(var(--input)/100%);
   }
 
-  /* Border */
-  .border-light {
-    border-color: hsl(var(--border-light));
-  }
-  .border-heavy {
-    border-color: hsl(var(--border-heavy));
+  .bg-input:hover::before {
+    content: var(--tw-content);
+    position: absolute;
+    inset: 0;
+    z-index: -10;
+    background-color: hsl(var(--input)/65%);
   }
 
-  /* Status */
-  .bg-success {
-    background-color: hsl(var(--success));
-  }
-  .bg-warning {
-    background-color: hsl(var(--warning));
-  }
-  .bg-error {
-    background-color: hsl(var(--error));
-  }
-  .bg-info {
-    background-color: hsl(var(--info));
-  }
-  .text-success {
-    color: hsl(var(--success));
-  }
-  .text-warning {
-    color: hsl(var(--warning));
-  }
-  .text-error {
-    color: hsl(var(--error));
-  }
-  .text-info {
-    color: hsl(var(--info));
+  .bg-input[data-state=on]::before {
+    content: var(--tw-content);
+    position: absolute;
+    inset: 0;
+    z-index: -10;
+    background-color: hsl(var(--input)/65%);
   }
 
   /* Focus state */
@@ -106,7 +40,7 @@
     outline-offset: 2px;
   }
 
-  :root{
+  :root {
     --radius: 0.5rem
   }
 }

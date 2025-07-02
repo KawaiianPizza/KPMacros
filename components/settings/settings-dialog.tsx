@@ -104,7 +104,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             <Separator />
 
             <div className="p-4">
-              <div className="relative text-primary-foreground">
+              <div className="relative text-input-text">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" />
                 <Input
                   placeholder="Search settings..."
@@ -117,7 +117,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     variant="ghost"
                     size="sm"
                     onClick={clearSearch}
-                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                    className="!absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
                   >
                     <X className="h-3 w-3" />
                   </Button>

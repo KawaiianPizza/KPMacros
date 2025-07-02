@@ -33,11 +33,11 @@ export default function ProfileButtons({
             const isGlobal = isGlobalProfile(profile.name)
 
             return (
-              <div key={profile.name} className="relative flex-shrink-0 overflow-clip rounded-md border border-border bg-primary">
-                <div className={cn("flex rounded-md h-16", isSelected && "border-accent overflow-hidden")}>
+              <div key={profile.name} className="relative flex-shrink-0 overflow-clip rounded-md border border-border bg-input">
+                <div className={cn("flex rounded-md h-16", isSelected && "border-active overflow-hidden")}>
                   <Button
                     variant="default"
-                    className={cn("h-16 min-w-[120px] self-center whitespace-normal rounded-none border-none text-center transition-all duration-200", isSelected && "text-accent"
+                    className={cn("h-16 min-w-[120px] self-center whitespace-normal rounded-none border-none text-center transition-all duration-200", isSelected && "text-active"
                     )}
                     onClick={() => onSelectProfile(profile.name)}
                   >
@@ -50,7 +50,7 @@ export default function ProfileButtons({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-full w-auto rounded-none border-r-0 border-t-0 hover:bg-primary/65 hover:text-accent"
+                      className="h-full w-auto rounded-none border-r-0 border-t-0 hover:bg-input/65 hover:text-active"
                       onClick={(e) => {
                         e.stopPropagation()
                         onEditProfile(profile)

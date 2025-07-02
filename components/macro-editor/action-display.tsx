@@ -45,21 +45,21 @@ export default function ActionDisplay({
             {(action.state === "down" && "Hold") ||
               (action.state === "press" && "Press") ||
               (action.state === "up" && "Release")}{" "}
-            <span className="text-secondary-foreground">{action.key}</span>
+            <span className="text-info-text">{action.key}</span>
           </span>
         )
       case "text":
         return (
           <span>
-            Type <span className="text-secondary-foreground">{action.text}</span>
+            Type <span className="text-info-text">{action.text}</span>
           </span>
         )
       case "mouse":
         if (action.state)
           return (
             <span>
-              <span className="text-secondary-foreground">{action.button}</span> mouse{" "}
-              <span className="text-secondary-foreground">{action.state}</span>
+              <span className="text-info-text">{action.button}</span> mouse{" "}
+              <span className="text-info-text">{action.state}</span>
             </span>
           )
         if (action.x !== undefined || action.y !== undefined) {
@@ -69,18 +69,18 @@ export default function ActionDisplay({
           return relative ? (
             <span>
               Move mouse{" "}
-              <span className="text-secondary-foreground">
+              <span className="text-info-text">
                 {x >= 0 ? "right" : "left"} {Math.abs(x)}px
               </span>
               ,{" "}
-              <span className="text-secondary-foreground">
+              <span className="text-info-text">
                 {y >= 0 ? "down" : "up"} {Math.abs(y)}px
               </span>
             </span>
           ) : (
             <span>
-              Move mouse to (<span className="text-secondary-foreground">{x}</span>,{" "}
-              <span className="text-secondary-foreground">{y}</span>)
+              Move mouse to (<span className="text-info-text">{x}</span>,{" "}
+              <span className="text-info-text">{y}</span>)
             </span>
           )
         }
@@ -88,7 +88,7 @@ export default function ActionDisplay({
           return (
             <span>
               Scroll{" "}
-              <span className="text-secondary-foreground">
+              <span className="text-info-text">
                 {action.scroll} {action.amount}
               </span>{" "}
               time{action.amount > 1 && "s"}
@@ -98,26 +98,26 @@ export default function ActionDisplay({
       case "delay":
         return (
           <span>
-            Delay <span className="text-secondary-foreground">{action.duration}ms</span>
+            Delay <span className="text-info-text">{action.duration}ms</span>
           </span>
         )
       case "sound":
         return (
           <span>
-            Play <span className="text-secondary-foreground">{action.filePath?.split("\\").at(-1)}</span>
+            Play <span className="text-info-text">{action.filePath?.split("\\").at(-1)}</span>
           </span>
         )
       case "process":
         return (
           <span>
-            Run <span className="text-secondary-foreground">{action.filePath}</span>
+            Run <span className="text-info-text">{action.filePath}</span>
             {action.arguments && (
               <>
                 {" "}
-                with args <span className="text-secondary-foreground">{action.arguments}</span>
+                with args <span className="text-info-text">{action.arguments}</span>
               </>
             )}{" "}
-            ({<span className="text-secondary-foreground">{action.hidden ? "Inv" : "V"}isible</span>})
+            ({<span className="text-info-text">{action.hidden ? "Inv" : "V"}isible</span>})
           </span>
         )
       default:
@@ -152,7 +152,7 @@ export default function ActionDisplay({
       ref={provided.innerRef}
       {...provided.draggableProps}
       className={cn(
-        "border-border transition-all duration-200 select-none bg-primary group w-full overflow-hidden",
+        "transition-all duration-200 select-none group w-full overflow-hidden z-50",
         isSelected ? "shadow-md" : "shadow-sm",
       )}
     >
@@ -243,9 +243,9 @@ export default function ActionDisplay({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="ghost"
+                  variant="destructive"
                   size="icon"
-                  className="h-6 w-6 flex-shrink-0 text-destructive hover:text-gray-800 hover:bg-destructive"
+                  className="h-6 w-6 flex-shrink-0"
                   onClick={(e) => {
                     e.stopPropagation()
                     onDelete()
@@ -261,7 +261,7 @@ export default function ActionDisplay({
       </CardHeader>
 
       {isSelected && (
-        <CardContent className={cn("px-4 pb-4 pt-3 w-full overflow-hidden bg-primary/65", !isActionValid() && "ring-inset ring-1 ring-destructive")}>
+        <CardContent className={cn("px-4 pb-4 pt-3 w-full overflow-hidden bg-background/25", !isActionValid() && "ring-inset ring-1 ring-red-600")}>
           <div className="space-y-4 w-full overflow-hidden">
             <div className="grid grid-row-1 gap-4 w-full overflow-hidden">
               <div className="space-y-1 w-full overflow-hidden">

@@ -44,12 +44,12 @@ export default function ConfirmationDialog({
           <AlertDialogDescription className="text-foreground">{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading} className="bg-primary hover:bg-primary/65 text-primary-foreground">{cancelText}</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading} className="bg-input text-input-text">{cancelText}</AlertDialogCancel>
           {isLoading ? (
             <Button
               disabled
               className={
-                variant === "destructive" ? "bg-destructive text-gray-800 hover:bg-destructive/65" : ""
+                variant === "destructive" ? "bg-red-600 text-gray-800 hover:bg-red-600/65" : ""
               }
             >
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -59,7 +59,7 @@ export default function ConfirmationDialog({
             <AlertDialogAction
               onClick={onConfirm}
               className={
-                variant === "destructive" ? "bg-destructive text-gray-800 hover:bg-destructive/65" : ""
+                variant === "destructive" ? "bg-red-600 text-gray-800 hover:bg-red-600/65" : ""
               }
             >
               {confirmText}

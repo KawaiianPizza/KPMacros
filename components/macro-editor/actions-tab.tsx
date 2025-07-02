@@ -179,7 +179,7 @@ export default function ActionsTab() {
                     </CardTitle>
                     <p className="text-xs text-foreground/65">{description}</p>
                   </CardHeader>
-                  <CardContent className="flex-1 pt-0">
+                  <CardContent className="flex-1 pt-0 p-4">
                     <ActionList listType={type} compact={true} />
                   </CardContent>
                 </Card>

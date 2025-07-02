@@ -22,7 +22,7 @@ export function SettingsGroup({ groupKey, isSelected, onSelect, settingsCount }:
 
   return (
     <Button
-      className={cn("w-full justify-between h-auto p-3 text-left", isSelected && "border-2 border-accent text-accent")}
+      className={cn("w-full justify-between h-auto p-3 text-left", isSelected && "border-2 border-active text-active")}
       onClick={() => onSelect(groupKey)}
     >
       <span className="font-medium">{label}</span>

@@ -188,13 +188,13 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
               onChange={handleNameChange}
               placeholder="Enter profile name..."
               className={cn("border-border",
-                errors.name && "border-destructive focus-visible:ring-destructive")}
+                errors.name && "border-red-600 focus-visible:ring-red-600")}
               aria-invalid={!!errors.name}
               aria-describedby={errors.name ? "profile-name-error" : undefined}
               disabled={isSaving}
             />
             {errors.name && (
-              <p className="text-destructive text-sm" id="profile-name-error">
+              <p className="text-red-600 text-sm" id="profile-name-error">
                 {errors.name}
               </p>
             )}
@@ -240,7 +240,7 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
                       }).map((window) => {
                         const checked = selectedWindows.includes(window.executable)
                         return (
-                          <div key={window.pid} className="relative z-10 flex items-start space-x-3 overflow-clip rounded border border-border bg-background p-2 before:absolute before:inset-0 before:-z-10 before:bg-primary hover:border-accent before:hover:bg-primary/65" onClick={() => toggleWindow(window)}>
+                          <div key={window.pid} className="relative z-10 flex items-start space-x-3 overflow-clip rounded border border-border bg-background p-2 before:absolute before:inset-0 before:-z-10 before:bg-input/100 hover:border-active before:hover:bg-input/65" onClick={() => toggleWindow(window)}>
                             <Checkbox
                               id={`window-${window.executable}`}
                               checked={checked}
@@ -250,12 +250,12 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
                             <div className="flex-1 min-w-0">
                               <Label
                                 htmlFor={`window-${window.executable}`}
-                                className={cn("pointer-events-none block font-medium text-primary-foreground", checked && "text-accent")}
+                                className={cn("pointer-events-none block font-medium text-input-text", checked && "text-active")}
                               >
                                 {window.title || window.executable}
                               </Label>
                               {window.title && window.title !== window.executable && (
-                                <p className={cn("mt-1 cursor-default font-mono text-xs text-primary-foreground/65", checked && "text-accent/65")}>{window.executable}</p>
+                                <p className={cn("mt-1 cursor-default font-mono text-xs text-input-text/65", checked && "text-active/65")}>{window.executable}</p>
                               )}
                             </div>
                           </div>
@@ -274,14 +274,14 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
         </div>
 
         <DialogFooter className="gap-2">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving} className="border-border bg-primary text-primary-foreground hover:bg-primary/65">
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving} className="border-border bg-input text-input-text hover:bg-input/65">
             Cancel
           </Button>
           <Button
             type="button"
             onClick={handleSave}
             disabled={!isFormValid || isSaving}
-            className="bg-primary text-primary-foreground hover:bg-primary/65"
+            className="bg-input text-input-text hover:bg-input/65"
           >
             {isSaving ? (
               <>

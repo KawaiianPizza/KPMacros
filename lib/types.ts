@@ -86,12 +86,13 @@ export type ThemeColorKeys = keyof ThemeColors
 export const themeColors = {
   background: '',
   foreground: '',
-  primary: '',
-  primaryForeground: '',
-  secondary: '',
-  secondaryForeground: '',
+  input: '',
+  inputText: '',
+  info: '',
+  infoText: '',
   card: '',
-  accent: '',
+  active: '',
+  activeText: '',
   destructive: '',
   border: ''
 };

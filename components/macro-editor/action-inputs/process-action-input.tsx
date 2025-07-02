@@ -18,6 +18,7 @@ interface ProcessActionInputProps {
 export default function ProcessActionInput({ action, onChange, onKeyDown }: ProcessActionInputProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [filePath, setFilePath] = useState<string>(action.filePath || "")
+  const [isSelecting, setIsSelecting] = useState<boolean>(false)
   const [_arguments, setArguments] = useState<string>(action.arguments || "")
   const debounceTimeoutRef = useRef<NodeJS.Timeout>(null)
 
@@ -48,25 +49,24 @@ export default function ProcessActionInput({ action, onChange, onKeyDown }: Proc
     [action, onChange],
   )
 
+  const handleFilePath = (data: { message: string; error?: string; success?: string }) => {
+    setIsSelecting(false)
+    if (data.error) return
+    setFilePath(data.message)
+    onChange({
+      ...action,
+      filePath: data.message,
+    })
+  }
+
   useEffect(() => {
-    if (!websocketService) return
-
-    const handleFilePath = (data: { message: string; error?: string; success?: string }) => {
-      if (data.error) return
-      console.log(data)
-      setFilePath(data.message)
-      onChange({
-        ...action,
-        filePath: data.message,
-      })
-    }
-
+    if (!isSelecting || !websocketService) return
+    websocketService.send("getFilePath", { filePath })
     websocketService.on("filePath", handleFilePath)
-
     return () => {
       websocketService?.off("filePath", handleFilePath)
     }
-  }, [action, onChange])
+  }, [isSelecting])
 
   const handleFilePathChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const newFilePath = e.target.value
@@ -75,9 +75,7 @@ export default function ProcessActionInput({ action, onChange, onKeyDown }: Proc
   }
 
   const handleBrowseFile = () => {
-    if (websocketService) {
-      websocketService.send("getFilePath", { filePath })
-    }
+    setIsSelecting(true)
   }
 
   const handleArgumentsChange = (e: React.ChangeEvent<HTMLInputElement>) => {

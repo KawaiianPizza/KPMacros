@@ -5,16 +5,16 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "relative z-10 inline-flex items-center justify-center gap-2 overflow-clip whitespace-nowrap rounded-md border border-border bg-primary text-sm font-medium text-primary-foreground ring-offset-background transition-colors before:absolute before:inset-0 before:-z-10 before:bg-primary/65 hover:bg-background hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border border-border bg-input text-sm font-medium text-input-text ring-offset-background transition-colors hover:text-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "text-primary-foreground",
-        destructive: "bg-primary text-destructive hover:bg-destructive hover:text-primary",
+        default: "text-input-text",
+        destructive: "bg-input text-red-600 hover:bg-red-600 hover:text-input",
         outline: "border border-border",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/65",
-        ghost: "hover:border-accent hover:text-accent",
-        link: "text-primary underline-offset-4 hover:underline",
+        ghost: "hover:border-active hover:text-active",
+        link: "text-input underline-offset-4 hover:underline",
       },
       size: {
         default: "h-10 px-4 py-2",

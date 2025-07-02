@@ -125,7 +125,7 @@ export default function MacroEditorPage() {
         <div className="container mx-auto max-w-5xl">
           <div className="flex items-center justify-center py-12">
             <div className="flex items-center gap-3 text-foreground/65">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-transparent" />
               <span>Loading Macro Editor...</span>
             </div>
           </div>
@@ -138,9 +138,9 @@ export default function MacroEditorPage() {
     return (
       <main className="min-h-screen bg-background p-4">
         <div className="container mx-auto max-w-5xl">
-          <Card className="border-destructive">
+          <Card className="border-red-600">
             <CardContent className="p-6">
-              <div className="flex items-center gap-3 text-destructive mb-4">
+              <div className="flex items-center gap-3 text-red-600 mb-4">
                 <AlertTriangle className="h-6 w-6" />
                 <h2 className="text-lg font-semibold">Error Loading Macro Editor</h2>
               </div>
@@ -149,7 +149,7 @@ export default function MacroEditorPage() {
               </p>
               <button
                 onClick={handleGoBack}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                className="px-4 py-2 bg-input text-input-text rounded-md transition-colors"
                 type="button"
               >
                 Return to Profiles

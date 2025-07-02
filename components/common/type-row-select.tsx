@@ -25,17 +25,17 @@ export default function TypeRowSelect<T extends readonly string[]>({ options, va
     }
 
     return (
-        <div {...props} className={cn("relative overflow-clip rounded-md border border-border grid bg-primary", className)}
+        <div {...props} className={cn("relative overflow-clip rounded-md border border-border grid bg-input/100", className)}
             style={{
                 width: 6 * columns + "rem",
                 gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`
             }} >
-            <div className="absolute bg-accent shadow-sm transition-all duration-300 ease-in-out pointer-events-none z-10" style={getBackgroundPosition()} />
+            <div className="absolute bg-active shadow-sm transition-all duration-300 ease-in-out pointer-events-none z-10" style={getBackgroundPosition()} />
 
             {options.map((text, index) => (
                 <Button key={index} className={cn(
-                    "relative transition-colors duration-300 ease-in-out rounded-none border-0 capitalize z-20 bg-transparent hover:bg-primary/65 before:content-none",
-                    text === value ? "hover:bg-transparent hover:text-primary-foreground" : "hover:bg-background/35",
+                    "relative transition-colors duration-300 ease-in-out rounded-none border-0 capitalize z-20 bg-transparent hover:bg-input/65 before:content-none",
+                    text === value ? "hover:bg-transparent hover:text-input-text" : "hover:bg-background/35",
                     cn("",
                         index <= columns * rows - columns - 1 && "border-b-2",
                         index % columns !== columns - 1 && "border-r-2"

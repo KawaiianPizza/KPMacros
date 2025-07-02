@@ -7,12 +7,12 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const toggleVariants = cva(
-  "data-[state=on]:before:bg-primary/65 before:absolute before:inset-0 before:-z-10 before:bg-primary before:hover:bg-primary/65 relative z-10 overflow-clip inline-flex items-center justify-center rounded-none first:rounded-l-md last:rounded-r-md text-sm font-medium ring-offset-background transition-colors bg-background text-primary-foreground border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=on]:border-accent data-[state=on]:text-accent &_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 gap-2",
+  "inline-flex items-center justify-center rounded-none first:rounded-l-md last:rounded-r-md text-sm font-medium ring-offset-background transition-colors bg-input text-input-text border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=on]:border-active data-[state=on]:text-active &_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 gap-2",
   {
     variants: {
       variant: {
         default: "",
-        outline: "hover:bg-accent hover:text-accent",
+        outline: "hover:bg-active hover:text-active",
       },
       size: {
         default: "h-10 px-3 min-w-10",
