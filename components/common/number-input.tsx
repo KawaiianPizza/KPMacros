@@ -49,7 +49,7 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       <div className="relative rounded-md group">
         <Input
           type={type}
-          value={internalValue || ""}
+          value={internalValue}
           onChange={handleChange}
           min={min}
           max={max}

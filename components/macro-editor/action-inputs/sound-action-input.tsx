@@ -10,14 +10,15 @@ import type { MacroAction } from "@/lib/types"
 import websocketService from "@/lib/websocket-service"
 import { useMacroEditor } from "@/contexts/macro-editor-context"
 import { Slider } from "@/components/ui/slider"
+import { cn } from "@/lib/utils"
 
 interface SoundActionInputProps {
   action: Omit<MacroAction, "id">
   onChange: (action: Omit<MacroAction, "id">) => void
-  onKeyDown?: (e: React.KeyboardEvent) => void
+  compact: boolean
 }
 
-export default function SoundActionInput({ action, onChange, onKeyDown }: SoundActionInputProps) {
+export default function SoundActionInput({ action, onChange, compact }: SoundActionInputProps) {
   const { audioDevices } = useMacroEditor()
   const [filePath, setFilePath] = useState<string>(action.filePath || "")
   const [isSelecting, setIsSelecting] = useState<boolean>(false)
@@ -55,7 +56,7 @@ export default function SoundActionInput({ action, onChange, onKeyDown }: SoundA
       filePath: data.message,
     })
   }
-  
+
   useEffect(() => {
     if (!isSelecting || !websocketService) return
     websocketService.send("getFilePath", { filePath, filter: "Audio Files|*.wav;*.mp3;*.ogg;*.flac;*.aac" })
@@ -93,7 +94,6 @@ export default function SoundActionInput({ action, onChange, onKeyDown }: SoundA
             id="file-path"
             value={filePath}
             onChange={handleFilePathChange}
-            onKeyDown={onKeyDown}
             placeholder="Select an audio file..."
             className="flex-1 rounded-r-none"
           />
@@ -120,7 +120,9 @@ export default function SoundActionInput({ action, onChange, onKeyDown }: SoundA
       </div>
       <div className="flex-1 space-y-2 min-w-[220px]">
         <Label htmlFor="volume">Volume: {volume}%</Label>
-        <Slider id="volume" min={0} max={200} step={1} value={[volume]} onValueChange={handleVolumeChange}></Slider>
+        <div className={cn(!compact && "pt-2.5")}>
+          <Slider id="volume" min={0} max={200} step={1} value={[volume]} onValueChange={handleVolumeChange} className="flex"></Slider>
+        </div>
       </div>
     </div>
   )

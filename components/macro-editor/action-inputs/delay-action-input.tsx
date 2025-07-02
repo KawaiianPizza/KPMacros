@@ -11,10 +11,10 @@ import { MacroAction } from "@/lib/types"
 interface DelayActionInputProps {
   action: Omit<MacroAction, "id">
   onChange: (action: Omit<MacroAction, "id">) => void
-  onKeyDown?: (e: React.KeyboardEvent) => void
+  compact: boolean
 }
 
-export default function DelayActionInput({ action, onChange, onKeyDown }: DelayActionInputProps) {
+export default function DelayActionInput({ action, onChange }: DelayActionInputProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -37,7 +37,6 @@ export default function DelayActionInput({ action, onChange, onKeyDown }: DelayA
         min={0}
         value={action.duration}
         onChange={handleDelayChange}
-        onKeyDown={onKeyDown}
         placeholder="Enter delay in milliseconds"
       />
     </div>

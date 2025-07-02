@@ -12,10 +12,10 @@ import { Switch } from "@/components/ui/switch"
 interface ProcessActionInputProps {
   action: Omit<MacroAction, "id">
   onChange: (action: Omit<MacroAction, "id">) => void
-  onKeyDown?: (e: React.KeyboardEvent) => void
+  compact: boolean
 }
 
-export default function ProcessActionInput({ action, onChange, onKeyDown }: ProcessActionInputProps) {
+export default function ProcessActionInput({ action, onChange, compact }: ProcessActionInputProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [filePath, setFilePath] = useState<string>(action.filePath || "")
   const [isSelecting, setIsSelecting] = useState<boolean>(false)

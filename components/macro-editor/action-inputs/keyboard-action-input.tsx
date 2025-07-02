@@ -8,18 +8,19 @@ import { Label } from "@/components/ui/label"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { ArrowDownToLine, ArrowUpFromLine, ArrowDownUp } from "lucide-react"
+import { ArrowDownToLine, ArrowUpFromLine, ArrowDownUp, ExternalLinkIcon } from "lucide-react"
 import KEYCODES from "@/lib/KEYCODES"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { MacroAction } from "@/lib/types"
+import { Badge } from "@/components/ui/badge"
 
 interface KeyboardActionInputProps {
   action: Omit<MacroAction, "id">
   onChange: (action: Omit<MacroAction, "id">) => void
-  onKeyDown?: (e: React.KeyboardEvent) => void
+  compact: boolean
 }
 
-export default function KeyboardActionInput({ action, onChange, onKeyDown }: KeyboardActionInputProps) {
+export default function KeyboardActionInput({ action, onChange, compact }: KeyboardActionInputProps) {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -100,13 +101,17 @@ export default function KeyboardActionInput({ action, onChange, onKeyDown }: Key
                       {KEYCODES.map((keycode) => {
                         if (keycode.hidden) return undefined
 
-                        return (<CommandItem key={keycode.value} value={keycode.value + keycode.label} onSelect={() => handleKeycodeSelect(keycode.value)}
-                          className="group w-auto min-w-fit flex-shrink-0 gap-0.5">
-                          {keycode.label == "Space bar" ? "Spacebar" :
-                            keycode.label.length === 3 && keycode.label[1] === ' '
-                              ? <>{keycode.label[0]}<span className="text-[0.625rem] leading-5 tracking-[-0.25rem] text-input-text/65 group-data-[selected='true']:text-active/65">{keycode.label[2]}</span></>
-                              : keycode.label}
-                        </CommandItem>)
+                        return (
+                          <>
+                            <CommandItem key={keycode.value} value={keycode.value + keycode.label} onSelect={() => handleKeycodeSelect(keycode.value)}
+                              className="group w-auto min-w-fit flex-shrink-0 gap-0.5">
+                              {keycode.label == "Space bar" ? "Spacebar" :
+                                keycode.label.length === 3 && keycode.label[1] === ' '
+                                  ? <>{keycode.label[0]}<span className="text-[0.625rem] leading-5 tracking-[-0.25rem] text-input-text/65 group-data-[selected='true']:text-active/65">{keycode.label[2]}</span></>
+                                  : keycode.label}
+                            </CommandItem>
+                            {keycode.endBlock && <div className="w-full border-t border-border/35 my-1"></div>}
+                          </>)
                       })}
                     </div>
                   </CommandList>
@@ -116,6 +121,15 @@ export default function KeyboardActionInput({ action, onChange, onKeyDown }: Key
           </PopoverContent>
         </Popover>
       </div>
+      {!compact &&
+        <div className="space-y-1 rounded-md bg-background/65 p-3 text-xs text-foreground/65 font-mono">
+          A number between 1-255 can be used to represent a VirtualKeyCode.{" "}
+          <a rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes" target="_blank" >
+            <ExternalLinkIcon className="h-4 w-4 inline mr-1" />
+            See here
+          </a>
+        </div>
+      }
     </div>
   )
 }

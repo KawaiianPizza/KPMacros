@@ -152,13 +152,13 @@ export default function ActionDisplay({
       ref={provided.innerRef}
       {...provided.draggableProps}
       className={cn(
-        "transition-all duration-200 select-none group w-full overflow-hidden z-50",
+        "transition-all duration-200 select-none group w-full overflow-hidden",
         isSelected ? "shadow-md" : "shadow-sm",
       )}
     >
       <CardHeader
         className={cn(
-          "py-3 px-4 flex flex-row items-center justify-between cursor-pointer w-full",
+          "py-3 px-4 flex flex-row items-center justify-between cursor-pointer w-full relative",
           isSelected ? "border-b" : "",
         )}
         {...dragHandleProps}
@@ -172,14 +172,26 @@ export default function ActionDisplay({
             <GripVertical className="h-4 w-4 text-foreground/65" />
           </div>
           <CardTitle className="text-sm font-medium w-0 flex-1 min-w-0 break-all hyphens-auto overflow-hidden">
-            <div className="w-full break-all hyphens-auto overflow-hidden">{getActionDescription()}</div>
+            <TooltipProvider delayDuration={300}>
+              <Tooltip>
+                {(() => {
+                  const text = getActionDescription()
+                  return <>
+                    <TooltipTrigger asChild>
+                      <div className="w-full break-all hyphens-auto overflow-hidden truncate">{text}</div>
+                    </TooltipTrigger>
+                    <TooltipContent>{text}</TooltipContent>
+                  </>
+                })()}
+              </Tooltip>
+            </TooltipProvider>
           </CardTitle>
         </div>
         <div
           className={cn(
-            "flex space-x-1 transition-all duration-200 flex-shrink-0",
-            "opacity-0 w-0 min-w-0 overflow-hidden group-hover:w-28 group-hover:min-w-28 group-hover:opacity-100",
-            isSelected && "w-28 min-w-28 opacity-100",
+            "absolute right-2.5 top-0 !mt-0 flex space-x-1 rounded-md border border-border/35 bg-card/100 p-2 transition-all duration-200",
+            "w-0 min-w-0 overflow-hidden opacity-0 group-hover:w-32 group-hover:min-w-32 group-hover:opacity-100",
+            isSelected && "w-32 min-w-32 opacity-100",
           )}
         >
           <TooltipProvider delayDuration={300}>
@@ -277,6 +289,7 @@ export default function ActionDisplay({
                       const { id, ...updates } = updatedAction
                       onUpdate(updates)
                     }}
+                    compact={true}
                   />
                 </div>
               </div>

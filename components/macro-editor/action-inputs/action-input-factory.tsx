@@ -14,23 +14,23 @@ interface ActionInputFactoryProps {
   actionType: string
   action: Omit<MacroAction, "id">
   onChange: (action: Omit<MacroAction, "id">) => void
-  onKeyDown?: (e: React.KeyboardEvent) => void
+  compact: boolean
 }
 
-export default function ActionInputFactory({ actionType, action, onChange, onKeyDown }: ActionInputFactoryProps) {
+export default function ActionInputFactory({ actionType, action, onChange, compact }: ActionInputFactoryProps) {
   switch (actionType) {
     case "keyboard":
-      return <KeyboardActionInput action={action} onChange={onChange} onKeyDown={onKeyDown} />
+      return <KeyboardActionInput action={action} onChange={onChange} compact={compact} />
     case "mouse":
-      return <MouseActionInput action={action} onChange={onChange} onKeyDown={onKeyDown} />
+      return <MouseActionInput action={action} onChange={onChange} compact={compact} />
     case "text":
-      return <TextActionInput action={action} onChange={onChange} onKeyDown={onKeyDown} />
+      return <TextActionInput action={action} onChange={onChange} compact={compact} />
     case "delay":
-      return <DelayActionInput action={action} onChange={onChange} onKeyDown={onKeyDown} />
+      return <DelayActionInput action={action} onChange={onChange} compact={compact} />
     case "sound":
-      return <SoundActionInput action={action} onChange={onChange} onKeyDown={onKeyDown} />
+      return <SoundActionInput action={action} onChange={onChange} compact={compact} />
     case "process":
-      return <ProcessActionInput action={action} onChange={onChange} onKeyDown={onKeyDown} />
+      return <ProcessActionInput action={action} onChange={onChange} compact={compact} />
     default:
       return <div>Unknown action type: {actionType}</div>
   }

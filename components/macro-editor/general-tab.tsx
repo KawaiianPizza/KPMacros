@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils"
 import { NumberInput } from "../common/number-input"
 
 export default function GeneralTab() {
-  const { macro, updateMacro, isRecording, setIsRecording, startRecording, toggleModifierMode, isActivatorValid } = useMacroEditor()
+  const { macro, updateMacro, isRecording, setIsRecording, startRecording, toggleModifierMode, isActivatorValid, isTesting } = useMacroEditor()
   const [activator, setActivator] = useState<string>(macro.activator || "")
 
   const recordingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -144,6 +144,7 @@ export default function GeneralTab() {
                     <TooltipTrigger asChild>
                       <Button
                         type="button"
+                        disabled={isTesting}
                         onClick={toggleModifierMode}
                         className="rounded-r-none border border-r-0 border-border min-w-[70px]"
                       >
@@ -174,7 +175,11 @@ export default function GeneralTab() {
                 maxLength={macro.type === "Command" ? 32 : 0}
                 value={activator}
                 onChange={handleActivatorChange}
-                onFocusCapture={() => { setActivator(""); startRecording() }}
+                disabled={isTesting}
+                onFocusCapture={() => {
+                  setActivator("")
+                  startRecording()
+                }}
                 className={cn("border-border",
                   macro.type === "Hotkey" ? "rounded-none" : "rounded-l-md",
                   isRecording && "border-active animate-breathing",
@@ -186,7 +191,7 @@ export default function GeneralTab() {
                 <Button
                   type="button"
                   onClick={() => { setActivator(""); startRecording() }}
-                  disabled={isRecording}
+                  disabled={isRecording || isTesting}
                   className={`rounded-l-none border border-l-0 border-border ${isRecording ? "bg-input text-input-text" : ""}`}
                 >
                   {isRecording ? "Recording..." : "Record"}

@@ -21,9 +21,6 @@ import TypeRowSelect from "../common/type-row-select"
 
 export default function ActionsTab() {
   const { macro, addAction, moveActionBetweenLists } = useMacroEditor()
-  const [selectedLists, setSelectedLists] = useState<("start" | "loop" | "finish")[]>([
-    macro.type === "Hotkey" ? "start" : "finish",
-  ])
   const [newAction, setNewAction] = useState<Omit<MacroAction, "id">>({
     type: "keyboard",
   })
@@ -48,7 +45,7 @@ export default function ActionsTab() {
       mouse: { button: "left", state: "click" },
       text: { text: "" },
       delay: { duration: 25 },
-      sound: {},
+      sound: { volume: 100 },
       process: {},
     }
     setNewAction({ type: value, ...actionMap[value as keyof typeof actionMap] })
@@ -63,32 +60,20 @@ export default function ActionsTab() {
     moveActionBetweenLists(sourceListType, destinationListType, result.source.index, result.destination.index)
   }
 
-  const handleListSelect = (listType: "start" | "loop" | "finish") => {
-    setSelectedLists((prev) => {
-      if (isCtrlPressed) {
-        return prev.includes(listType) ? prev.filter((item) => item !== listType) : [...prev, listType]
-      }
-      return [listType]
-    })
-  }
+  const handleAddAction = (type: "start" | "loop" | "finish") => {
 
-  const handleAddAction = () => {
-    if (selectedLists.length === 0 || !isActionValid()) return
-
-    selectedLists.forEach((listType) => {
-      if (getCurrentActionType() === "keyboard" && newAction.state === "press") {
-        addAction(listType, {
-          ...newAction,
-          state: "down",
-        })
-        addAction(listType, {
-          ...newAction,
-          state: "up",
-        })
-      } else {
-        addAction(listType, newAction)
-      }
-    })
+    if (getCurrentActionType() === "keyboard" && newAction.state === "press") {
+      addAction(type, {
+        ...newAction,
+        state: "down",
+      })
+      addAction(type, {
+        ...newAction,
+        state: "up",
+      })
+    } else {
+      addAction(type, newAction)
+    }
   }
 
   const isActionValid = () => {
@@ -99,29 +84,6 @@ export default function ActionsTab() {
     if (type === "sound" && !newAction.filePath) return false
     if (type === "process" && !newAction.filePath) return false
     return true
-  }
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Control") setIsCtrlPressed(true)
-    }
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === "Control") setIsCtrlPressed(false)
-    }
-
-    window.addEventListener("keydown", handleKeyDown)
-    window.addEventListener("keyup", handleKeyUp)
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-      window.removeEventListener("keyup", handleKeyUp)
-    }
-  }, [])
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && isActionValid() && selectedLists.length > 0) {
-      e.preventDefault()
-      handleAddAction()
-    }
   }
 
   const actionListConfigs = [
@@ -189,17 +151,7 @@ export default function ActionsTab() {
         </div>
       </DragDropContext>
       <Card className="border-none mt-6">
-        <CardHeader className="py-3 px-4">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-sm font-medium">Add Action</CardTitle>
-            <Badge variant="outline" className="text-xs">
-              {selectedLists.length === 0
-                ? "Select a list"
-                : `Adding to ${selectedLists.length} ${selectedLists.length === 1 ? "list" : "lists"}`}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="px-4 py-0">
+        <CardContent className="rounded-lg border border-border p-4 pt-2">
           <div className="flex flex-1 gap-x-6">
             <div className="space-y-2">
               <Label htmlFor="action-type" className="text-xs">
@@ -208,66 +160,30 @@ export default function ActionsTab() {
               <TypeRowSelect columns={2} rows={3} id="action-type" options={[...MacroActionType]} value={getCurrentActionType()} onValueChange={handleActionTypeChange}></TypeRowSelect>
             </div>
 
-            <div className="space-y-2 flex-grow border border-border rounded-lg px-3 py-1">
+            <div className="flex flex-col flex-grow space-y-3 py-1">
               <ActionInputFactory
                 actionType={getCurrentActionType()}
                 action={newAction}
                 onChange={setNewAction}
-                onKeyDown={handleKeyDown}
+                compact={false}
               />
-            </div>
-            <div className="flex items-center justify-end gap-x-6 flex-shrink">
-              <div className="text-center border border-border rounded-lg px-3 gap-x-3 pb-3">
-                <Button
-                  onClick={handleAddAction}
-                  disabled={!isActionValid() || selectedLists.length === 0}
-                  className={cn("mt-2", isActionValid() && selectedLists.length >= 0 && "border-accent")}
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Action
-                </Button>
-                <div className="text-sm text-foreground/65 flex">
-                  <div className="place-items-end flex flex-col gap-y-2 items-center">
-                    <p className="text-xs text-foreground/35 pt-3 text-center">
-                      <span className="font-medium block">Multi-select mode: </span>
-                      Hold Ctrl and click to select multiple lists
-                    </p>
-                    <div className="flex">
-                      {actionListConfigs.map(({ type, title, icon: Icon }) => {
-                        const isSelected = selectedLists.includes(type)
-                        return (
-                          <Button
-                            key={type}
-                            variant={isSelected ? "default" : "outline"}
-                            className={cn(
-                              "w-min flex items-center justify-center gap-1 rounded-none first:rounded-l-md last:rounded-r-md",
-                              isSelected && "border border-accent text-accent",
-                            )}
-                            onClick={() => handleListSelect(type)}
-                          >
-                            <Icon className="h-3 w-3" />
-                            <span className="text-xs">{title.split(" ")[0]}</span>
-                          </Button>
-                        )
-                      })}
-                    </div>
-                    {selectedLists.length === 0 ? (
-                      <span>Select a list above to add this action</span>
-                    ) : (
-                      <span>
-                        Adding to:{" "}
-                        {selectedLists.map((list, i) => (
-                          <>
-                            <span key={list} className="font-medium text-accent">
-                              {list.replace(/^./, (char) => char.toUpperCase())}
-                            </span>
-                            {i < selectedLists.length - 1 ? ", " : ""}
-                          </>
-                        ))}
-                      </span>
-                    )}
-                  </div>
-                </div>
+              <div className="flex border-t border-border pt-3 justify-center">
+                {actionListConfigs.map(({ type, title, icon: Icon }) => {
+                  if (macro.type === "Command" && type !== "finish") return <></>
+                  const valid = isActionValid()
+                  return (
+                    <Button
+                      key={type}
+                      variant="default"
+                      disabled={!valid}
+                      className={cn("flex w-min items-center justify-center gap-1 rounded-none first:rounded-l-md last:rounded-r-md", valid && "border-active animate-magic")}
+                      onClick={() => handleAddAction(type)}
+                    >
+                      <Icon className="h-3 w-3" />
+                      <span className="text-xs">Add to {title.split(" ")[0]}</span>
+                    </Button>
+                  )
+                })}
               </div>
             </div>
           </div>

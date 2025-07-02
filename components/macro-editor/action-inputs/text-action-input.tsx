@@ -14,10 +14,10 @@ import { cn } from "@/lib/utils"
 interface TextActionInputProps {
   action: Omit<MacroAction, "id">
   onChange: (action: Omit<MacroAction, "id">) => void
-  onKeyDown?: (e: React.KeyboardEvent) => void
+  compact: boolean
 }
 
-export default function TextActionInput({ action, onChange, onKeyDown }: TextActionInputProps) {
+export default function TextActionInput({ action, onChange, compact }: TextActionInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [localValue, setLocalValue] = useState(action.text || "")
   const debounceTimeoutRef = useRef<NodeJS.Timeout>(null)
@@ -165,13 +165,6 @@ export default function TextActionInput({ action, onChange, onKeyDown }: TextAct
       return
     }
 
-    if (e.key === "Enter" && e.ctrlKey) {
-      e.preventDefault()
-      e.stopPropagation()
-      onKeyDown?.(e)
-      return
-    }
-
     if (e.altKey && !e.ctrlKey && !e.shiftKey) {
       if (e.key === "ArrowUp") {
         e.preventDefault()
@@ -244,20 +237,19 @@ export default function TextActionInput({ action, onChange, onKeyDown }: TextAct
         </div>
       </ScrollArea>
 
-      <div className="text-xs text-foreground/65 space-y-1 bg-background/65 p-3 rounded-md">
-        <div className="font-medium mb-2">Keyboard Shortcuts:</div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-          <div>
-            <Badge className="px-1 py-0.5 rounded text-xs">Enter</Badge> New line
-          </div>
-          <div>
-            <Badge className="px-1 py-0.5 rounded text-xs">Ctrl + Enter</Badge> Add action
-          </div>
-          <div>
-            <Badge className="px-1 py-0.5 rounded text-xs">Alt + ↑/↓</Badge> Move lines
+      {!compact &&
+        <div className="space-y-1 rounded-md bg-background/65 p-3 text-xs text-foreground/65">
+          <div className="font-medium mb-2">Keyboard Shortcuts:</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+            <div>
+              <Badge className="px-1 py-0.5 rounded text-xs">Enter</Badge> New line
+            </div>
+            <div>
+              <Badge className="px-1 py-0.5 rounded text-xs">Alt + ↑/↓</Badge> Move lines
+            </div>
           </div>
         </div>
-      </div>
+      }
     </div >
   )
 }

@@ -28,10 +28,10 @@ import { MacroAction } from "@/lib/types"
 interface MouseActionInputProps {
   action: Omit<MacroAction, "id">
   onChange: (action: Omit<MacroAction, "id">) => void
-  onKeyDown?: (e: React.KeyboardEvent) => void
+  compact: boolean
 }
 
-export default function MouseActionInput({ action, onChange, onKeyDown }: MouseActionInputProps) {
+export default function MouseActionInput({ action, onChange, compact }: MouseActionInputProps) {
   const getInitialTab = (): "buttons" | "move" | "scroll" => {
     if (action.button && action.state) {
       return "buttons"
@@ -161,30 +161,30 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1">
       <Label>Mouse Action</Label>
-      <div className="space-y-4">
+      <div className="space-y-3">
         <Tabs value={currentTab} onValueChange={handleMouseActionTypeChange} className="w-full bg-transparent">
-          <TabsList className="grid w-full grid-cols-3 h-auto bg-transparent">
+          <TabsList className="grid h-auto w-full grid-cols-3 bg-transparent p-0">
             <TabsTrigger value="buttons" className="flex items-center gap-1">
-              <MousePointerClick className="h-3.5 w-3.5" />
+              <MousePointerClick className="h-4 w-4" />
               <span>Buttons</span>
             </TabsTrigger>
             <TabsTrigger value="move" className="flex items-center gap-1">
-              <MousePointerSquare className="h-3.5 w-3.5" />
+              <MousePointerSquare className="h-4 w-4" />
               <span>Move</span>
             </TabsTrigger>
             <TabsTrigger value="scroll" className="flex items-center gap-1">
-              <ArrowUpDown className="h-3.5 w-3.5" />
+              <ArrowUpDown className="h-4 w-4" />
               <span>Scroll</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
 
         {currentTab === "buttons" && (
-          <div className="pt-2 space-y-3">
+          <div className="space-y-3">
             <div className="flex flex-wrap gap-4">
-              <div className="space-y-1 flex-1 min-w-[200px]">
+              <div className="min-w-[200px] flex-1 justify-items-center space-y-1">
                 <Label className="text-xs mb-1 block">Button</Label>
                 <ToggleGroup
                   type="single"
@@ -207,7 +207,7 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
                 </ToggleGroup>
               </div>
 
-              <div className="space-y-1 flex-1 min-w-[200px]">
+              <div className="min-w-[200px] flex-1 justify-items-center space-y-1">
                 <Label className="text-xs mb-1 block">State</Label>
                 <ToggleGroup
                   type="single"
@@ -245,8 +245,6 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
                 type="number"
                 value={action.x || 0}
                 onChange={(e) => handleCoordinateChange("x", e || 0)}
-                onKeyDown={onKeyDown}
-                className="h-8"
               />
             </div>
             <div className="space-y-1 min-w-[80px] flex-1">
@@ -258,15 +256,15 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
                 type="number"
                 value={action.y || 0}
                 onChange={(e) => handleCoordinateChange("y", e || 0)}
-                onKeyDown={onKeyDown}
-                className="h-8"
               />
             </div>
             <div className="flex flex-col items-center space-y-1.5 min-w-[80px]">
               <Label htmlFor="relative-position" className="text-xs">
-                {!!action.relative ? "Relative" : "Absolute"} position
+                {action.relative ? "Relative" : "Absolute"} position
               </Label>
-              <Switch id="relative-position" checked={!!action.relative} onCheckedChange={handlePositionModeChange} />
+              <div className="flex items-center h-10">
+                <Switch id="relative-position" checked={action.relative} onCheckedChange={handlePositionModeChange} />
+              </div>
             </div>
           </div>
         )}
@@ -298,7 +296,6 @@ export default function MouseActionInput({ action, onChange, onKeyDown }: MouseA
                 min={1}
                 value={action.amount || 1}
                 onChange={(e) => handleScrollAmountChange(e)}
-                onKeyDown={onKeyDown}
               />
             </div>
           </div>
