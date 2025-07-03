@@ -66,7 +66,7 @@ export default function MacroList({
               )}
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-medium text-secondary-foreground">{macro.name}</h3>
+                  <h3 className="font-medium text-info-text">{macro.name}</h3>
                   <Badge variant={macro.type === "Hotkey" ? "default" : "secondary"}>{macro.type}</Badge>
                   <Badge
                     variant={macro.enabled ? "default" : "outline"}
