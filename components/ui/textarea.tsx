@@ -55,25 +55,17 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
     const fontWeight = computedStyle.fontWeight || "normal"
     const font = `${fontWeight} ${fontSize}px ${fontFamily}`
 
-    ctx.font = computedStyle.font || `${fontWeight} ${fontSize}px ${fontFamily}`
+    ctx.font = computedStyle.font || font
 
-    const testChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-    let totalWidth = 0
-    for (const char of testChars) {
-      totalWidth += ctx.measureText(char).width
-    }
-    const charWidth = totalWidth / testChars.length
+    const charWidth = ctx.measureText(previousValue).width / previousValue.length
 
     const lineHeight = Number.parseInt(computedStyle.lineHeight) || fontSize * 1.2
-    const paddingLeft = (Number.parseInt(computedStyle.paddingLeft) + Number.parseInt(computedStyle.paddingRight)) / 2 || 0
+    const paddingLeft = (Number.parseInt(computedStyle.paddingLeft) + Number.parseInt(computedStyle.paddingRight)) || 0
 
-    // Account for potential scrollbar
     const scrollbarWidth = textarea.offsetWidth - textarea.clientWidth
     const availableWidth = textarea.clientWidth - paddingLeft - scrollbarWidth
-    let maxCharsPerLine = Math.floor(availableWidth / charWidth)
+    let maxCharsPerLine = availableWidth / charWidth
 
-    // Adjust for browser-specific behavior - reduce by 1 to match textarea behavior
-    maxCharsPerLine = Math.max(1, maxCharsPerLine - 1)
     setTextMetrics({ charWidth, lineHeight, fontSize, fontFamily, font, maxCharsPerLine })
   }, [])
 
