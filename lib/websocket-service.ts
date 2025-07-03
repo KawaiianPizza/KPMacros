@@ -1,5 +1,6 @@
 "use client"
 
+import { useToast } from "@/hooks/use-toast"
 import type { WebSocketMessage } from "./types"
 
 type MessageHandler = (data: any) => void
@@ -13,6 +14,8 @@ class WebSocketService {
   private priorityQueue: { action: string; data: any }[] = []
   private isProcessingQueue = false
   private isConnecting = false
+  private hasConnected = false
+  public onCloseCallback?: () => void
 
   constructor() {
     if (typeof window !== "undefined") {
@@ -89,6 +92,7 @@ class WebSocketService {
 
   private handleOpen(): void {
     console.log("WebSocket connection established")
+    this.hasConnected = true
     this.reconnectAttempts = 0
     this.isConnecting = false
 
@@ -106,6 +110,10 @@ class WebSocketService {
 
   private handleClose(): void {
     console.log("WebSocket connection closed")
+    if (this.hasConnected && this.onCloseCallback) {
+      this.onCloseCallback()
+      return
+    }
     this.isConnecting = false
     this.attemptReconnect()
   }

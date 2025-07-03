@@ -1,13 +1,16 @@
 "use client"
 
-import { useEffect, useCallback, useRef, act } from "react"
+import { useEffect, useCallback, useRef, useMemo, useState } from "react"
 import websocketService from "@/lib/websocket-service"
+import { useToast } from "./use-toast"
 
 type MessageHandler = (data: any) => void
 
 export function useWebSocketUI() {
+  const { toast } = useToast()
   const handlersRef = useRef<Map<string, MessageHandler[]>>(new Map())
   const cooldownRefs = useRef<Map<string, number>>(new Map())
+  const [isClosed, setIsClosed] = useState(false)
 
   useEffect(() => {
     return () => {
@@ -62,6 +65,18 @@ export function useWebSocketUI() {
       handlersRef.current.clear()
     }
   }, [])
+
+  useEffect(() => {
+    if (!isClosed) return
+
+    toast({
+      title: "WebSocket connection closed",
+      description: "Please reopen the editor from the tray",
+      variant: "destructive",
+    })
+  }, [isClosed])
+  if (websocketService)
+    websocketService.onCloseCallback = () => setIsClosed(true)
 
   return { send, on, off }
 }
