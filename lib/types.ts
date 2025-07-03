@@ -74,7 +74,6 @@ export interface Settings {
 }
 
 export interface Theme {
-  id: string
   name: string
   colors: ThemeColors
   isDefault?: boolean

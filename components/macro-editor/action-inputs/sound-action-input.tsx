@@ -7,10 +7,10 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { MacroAction } from "@/lib/types"
-import websocketService from "@/lib/websocket-service"
 import { useMacroEditor } from "@/contexts/macro-editor-context"
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
+import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 interface SoundActionInputProps {
   action: Omit<MacroAction, "id">
@@ -19,6 +19,7 @@ interface SoundActionInputProps {
 }
 
 export default function SoundActionInput({ action, onChange, compact }: SoundActionInputProps) {
+  const { send, on, off } = useWebSocketUI()
   const { audioDevices } = useMacroEditor()
   const [filePath, setFilePath] = useState<string>(action.filePath || "")
   const [isSelecting, setIsSelecting] = useState<boolean>(false)
@@ -58,11 +59,11 @@ export default function SoundActionInput({ action, onChange, compact }: SoundAct
   }
 
   useEffect(() => {
-    if (!isSelecting || !websocketService) return
-    websocketService.send("getFilePath", { filePath, filter: "Audio Files|*.wav;*.mp3;*.ogg;*.flac;*.aac" })
-    websocketService.on("filePath", handleFilePath)
+    if (!isSelecting) return
+    send("getFilePath", { filePath, filter: "Audio Files|*.wav;*.mp3;*.ogg;*.flac;*.aac" })
+    on("filePath", handleFilePath)
     return () => {
-      websocketService?.off("filePath", handleFilePath)
+      off("filePath", handleFilePath)
     }
   }, [isSelecting])
 

@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { SettingsGroup } from "./settings-group"
 import { SettingsPanel } from "./settings-panel"
-import { useSettingsData } from "@/hooks/use-settings-data"
+import { Setting, SettingsData, useSettingsContext } from "@/contexts/settings-context"
 
 interface SettingsDialogProps {
   open: boolean
@@ -19,7 +19,7 @@ interface SettingsDialogProps {
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
-  const { settings, updateSetting, isSaving } = useSettingsData()
+  const { settings, updateSetting, isSaving } = useSettingsContext()
 
   const filteredSettings = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -29,7 +29,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     const searchTerms = searchQuery.toLowerCase().split(/\s+/).filter(Boolean)
     const filtered: typeof settings = {}
 
-    Object.entries(settings).forEach(([groupKey, group]) => {
+    Object.entries(settings as SettingsData).forEach(([groupKey, group]) => {
       const filteredGroup: typeof group = {}
       let hasMatchingSettings = false
 

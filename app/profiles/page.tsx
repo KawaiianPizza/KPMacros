@@ -17,9 +17,7 @@ import LoadingSpinner from "@/components/common/loading-spinner"
 import MacroList from "@/components/profiles/macro-list"
 import { SettingsButton } from "@/components/settings/settings-button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { ThemeSelector } from "@/components/theme/theme-selector"
-import { ColorPicker } from "@/components/theme/color-picker"
-import websocketService from "@/lib/websocket-service"
+import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 function ProfilesContent() {
   const router = useRouter()
@@ -45,6 +43,8 @@ function ProfilesContent() {
     sendModMacros
   } = useMacros(selectedProfile)
 
+  const { send } = useWebSocketUI()
+
   const [showProfileForm, setShowProfileForm] = useState(false)
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -52,7 +52,7 @@ function ProfilesContent() {
   const [isDeletingProfile, setIsDeletingProfile] = useState(false)
 
   React.useEffect(() => {
-    websocketService?.send("testMacroStop", { clearMods: true })
+    send("testMacroStop", { clearMods: true })
     loadProfiles()
   }, [loadProfiles])
 

@@ -4,10 +4,10 @@ import type React from "react"
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { v4 as uuidv4 } from "uuid"
-import websocketService from "@/lib/websocket-service"
 import { useToast } from "@/hooks/use-toast"
 import { validateActivator } from "@/lib/validation-utils"
 import { MacroAction, MacroData, Modifiers } from "@/lib/types"
+import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 
 interface MacroEditorContextType {
@@ -99,6 +99,7 @@ export function MacroEditorProvider({
   macroName = null,
 }: MacroEditorProviderProps) {
   const router = useRouter()
+  const { send, on, off } = useWebSocketUI()
   const { toast } = useToast()
 
   const [macro, setMacro] = useState<MacroData>(() => {
@@ -363,30 +364,27 @@ export function MacroEditorProvider({
         macro: macroToSave,
       })
 
-      if (websocketService) {
-        const saveData = {
-          profile: currentProfile,
-          macro: macroToSave,
-          isEditing: isEditingExisting,
-        }
-
-        websocketService.send("saveMacro", saveData)
-
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        setHasUnsavedChanges(false)
-
-        toast({
-          title: isEditingExisting ? "Macro updated" : "Macro created",
-          description: `${macro.name} has been ${isEditingExisting ? "updated" : "created"} successfully.`,
-        })
-        const queryParams = new URLSearchParams({
-          profile: currentProfile
-        })
-        router.push(`/profiles?${queryParams}`)
-      } else {
-        throw new Error("WebSocket service is not available")
+      const saveData = {
+        profile: currentProfile,
+        macro: macroToSave,
+        isEditing: isEditingExisting,
       }
+
+      send("saveMacro", saveData)
+
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      setHasUnsavedChanges(false)
+
+      toast({
+        title: isEditingExisting ? "Macro updated" : "Macro created",
+        description: `${macro.name} has been ${isEditingExisting ? "updated" : "created"} successfully.`,
+      })
+      const queryParams = new URLSearchParams({
+        profile: currentProfile
+      })
+      router.push(`/profiles?${queryParams}`)
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to save macro"
       console.error("Error saving macro:", errorMessage)
@@ -407,11 +405,7 @@ export function MacroEditorProvider({
       setError(null)
       setIsTesting(prev => !prev)
       if (isTesting) {
-        if (websocketService) {
-          websocketService?.send("testMacroStop", { profile: currentProfile, clearMods: false })
-        } else {
-          throw new Error("WebSocket service is not available")
-        }
+        send("testMacroStop", { profile: currentProfile, clearMods: false })
         return
       }
       if (!currentProfile) {
@@ -430,16 +424,13 @@ export function MacroEditorProvider({
         macro: macroToTest,
       })
 
-      if (websocketService) {
-        const macroData = {
-          profile: currentProfile,
-          macro: macroToTest,
-        }
-
-        websocketService.send("testMacro", macroData)
-      } else {
-        throw new Error("WebSocket service is not available")
+      const macroData = {
+        profile: currentProfile,
+        macro: macroToTest,
       }
+
+      send("testMacro", macroData)
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to test macro"
       console.error("Error testing macro:", errorMessage)
@@ -496,17 +487,16 @@ export function MacroEditorProvider({
   }, [macro.modifierMode, updateMacro])
 
   useMemo(() => {
-    if (!websocketService) return
 
     const handleAudioDevices = (data: string[]) => {
       setAudioDevices(data)
     }
 
-    websocketService.on("audioDevices", handleAudioDevices)
-    websocketService.send("getAudioDevices", {})
+    on("audioDevices", handleAudioDevices)
+    send("getAudioDevices", {})
 
     return () => {
-      websocketService?.off("audioDevices", handleAudioDevices)
+      off("audioDevices", handleAudioDevices)
     }
   }, [])
 

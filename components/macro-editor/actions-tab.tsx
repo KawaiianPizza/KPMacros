@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useMacroEditor } from "@/contexts/macro-editor-context"
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd"
 import ActionList from "@/components/macro-editor/action-list"
@@ -9,13 +9,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RotateCcw, Plus, ArrowUpFromLine, ArrowDownToLine } from "lucide-react"
 import ActionInputFactory from "@/components/macro-editor/action-inputs/action-input-factory"
 import { cn } from "@/lib/utils"
 import type { MacroAction } from "@/lib/types"
 import { MacroActionType } from "@/lib/types"
-import websocketService from "@/lib/websocket-service"
 import TypeRowSelect from "../common/type-row-select"
 
 
@@ -24,7 +22,6 @@ export default function ActionsTab() {
   const [newAction, setNewAction] = useState<Omit<MacroAction, "id">>({
     type: "keyboard",
   })
-  const [isCtrlPressed, setIsCtrlPressed] = useState(false)
 
   const actionCounts = {
     start: macro.start.length,

@@ -46,7 +46,7 @@ class WebSocketService {
       if (messageStr.length > 1000) {
         console.log(`Sending large WebSocket message (${messageStr.length} bytes) for action: ${action}`)
       }
-
+      console.log({ [action]: data })
       this.socket!.send(messageStr)
     } catch (error) {
       console.error("Error processing WebSocket queue:", error)
@@ -157,7 +157,7 @@ class WebSocketService {
       if (action === "batchUpdateMacros") {
         console.log(`Queuing batch update for ${data.macros?.length || 0} macros`)
       } else {
-        console.log({ [action]: data })
+        //console.log({ [action]: data })
       }
 
       if (!this.socket || this.socket.readyState >= WebSocket.CLOSING) {

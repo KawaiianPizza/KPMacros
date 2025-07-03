@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import type { MacroAction } from "@/lib/types"
-import websocketService from "@/lib/websocket-service"
 import { Switch } from "@/components/ui/switch"
+import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 interface ProcessActionInputProps {
   action: Omit<MacroAction, "id">
@@ -16,6 +16,8 @@ interface ProcessActionInputProps {
 }
 
 export default function ProcessActionInput({ action, onChange, compact }: ProcessActionInputProps) {
+  const { send, on, off } = useWebSocketUI()
+
   const inputRef = useRef<HTMLInputElement>(null)
   const [filePath, setFilePath] = useState<string>(action.filePath || "")
   const [isSelecting, setIsSelecting] = useState<boolean>(false)
@@ -60,11 +62,11 @@ export default function ProcessActionInput({ action, onChange, compact }: Proces
   }
 
   useEffect(() => {
-    if (!isSelecting || !websocketService) return
-    websocketService.send("getFilePath", { filePath })
-    websocketService.on("filePath", handleFilePath)
+    if (!isSelecting) return
+    send("getFilePath", { filePath })
+    on("filePath", handleFilePath)
     return () => {
-      websocketService?.off("filePath", handleFilePath)
+      off("filePath", handleFilePath)
     }
   }, [isSelecting])
 

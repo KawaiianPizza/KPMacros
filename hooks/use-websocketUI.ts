@@ -1,16 +1,29 @@
 "use client"
 
-import { useEffect, useCallback, useRef } from "react"
+import { useEffect, useCallback, useRef, act } from "react"
 import websocketService from "@/lib/websocket-service"
 
 type MessageHandler = (data: any) => void
 
-export function useWebSocket() {
+export function useWebSocketUI() {
   const handlersRef = useRef<Map<string, MessageHandler[]>>(new Map())
+  const cooldownRefs = useRef<Map<string, number>>(new Map())
+
+  useEffect(() => {
+    return () => {
+      cooldownRefs.current?.clear()
+    }
+  }, [])
 
   const send = useCallback((action: string, data: any) => {
     if (websocketService) {
-      websocketService.send(action, data)
+      const currentTime = Date.now();
+      const lastActionTime = cooldownRefs.current?.get(action);
+
+      if (!lastActionTime || currentTime - lastActionTime >= 100) {
+        websocketService.send(action, data);
+        cooldownRefs.current.set(action, currentTime);
+      }
     }
   }, [])
 

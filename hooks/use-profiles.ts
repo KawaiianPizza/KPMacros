@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useWebSocket } from "./use-websocket"
+import { useWebSocketUI } from "./use-websocketUI"
 import { useToast } from "./use-toast"
 import type { Profile } from "@/lib/types"
 import { useSearchParams } from "next/navigation"
@@ -16,7 +16,7 @@ export function useProfiles() {
   const [selectedProfile, setSelectedProfile] = useState<string>("Global")
   const [deletingProfile, setDeletingProfile] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
-  const { send, on, off } = useWebSocket()
+  const { send, on, off } = useWebSocketUI()
   const { toast } = useToast()
   const searchParams = useSearchParams()
 

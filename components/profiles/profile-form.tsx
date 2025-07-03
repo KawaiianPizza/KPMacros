@@ -11,10 +11,10 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, Loader2 } from "lucide-react"
 import type { Profile, Window } from "@/lib/types"
-import websocketService from "@/lib/websocket-service"
 import { validateWindowsFilename } from "@/lib/validation-utils"
 import { v4 as uuidv4 } from "uuid"
 import { cn } from "@/lib/utils"
+import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 interface ProfileFormProps {
   profile: Profile | null
@@ -24,6 +24,7 @@ interface ProfileFormProps {
 }
 
 export default function ProfileForm({ profile, profiles, onSave, onCancel }: ProfileFormProps) {
+  const { send, on, off } = useWebSocketUI()
   const [name, setName] = useState(profile?.name || "")
   const [windows, setWindows] = useState<Window[]>([])
   const [selectedWindows, setSelectedWindows] = useState<string[]>(profile?.windows || [])
@@ -34,11 +35,9 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
   const [customWindows, setCustomWindows] = useState<Window[]>([])
 
   useEffect(() => {
-    if (!websocketService) return
-
     const handleWindows = (data: Window[]) => {
       setTimeout(() => {
-        websocketService?.send("getWindows", {})
+        send("getWindows", {})
       }, 5000);
       console.log("Received windows:", data)
       setWindows(data)
@@ -65,14 +64,14 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
       setIsLoadingWindows(false)
     }
 
-    websocketService.on("windows", handleWindows)
-    websocketService.on("error", handleError)
+    on("windows", handleWindows)
+    on("error", handleError)
 
-    websocketService.send("getWindows", {})
+    send("getWindows", {})
 
     return () => {
-      websocketService?.off("windows", handleWindows)
-      websocketService?.off("error", handleError)
+      off("windows", handleWindows)
+      off("error", handleError)
     }
   }, [profile])
 

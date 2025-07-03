@@ -1,16 +1,13 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Save, AlertTriangle, Loader2 } from "lucide-react"
 import { useMacroEditor } from "@/contexts/macro-editor-context"
 import GeneralTab from "@/components/macro-editor/general-tab"
 import ActionsTab from "@/components/macro-editor/actions-tab"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import TypeSwitch from "../common/type-switch"
-import { ScrollArea } from "../ui/scroll-area"
 import { Card } from "../ui/card"
-import websocketService from "@/lib/websocket-service"
 import { cn } from "@/lib/utils"
 
 export default function MacroEditorLayout() {

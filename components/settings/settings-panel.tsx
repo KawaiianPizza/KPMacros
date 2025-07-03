@@ -3,18 +3,19 @@
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { SettingItem } from "./setting-item"
-import type { SettingsData, SettingValue } from "@/hooks/use-settings-data"
+import { SettingsData } from "@/contexts/settings-context"
 
 interface SettingsPanelProps {
   settings: SettingsData
   selectedGroup: string | null
   searchQuery: string
-  onUpdateSetting: (groupKey: string, settingKey: string, value: SettingValue) => void
+  onUpdateSetting: (groupKey: string, settingKey: string, value: any) => void
 }
 
 const groupLabels: Record<string, string> = {
   general: "General",
   updates: "Updates",
+  theme: "Theme",
   about: "About",
 }
 
@@ -74,6 +75,7 @@ function getGroupDescription(groupKey: string): string {
   const descriptions: Record<string, string> = {
     general: "Basic application configuration and startup options",
     updates: "Update preferences and automatic update settings",
+    Theme: "",
     about: "Application information and support resources",
   }
   return descriptions[groupKey] || ""

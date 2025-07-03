@@ -75,7 +75,7 @@ export default function MacroList({
                     {macro.enabled ? "Enabled" : "Disabled"}
                   </Badge>
                 </div>
-                <p className="mt-1 flex text-sm text-foreground">
+                <div className="mt-1 flex text-sm text-foreground">
                   Activator:
                   <Badge className="mx-1 flex h-6 content-center items-center justify-between rounded px-1 font-mono text-sm">{macro.activator}</Badge>
                   {macro.type === "Hotkey" && (<> • Loop:
@@ -94,7 +94,7 @@ export default function MacroList({
                       </SelectContent>
                     </Select>
                   </>)}
-                </p>
+                </div>
               </div>
             </div>
 

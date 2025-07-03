@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import { useWebSocket } from "./use-websocket"
+import { useWebSocketUI } from "./use-websocketUI"
 import { useToast } from "@/hooks/use-toast"
 import { v4 as uuidv4 } from "uuid"
 import { MacroData } from "@/lib/types"
@@ -19,7 +19,7 @@ export function useMacros(profileName: string) {
   const [isLoading, setIsLoading] = useState(false)
   const pendingChangesRef = useRef<Map<string, PendingChange>>(new Map())
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const { send, on, off } = useWebSocket()
+  const { send, on, off } = useWebSocketUI()
 
   const ensureMacroUUIDs = useCallback((macrosData: any[]): MacroData[] => {
     return macrosData.map((macro) => ({

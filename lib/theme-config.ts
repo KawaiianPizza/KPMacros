@@ -2,7 +2,6 @@ import { Theme, ThemeColors } from "./types"
 
 export const defaultThemes: Theme[] = [
   {
-    id: "VomitTest",
     name: "VomitTest",
     colors: {
       background: "#000000",
@@ -17,9 +16,9 @@ export const defaultThemes: Theme[] = [
       destructive: "#dc2626",
       border: "#bb00bb",
     },
+    isDefault: true
   },
   {
-    id: "HallowedMint",
     name: "Hallowed Mint",
     colors: {
       background: "#14161b",
@@ -34,9 +33,9 @@ export const defaultThemes: Theme[] = [
       destructive: "#ff0000",
       border: "#80888B"
     },
+    isDefault: true
   },
   {
-    id: "bloodclaat",
     name: "Bloodclaat",
     colors: {
       background: "#ffaada",
@@ -50,7 +49,8 @@ export const defaultThemes: Theme[] = [
       activeText: "#E63946",
       destructive: "#dc2626",
       border: "#fe4cb1",
-    }
+    },
+    isDefault: true
   },
 ]
 
@@ -94,6 +94,6 @@ export function applyThemeColors(colors: ThemeColors): void {
   })
 }
 
-export function getThemeById(id: string): Theme | undefined {
-  return defaultThemes.find((theme) => theme.id === id)
+export function getThemeByName(name: string): Theme | undefined {
+  return defaultThemes.find((theme) => theme.name === name)
 }

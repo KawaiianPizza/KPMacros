@@ -8,9 +8,7 @@ import { MacroEditorProvider } from "@/contexts/macro-editor-context"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent } from "@/components/ui/card"
 import { AlertTriangle } from "lucide-react"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { MacroData, Modifiers } from "@/lib/types"
-import websocketService from "@/lib/websocket-service"
 
 
 export default function MacroEditorPage() {
