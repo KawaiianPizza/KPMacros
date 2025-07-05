@@ -12,7 +12,7 @@ interface PendingChange {
   timestamp: number
 }
 
-const AUTO_SAVE_DELAY = 10000
+const AUTO_SAVE_DELAY = 1000
 
 export function useMacros(profileName: string) {
   const [macros, setMacros] = useState<MacroData[]>([])
@@ -69,12 +69,12 @@ export function useMacros(profileName: string) {
   const addPendingChange = useCallback(
     (macro: MacroData): void => {
       const newChange: PendingChange = {
-        macroId: macro.id,
+        macroId: macro.id!,
         macro: { ...macro },
         timestamp: Date.now(),
       }
 
-      pendingChangesRef.current.set(macro.id, newChange)
+      pendingChangesRef.current.set(macro.id!, newChange)
       scheduleAutoSave()
     },
     [scheduleAutoSave],

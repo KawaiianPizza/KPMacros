@@ -140,20 +140,20 @@ function toast({ ...props }: Toast) {
   const update = (props: ToasterToast) =>
     dispatch({
       type: "UPDATE_TOAST",
-      toast: { ...props, id },
+      toast: { duration: TOAST_REMOVE_DELAY, ...props, id },
     })
   const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
 
   dispatch({
     type: "ADD_TOAST",
     toast: {
+      duration: TOAST_REMOVE_DELAY,
       ...props,
       id,
       open: true,
       onOpenChange: (open) => {
         if (!open) dismiss()
       },
-      duration: TOAST_REMOVE_DELAY
     },
   })
 
