@@ -16,6 +16,7 @@ import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group"
 import TypeSwitch from "../common/type-switch"
 import { cn } from "@/lib/utils"
 import { NumberInput } from "../common/number-input"
+import { validateActivator } from "@/lib/validation-utils"
 
 export default function GeneralTab() {
   const { macro, updateMacro, isRecording, setIsRecording, startRecording, toggleModifierMode, isActivatorValid, isTesting } = useMacroEditor()
@@ -27,7 +28,8 @@ export default function GeneralTab() {
     const value = e.target.value
     setActivator(value)
 
-    if (macro.type === "Hotkey" && value.trim()) {
+    if (macro.type === "Command" && validateActivator(value, macro.type)) {
+      updateMacro({ activator: value })
     }
   }
 
@@ -177,6 +179,7 @@ export default function GeneralTab() {
                 onChange={handleActivatorChange}
                 disabled={isTesting}
                 onFocusCapture={() => {
+                  if (macro.type === "Command") return
                   setActivator("")
                   startRecording()
                 }}
@@ -205,7 +208,7 @@ export default function GeneralTab() {
               ) : macro.type === "Hotkey" ? (
                 <p>Hotkey format: Modifier(s)+Key (e.g. Ctrl+Shift+A)</p>
               ) : (
-                <p>Command format: Any text combination 32 characters or less. (e.g. /macro or !run)</p>
+                <p>Command format: Any text combination 2-32 characters long. (e.g. /macro or !run)</p>
               )}
             </div>
           </div>
