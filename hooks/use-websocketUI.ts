@@ -6,10 +6,15 @@ import { useToast } from "./use-toast"
 
 type MessageHandler = (data: any) => void
 
+type CooldownEntry = {
+  lastSent?: number;
+  timeoutId?: ReturnType<typeof setTimeout>;
+};
+
 export function useWebSocketUI() {
   const { toast } = useToast()
   const handlersRef = useRef<Map<string, MessageHandler[]>>(new Map())
-  const cooldownRefs = useRef<Map<string, number>>(new Map())
+  const cooldownRefs = useRef<Map<string, CooldownEntry>>(new Map())
   const [isClosed, setIsClosed] = useState(false)
 
   useEffect(() => {
@@ -18,17 +23,39 @@ export function useWebSocketUI() {
     }
   }, [])
 
-  const send = useCallback((action: string, data: any) => {
-    if (websocketService) {
-      const currentTime = Date.now();
-      const lastActionTime = cooldownRefs.current?.get(action);
+  const COOLDOWN_MS = 300;
 
-      if (!lastActionTime || currentTime - lastActionTime >= 100) {
-        websocketService.send(action, data);
-        cooldownRefs.current.set(action, currentTime);
+  const send = useCallback((action: string, data: any, debounce: boolean = true) => {
+    if (!websocketService) return;
+
+    const now = Date.now();
+    const entry = cooldownRefs.current.get(action) || {};
+    const timeSinceLastSend = entry.lastSent ? now - entry.lastSent : Infinity;
+
+    if (debounce) {
+      if (timeSinceLastSend < COOLDOWN_MS) {
+        if (entry.timeoutId) clearTimeout(entry.timeoutId);
+
+        const timeoutId = setTimeout(() => {
+          websocketService?.send(action, data);
+          cooldownRefs.current.set(action, { lastSent: Date.now(), });
+        }, COOLDOWN_MS - timeSinceLastSend);
+
+        cooldownRefs.current.set(action, { ...entry, timeoutId, });
+        return;
       }
+
+      websocketService.send(action, data);
+      cooldownRefs.current.set(action, { lastSent: now, });
+      return
     }
-  }, [])
+
+    if (timeSinceLastSend <= COOLDOWN_MS) return
+
+    websocketService.send(action, data);
+    cooldownRefs.current.set(action, { lastSent: now, });
+  }, []);
+
 
   const on = useCallback((action: string, handler: MessageHandler) => {
     if (!websocketService) return

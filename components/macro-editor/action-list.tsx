@@ -6,6 +6,7 @@ import { Droppable, Draggable } from "@hello-pangea/dnd"
 import ActionDisplay from "./action-display"
 import { ScrollArea } from "../ui/scroll-area"
 import type { MacroAction } from "@/lib/types"
+import { v4 as uuidv4 } from "uuid"
 
 interface ActionListProps {
   listType: "start" | "loop" | "finish"
@@ -33,7 +34,7 @@ export default function ActionList({ listType, title, description, compact = fal
 
   const handleDuplicateAction = (action: MacroAction) => {
     const { id, ...actionWithoutId } = action
-    addAction(listType, actionWithoutId)
+    addAction(listType, { ...actionWithoutId, id: uuidv4() })
   }
 
   const handleSelectAction = (actionId: string) => {
@@ -52,7 +53,7 @@ export default function ActionList({ listType, title, description, compact = fal
       <div className="flex-1 min-h-0 h-full w-full relative border border-border p-1 rounded-lg bg-background before:absolute before:inset-0 before:bg-card/35 overflow-clip">
         <Droppable droppableId={`${listType}-actions`}>
           {(provided, snapshot) => (
-            <ScrollArea className="h-96 w-full" scrollHideDelay={1000*60*60*24}>
+            <ScrollArea className="h-96 w-full" scrollHideDelay={1000 * 60 * 60 * 24}>
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}

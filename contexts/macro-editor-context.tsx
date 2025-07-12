@@ -23,7 +23,7 @@ interface MacroEditorContextType {
   isEditingExisting: boolean
 
   // Action management
-  addAction: (listType: "start" | "loop" | "finish", action: Omit<MacroAction, "id">) => void
+  addAction: (listType: "start" | "loop" | "finish", action: MacroAction) => void
   updateAction: (
     listType: "start" | "loop" | "finish",
     actionId: string,
@@ -196,24 +196,18 @@ export function MacroEditorProvider({
     }
   }, [initialMacroData, isTesting])
 
-  const addAction = useCallback((listType: "start" | "loop" | "finish", action: Omit<MacroAction, "id">) => {
+  const addAction = useCallback((listType: "start" | "loop" | "finish", action: MacroAction) => {
     try {
       if (isTesting)
         toggleTesting()
 
-      const newAction: MacroAction = {
-        id: uuidv4(),
-        type: action.type,
-        ...action,
-      }
-
       setMacro((prev) => ({
         ...prev,
-        [listType]: [...prev[listType], newAction],
+        [listType]: [...prev[listType], action],
       }))
 
       setHasUnsavedChanges(true)
-      console.log(`Added action to ${listType}:`, newAction)
+      console.log(`Added action to ${listType}:`, action)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to add action"
       console.error("Error adding action:", errorMessage)
@@ -493,7 +487,7 @@ export function MacroEditorProvider({
     }
 
     on("audioDevices", handleAudioDevices)
-    send("getAudioDevices", {})
+    send("getAudioDevices", {}, false)
 
     return () => {
       off("audioDevices", handleAudioDevices)

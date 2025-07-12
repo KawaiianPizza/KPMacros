@@ -12,8 +12,8 @@ import ProcessActionInput from "./process-action-input"
 
 interface ActionInputFactoryProps {
   actionType: string
-  action: Omit<MacroAction, "id">
-  onChange: (action: Omit<MacroAction, "id">) => void
+  action: MacroAction
+  onChange: (action: MacroAction) => void
   compact: boolean
 }
 

@@ -12,8 +12,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 
 interface TextActionInputProps {
-  action: Omit<MacroAction, "id">
-  onChange: (action: Omit<MacroAction, "id">) => void
+  action: MacroAction
+  onChange: (action: MacroAction) => void
   compact: boolean
 }
 

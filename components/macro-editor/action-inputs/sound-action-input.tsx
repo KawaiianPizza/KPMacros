@@ -13,8 +13,8 @@ import { cn } from "@/lib/utils"
 import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 interface SoundActionInputProps {
-  action: Omit<MacroAction, "id">
-  onChange: (action: Omit<MacroAction, "id">) => void
+  action: MacroAction
+  onChange: (action: MacroAction) => void
   compact: boolean
 }
 

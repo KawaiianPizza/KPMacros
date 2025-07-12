@@ -10,8 +10,8 @@ import { Switch } from "@/components/ui/switch"
 import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 interface ProcessActionInputProps {
-  action: Omit<MacroAction, "id">
-  onChange: (action: Omit<MacroAction, "id">) => void
+  action: MacroAction
+  onChange: (action: MacroAction) => void
   compact: boolean
 }
 

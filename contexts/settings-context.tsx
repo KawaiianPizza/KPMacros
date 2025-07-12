@@ -128,7 +128,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
         on("settings", handleSettings);
         on("settingsSaved", handleSettingsSaved);
-        send("getSettings", {});
+        send("getSettings", {}, false);
 
         return () => {
             off("settings", handleSettings);

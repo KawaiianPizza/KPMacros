@@ -276,10 +276,10 @@ export default function ActionDisplay({
         <CardContent className={cn("px-4 pb-4 pt-3 w-full overflow-hidden bg-background/25", !isActionValid() && "ring-inset ring-1 ring-red-600")}>
           <div className="space-y-4 w-full overflow-hidden">
             <div className="grid grid-row-1 gap-4 w-full overflow-hidden">
-              <div className="space-y-1 w-full overflow-hidden">
+              {/* <div className="space-y-1 w-full overflow-hidden">
                 <Label className="text-xs">Type</Label>
                 <TypeRowSelect columns={3} rows={2} id="action-type" options={[...MacroActionType]} value={action.type} onValueChange={handleActionTypeChange}></TypeRowSelect>
-              </div>
+              </div> */}
               <div className="row-span-2 w-full overflow-hidden">
                 <div className="w-full overflow-hidden">
                   <ActionInputFactory

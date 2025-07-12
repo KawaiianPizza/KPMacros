@@ -57,7 +57,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
 
     ctx.font = computedStyle.font || font
 
-    const charWidth = ctx.measureText(previousValue).width / previousValue.length
+    const charWidth = ctx.measureText("M").width
 
     const lineHeight = Number.parseInt(computedStyle.lineHeight) || fontSize * 1.2
     const paddingLeft = (Number.parseInt(computedStyle.paddingLeft) + Number.parseInt(computedStyle.paddingRight)) || 0
@@ -68,6 +68,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
 
     setTextMetrics({ charWidth, lineHeight, fontSize, fontFamily, font, maxCharsPerLine })
   }, [])
+
 
   const calculateWrappedLines = useCallback(() => {
     if (!textareaRef.current || !textMetrics.charWidth) return []
@@ -89,7 +90,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
       const realLineLength = line.length
       const trimmedLine = line.trimEnd()
       const trimmedLength = trimmedLine.length
-
+      
       if (trimmedLength <= maxCharsPerLine) {
         const charIndices = Array.from({ length: trimmedLength }, (_, i) => globalCharIndex + i)
         wrappedLines.push({
@@ -101,8 +102,9 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
         globalCharIndex += realLineLength + 1
         return
       }
-
-      const words = line.match(/\S+\s*/g) || []
+      
+      const words = line.match(/\s*\S+\s*/g) || []
+      console.log(line)
       let currentLine = ""
       let currentIndices: number[] = []
       let isFirstPart = true
@@ -169,9 +171,10 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
 
       globalCharIndex += realLineLength + 1
     })
-
     return wrappedLines
   }, [textMetrics, previousValue])
+
+  const wrappedLines = useMemo(() => calculateWrappedLines(), [previousValue])
 
   const animatedChars = useMemo(() => {
     const animatedChars = new Set<number>()
@@ -277,7 +280,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
 
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
-  }, [])
+  }, [previousValue])
 
   useEffect(() => {
     setPreviousValue(props.value + "")
@@ -311,8 +314,6 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
     setPreviousValue(newValue)
     onChange?.(e)
   }
-
-  const wrappedLines = useMemo(() => calculateWrappedLines(), [previousValue])
 
   const lineNumbersElement = useMemo(() => {
     const totalVisualLines = Math.max(1, wrappedLines.length)

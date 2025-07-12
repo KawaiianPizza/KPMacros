@@ -23,15 +23,18 @@ import {
 } from "lucide-react"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { NumberInput } from "@/components/common/number-input"
-import { MacroAction } from "@/lib/types"
+import { MacroAction, MacroActionType } from "@/lib/types"
+import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 interface MouseActionInputProps {
-  action: Omit<MacroAction, "id">
-  onChange: (action: Omit<MacroAction, "id">) => void
+  action: MacroAction
+  onChange: (action: MacroAction) => void
   compact: boolean
 }
 
 export default function MouseActionInput({ action, onChange, compact }: MouseActionInputProps) {
+  const { send, on, off } = useWebSocketUI()
+
   const getInitialTab = (): "buttons" | "move" | "scroll" => {
     if (action.button && action.state) {
       return "buttons"
@@ -46,7 +49,8 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
 
   const [currentTab, setCurrentTab] = useState<"buttons" | "move" | "scroll">(getInitialTab)
   const emptyAction = {
-    type: "mouse",
+    id: action.id,
+    type: "mouse" as typeof MacroActionType[number],
     button: undefined,
     state: undefined,
     x: undefined,
@@ -81,6 +85,39 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
       })
     }
   }, [])
+
+  useEffect(() => {
+    const handleMouseLocationUpdate = ({ x, y, id }: { x: number, y: number, id: string }) => {
+      console.log(action)
+      if (action.id === id) {
+        onChange({
+          ...emptyAction,
+          relative: action.relative || false,
+          x,
+          y,
+        })
+      }
+    }
+    on("previewMouseLocationUpdated", handleMouseLocationUpdate)
+    return () => {
+      off("previewMouseLocationUpdated", handleMouseLocationUpdate)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (currentTab !== "move") return
+    send("previewMouseCursor", {
+      id: action.id,
+      relative: action.relative,
+      x: action.x,
+      y: action.y,
+      ...(compact && { color: "#ffff00" })
+    })
+
+    return () => {
+      send("stopPreviewMouseCursor", { id: action.id })
+    }
+  }, [currentTab])
 
   const handleMouseActionTypeChange = (value: string) => {
     const newTab = value as "buttons" | "move" | "scroll"
@@ -125,18 +162,32 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
   }
 
   const handlePositionModeChange = (relative: boolean) => {
+    const x = !relative ? action.x !== undefined ? action.x : 0 : 0
+    const y = !relative ? action.y !== undefined ? action.y : 0 : 0
+    send("previewMouseCursor", {
+      id: action.id,
+      relative,
+      x,
+      y,
+    })
     onChange({
       ...emptyAction,
       relative,
-      x: action.x !== undefined ? action.x : 0,
-      y: action.y !== undefined ? action.y : 0,
+      x,
+      y,
     })
   }
 
   const handleCoordinateChange = (coord: "x" | "y", value: number) => {
+    send("previewMouseCursor", {
+      id: action.id,
+      relative: action.relative,
+      x: coord === "x" ? value : action.x,
+      y: coord === "y" ? value : action.y,
+    })
     onChange({
       ...emptyAction,
-      relative: !!action.relative,
+      relative: action.relative,
       x: coord === "x" ? value : action.x !== undefined ? action.x : 0,
       y: coord === "y" ? value : action.y !== undefined ? action.y : 0,
     })
@@ -239,7 +290,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
             <div className="space-y-1 min-w-[80px] flex-1">
               <div className="flex items-center">
                 <MoveHorizontal className="h-3.5 w-3.5 mr-1" />
-                <Label className="text-xs">X {action.relative ? "offset" : "position"}</Label>
+                <Label className="text-xs">X {!!action.relative ? "offset" : "position"}</Label>
               </div>
               <NumberInput
                 type="number"
@@ -250,7 +301,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
             <div className="space-y-1 min-w-[80px] flex-1">
               <div className="flex items-center">
                 <MoveVertical className="h-3.5 w-3.5 mr-1" />
-                <Label className="text-xs">Y {action.relative ? "offset" : "position"}</Label>
+                <Label className="text-xs">Y {!!action.relative ? "offset" : "position"}</Label>
               </div>
               <NumberInput
                 type="number"
@@ -260,10 +311,10 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
             </div>
             <div className="flex flex-col items-center space-y-1.5 min-w-[80px]">
               <Label htmlFor="relative-position" className="text-xs">
-                {action.relative ? "Relative" : "Absolute"} position
+                {!!action.relative ? "Relative" : "Absolute"} position
               </Label>
               <div className="flex items-center h-10">
-                <Switch id="relative-position" checked={action.relative} onCheckedChange={handlePositionModeChange} />
+                <Switch id="relative-position" checked={!!action.relative} onCheckedChange={handlePositionModeChange} />
               </div>
             </div>
           </div>

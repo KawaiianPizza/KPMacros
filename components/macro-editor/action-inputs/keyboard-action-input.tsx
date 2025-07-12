@@ -15,8 +15,8 @@ import { MacroAction } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
 
 interface KeyboardActionInputProps {
-  action: Omit<MacroAction, "id">
-  onChange: (action: Omit<MacroAction, "id">) => void
+  action: MacroAction
+  onChange: (action: MacroAction) => void
   compact: boolean
 }
 

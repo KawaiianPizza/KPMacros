@@ -13,17 +13,17 @@ type TypeSwitchProps<T extends readonly [string, string]> = {
 
 export default function TypeSwitch<T extends readonly [string, string]>({ options, disabled, value, onValueChange, className }: TypeSwitchProps<T>) {
     return (
-        <div className={cn("mx-auto w-[20dvw] rounded-lg border border-border/35", className)}>
-            <div className="relative z-10 flex h-full cursor-pointer select-none items-center justify-between overflow-clip rounded-lg bg-background p-1 before:absolute before:inset-0 before:-z-10 before:bg-input/65 first:*:rounded-r-none last:*:rounded-l-none" onClick={() => disabled || onValueChange(value === options[0] ? options[1] : options[0])}>
-                <Button className={cn("relative z-20 flex flex-1 items-center justify-center overflow-clip text-xl font-medium transition-colors duration-200 hover:text-input-text",
-                    value === options[0] ? "" : "bg-input hover:border-active hover:text-active")}>
+        <div className={cn("mx-auto w-[20dvw] rounded-lg border border-border/35 overflow-clip", className)}>
+            <div className="relative z-10 flex h-full cursor-pointer select-none items-center justify-between bg-background p-1 before:absolute before:inset-0 before:-z-10 before:bg-input/65 first:*:rounded-r-none last:*:rounded-l-none" onClick={() => disabled || onValueChange(value === options[0] ? options[1] : options[0])}>
+                <Button className={cn("relative z-20 flex flex-1 items-center justify-center text-xl font-medium transition-colors duration-200 hover:text-input-text",
+                    value === options[0] ? "border-active text-active-text hover:text-active-text" : "bg-input hover:border-active hover:text-active")}>
                     <span className="z-10">{options[0]}</span>
                     <div className={cn("absolute bottom-0 top-0 w-full bg-active shadow-sm transition-all duration-200 ease-in-out",
                         value === options[0] ? "left-0" : "left-full",
                         disabled === options[0] && "hidden")} />
                 </Button>
-                <Button className={cn("relative z-20 flex flex-1 items-center justify-center overflow-clip text-xl font-medium transition-colors duration-200 hover:text-input-text",
-                    value === options[1] ? "" : "bg-input text-input-text/65 hover:border-active hover:text-active",
+                <Button className={cn("relative z-20 flex flex-1 items-center justify-center text-xl font-medium transition-colors duration-200 hover:text-input-text",
+                    value === options[1] ? "border-active text-active-text hover:text-active-text" : "bg-input hover:border-active hover:text-active",
                     disabled === options[1] && "hidden")}>
                     <span className="z-10">{options[1]}</span>
                     <div className={cn("absolute bottom-0 top-0 w-full bg-active shadow-sm transition-all duration-200 ease-in-out",

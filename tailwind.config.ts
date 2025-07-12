@@ -75,10 +75,10 @@ const config: Config = {
           },
         },
         "magic": {
-          '0%': {
+          '0%, 100%': {
             filter: 'drop-shadow(0px 0px 2px hsl(var(--active)/100%))',
           },
-          '100%': {
+          '50%': {
             filter: 'drop-shadow(0px 0px 2px hsl(var(--active)/0%))',
           },
         },
@@ -89,7 +89,7 @@ const config: Config = {
         "breathing": 'breathing 3s ease-out infinite',
         "update-a": 'update-a 2s ease-in-out',
         "update-b": 'update-b 2s ease-in-out',
-        "magic": 'magic 2s ease-in-out, update-a 2s ease-in-out',
+        "magic": 'magic 3s ease-in infinite, update-a 2s ease-in-out',
       },
     },
   },

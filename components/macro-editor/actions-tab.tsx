@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useMacroEditor } from "@/contexts/macro-editor-context"
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd"
 import ActionList from "@/components/macro-editor/action-list"
@@ -15,11 +15,12 @@ import { cn } from "@/lib/utils"
 import type { MacroAction } from "@/lib/types"
 import { MacroActionType } from "@/lib/types"
 import TypeRowSelect from "../common/type-row-select"
-
+import { v4 as uuidv4 } from "uuid"
 
 export default function ActionsTab() {
   const { macro, addAction, moveActionBetweenLists } = useMacroEditor()
-  const [newAction, setNewAction] = useState<Omit<MacroAction, "id">>({
+  const [newAction, setNewAction] = useState<MacroAction>({
+    id: "0",
     type: "keyboard",
   })
 
@@ -36,7 +37,7 @@ export default function ActionsTab() {
     return newAction.type
   }
 
-  const handleActionTypeChange = (value: string) => {
+  const handleActionTypeChange = (value: typeof MacroActionType[number]) => {
     const actionMap = {
       keyboard: { state: "press" },
       mouse: { button: "left", state: "click" },
@@ -45,7 +46,7 @@ export default function ActionsTab() {
       sound: { volume: 100 },
       process: {},
     }
-    setNewAction({ type: value, ...actionMap[value as keyof typeof actionMap] })
+    setNewAction({ id: newAction.id, type: value, ...actionMap[value] })
   }
 
   const handleDragEnd = (result: DropResult) => {
@@ -58,19 +59,21 @@ export default function ActionsTab() {
   }
 
   const handleAddAction = (type: "start" | "loop" | "finish") => {
-
     if (getCurrentActionType() === "keyboard" && newAction.state === "press") {
       addAction(type, {
         ...newAction,
+        id: uuidv4(),
         state: "down",
       })
       addAction(type, {
         ...newAction,
+        id: uuidv4(),
         state: "up",
       })
     } else {
-      addAction(type, newAction)
+      addAction(type, { ...newAction, id: uuidv4() })
     }
+    setNewAction({ ...newAction })
   }
 
   const isActionValid = () => {
@@ -108,7 +111,7 @@ export default function ActionsTab() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-foreground">Action Lists</h3>
@@ -147,7 +150,26 @@ export default function ActionsTab() {
           })}
         </div>
       </DragDropContext>
-      <Card className="border-none mt-6">
+      <div className="flex justify-around">
+        {actionListConfigs.map(({ type, title }) => {
+          if (macro.type === "Command" && type !== "finish") return <></>
+          const valid = isActionValid()
+          return (
+            <Button
+              key={type}
+              variant="default"
+              disabled={!valid}
+              className={cn("flex w-min items-center justify-center gap-1", valid && "border-active animate-magic")}
+              onClick={() => handleAddAction(type)}
+            >
+              <ArrowUpFromLine />
+              <span className="text-xs">Add to {title.split(" ")[0]}</span>
+              <ArrowUpFromLine />
+            </Button>
+          )
+        })}
+      </div>
+      <Card className="border-none">
         <CardContent className="rounded-lg border border-border p-4 pt-2">
           <div className="flex flex-1 gap-x-6">
             <div className="space-y-2">
@@ -164,24 +186,6 @@ export default function ActionsTab() {
                 onChange={setNewAction}
                 compact={false}
               />
-              <div className="flex border-t border-border pt-3 justify-center">
-                {actionListConfigs.map(({ type, title, icon: Icon }) => {
-                  if (macro.type === "Command" && type !== "finish") return <></>
-                  const valid = isActionValid()
-                  return (
-                    <Button
-                      key={type}
-                      variant="default"
-                      disabled={!valid}
-                      className={cn("flex w-min items-center justify-center gap-1 rounded-none first:rounded-l-md last:rounded-r-md", valid && "border-active animate-magic")}
-                      onClick={() => handleAddAction(type)}
-                    >
-                      <Icon className="h-3 w-3" />
-                      <span className="text-xs">Add to {title.split(" ")[0]}</span>
-                    </Button>
-                  )
-                })}
-              </div>
             </div>
           </div>
 

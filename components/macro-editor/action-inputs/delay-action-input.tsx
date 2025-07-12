@@ -9,8 +9,8 @@ import { NumberInput } from "@/components/common/number-input"
 import { MacroAction } from "@/lib/types"
 
 interface DelayActionInputProps {
-  action: Omit<MacroAction, "id">
-  onChange: (action: Omit<MacroAction, "id">) => void
+  action: MacroAction
+  onChange: (action: MacroAction) => void
   compact: boolean
 }
 
