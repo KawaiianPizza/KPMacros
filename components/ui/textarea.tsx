@@ -90,7 +90,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
       const realLineLength = line.length
       const trimmedLine = line.trimEnd()
       const trimmedLength = trimmedLine.length
-      
+
       if (trimmedLength <= maxCharsPerLine) {
         const charIndices = Array.from({ length: trimmedLength }, (_, i) => globalCharIndex + i)
         wrappedLines.push({
@@ -102,7 +102,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
         globalCharIndex += realLineLength + 1
         return
       }
-      
+
       const words = line.match(/\s*\S+\s*/g) || []
       console.log(line)
       let currentLine = ""
@@ -262,8 +262,8 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
   }, [renderCanvasOverlay, animatedRanges.length])
 
   useEffect(() => {
-    if (animatedRanges.length >= 0)
-      animate()
+    // if (animatedRanges.length > 0)
+    animate()
     return () => {
       if (animationFrameRef.current)
         cancelAnimationFrame(animationFrameRef.current)

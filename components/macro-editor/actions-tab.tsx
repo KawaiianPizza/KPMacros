@@ -16,6 +16,7 @@ import type { MacroAction } from "@/lib/types"
 import { MacroActionType } from "@/lib/types"
 import TypeRowSelect from "../common/type-row-select"
 import { v4 as uuidv4 } from "uuid"
+import { Separator } from "../ui/separator"
 
 export default function ActionsTab() {
   const { macro, addAction, moveActionBetweenLists } = useMacroEditor()
@@ -150,25 +151,6 @@ export default function ActionsTab() {
           })}
         </div>
       </DragDropContext>
-      <div className="flex justify-around">
-        {actionListConfigs.map(({ type, title }) => {
-          if (macro.type === "Command" && type !== "finish") return <></>
-          const valid = isActionValid()
-          return (
-            <Button
-              key={type}
-              variant="default"
-              disabled={!valid}
-              className={cn("flex w-min items-center justify-center gap-1", valid && "border-active animate-magic")}
-              onClick={() => handleAddAction(type)}
-            >
-              <ArrowUpFromLine />
-              <span className="text-xs">Add to {title.split(" ")[0]}</span>
-              <ArrowUpFromLine />
-            </Button>
-          )
-        })}
-      </div>
       <Card className="border-none">
         <CardContent className="rounded-lg border border-border p-4 pt-2">
           <div className="flex flex-1 gap-x-6">
@@ -188,7 +170,26 @@ export default function ActionsTab() {
               />
             </div>
           </div>
-
+          <Separator className="my-3" />
+          <div className="flex justify-around">
+            {actionListConfigs.map(({ type, title }) => {
+              if (macro.type === "Command" && type !== "finish") return <></>
+              const valid = isActionValid()
+              return (
+                <Button
+                  key={type}
+                  variant="default"
+                  disabled={!valid}
+                  className={cn("flex w-min items-center justify-center gap-1", valid && "border-active animate-magic")}
+                  onClick={() => handleAddAction(type)}
+                >
+                  <ArrowUpFromLine />
+                  <span className="text-xs">Add to {title.split(" ")[0]}</span>
+                  <ArrowUpFromLine />
+                </Button>
+              )
+            })}
+          </div>
         </CardContent>
       </Card>
     </div>

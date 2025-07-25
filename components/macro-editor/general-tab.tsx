@@ -217,7 +217,7 @@ export default function GeneralTab() {
 
           <div className="space-y-2 flex justify-between">
             <div className="flex items-center space-x-2">
-              <Checkbox id="interrupt" checked={macro.interrupt} onCheckedChange={handleInterruptChange} />
+              <Checkbox id="interrupt" disabled={macro.mod} checked={macro.interrupt} onCheckedChange={handleInterruptChange} />
               <Label htmlFor="interrupt" className="flex items-center gap-2">
                 {macro.type === "Hotkey" ? "Interrupt the activator key" : "Remove command after activation"}
                 <TooltipProvider delayDuration={300}>

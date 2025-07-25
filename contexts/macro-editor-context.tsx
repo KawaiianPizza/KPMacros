@@ -373,6 +373,7 @@ export function MacroEditorProvider({
       toast({
         title: isEditingExisting ? "Macro updated" : "Macro created",
         description: `${macro.name} has been ${isEditingExisting ? "updated" : "created"} successfully.`,
+        duration: 2000
       })
       const queryParams = new URLSearchParams({
         profile: currentProfile
