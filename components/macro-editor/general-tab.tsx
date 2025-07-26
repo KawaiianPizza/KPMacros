@@ -17,9 +17,17 @@ import TypeSwitch from "../common/type-switch"
 import { cn } from "@/lib/utils"
 import { NumberInput } from "../common/number-input"
 import { validateActivator } from "@/lib/validation-utils"
+import { useWebSocketUI } from "@/hooks/use-websocketUI"
+
+type KeyboardInput = {
+  key: number,
+  isPressed: boolean,
+  isModifier: boolean
+}
 
 export default function GeneralTab() {
   const { macro, updateMacro, isRecording, setIsRecording, startRecording, toggleModifierMode, isActivatorValid, isTesting } = useMacroEditor()
+  const { send, on, off } = useWebSocketUI()
   const [activator, setActivator] = useState<string>(macro.activator || "")
 
   const recordingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -51,65 +59,67 @@ export default function GeneralTab() {
     if (!isRecording) return
 
     const activeModifiers = new Set<string>()
-
     const keyMap: Record<string, string> = {
       15: "Mod",
-      Control: "Ctrl",
-      Shift: "Shift",
-      Alt: "Alt",
-      Meta: "Win",
+      17: "Ctrl",
+      162: "Ctrl",
+      163: "Ctrl",
+      16: "Shift",
+      160: "Shift",
+      161: "Shift",
+      18: "Alt",
+      164: "Alt",
+      165: "Alt",
+      91: "Win",
+      92: "Win",
     }
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      e.preventDefault()
-      const mod = keyMap[e.key === "Unidentified" ? e.keyCode : e.key]
-      if (mod) {
-        activeModifiers.add(mod)
-
-        const modifiersText = Array.from(activeModifiers).join("+")
-        setActivator(modifiersText ? `${modifiersText}+` : "")
-      } else {
-        let keyName = KEYCODES.find(k => k.keyCode === e.keyCode)?.value || e.key
-
-        if (keyName === " ") keyName = "Space"
-        else if (keyName.length === 1 && /[a-zA-Z0-9]/.test(keyName)) {
-          keyName = keyName.toUpperCase()
-        } else if (/^[A-Za-z0-9]+$/.test(keyName)) {
-          keyName = keyName.charAt(0).toUpperCase() + keyName.slice(1).toLowerCase()
+    const handleKeyboardInput = (e: KeyboardInput) => {
+      if (e.isPressed) {
+        if (e.isModifier) {
+          activeModifiers.add(keyMap[e.key])
+          const modifiersText = Array.from(activeModifiers).join("+")
+          setActivator(modifiersText ? `${modifiersText}+` : "")
         } else {
-          return
+          let keyName = KEYCODES.find(k => k.keyCode === e.key)!.value
+
+          if (keyName === " ") keyName = "Space"
+          else if (keyName.length === 1 && /[a-zA-Z0-9]/.test(keyName)) {
+            keyName = keyName.toUpperCase()
+          } else if (/^[A-Za-z0-9]+$/.test(keyName)) {
+            keyName = keyName.charAt(0).toUpperCase() + keyName.slice(1).toLowerCase()
+          } else {
+            return
+          }
+
+          const modifiersArray = Array.from(activeModifiers)
+          const fullHotkey = modifiersArray.length > 0 ? `${modifiersArray.join("+")}+${keyName}` : keyName
+
+          updateMacro({ activator: fullHotkey })
+          setActivator(fullHotkey)
+          send("stopRecordKeyboard", {})
+          setIsRecording(false)
         }
+      } else {
+        if (e.isModifier) {
+          activeModifiers.delete(keyMap[e.key])
 
-        const modifiersArray = Array.from(activeModifiers)
-        const fullHotkey = modifiersArray.length > 0 ? `${modifiersArray.join("+")}+${keyName}` : keyName
-
-        updateMacro({ activator: fullHotkey })
-        setActivator(fullHotkey)
-        setIsRecording(false)
+          const modifiersText = Array.from(activeModifiers).join("+")
+          setActivator(modifiersText ? `${modifiersText}+` : "")
+        }
       }
     }
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      const mod = keyMap[e.key === "Unidentified" ? e.keyCode : e.key]
-      if (mod) {
-        activeModifiers.delete(mod)
-
-        const modifiersText = Array.from(activeModifiers).join("+")
-        setActivator(modifiersText ? `${modifiersText}+` : "")
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown)
-    window.addEventListener("keyup", handleKeyUp)
-
+    on("keyboardInput", handleKeyboardInput)
+    send("startRecordKeyboard", { interrupt: true })
     recordingTimeoutRef.current = setTimeout(() => {
+      send("stopRecordKeyboard", {})
       setIsRecording(false)
       setActivator(macro.activator)
     }, 5000)
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-      window.removeEventListener("keyup", handleKeyUp)
+      send("stopRecordKeyboard", {})
+      off("keyboardInput", handleKeyboardInput)
       if (recordingTimeoutRef.current) {
         clearTimeout(recordingTimeoutRef.current)
       }

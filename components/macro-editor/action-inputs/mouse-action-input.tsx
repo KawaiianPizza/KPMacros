@@ -112,10 +112,10 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
       x: action.x,
       y: action.y,
       ...(compact && { color: "#ffff00" })
-    })
+    }, true)
 
     return () => {
-      send("stopPreviewMouseCursor", { id: action.id })
+      send("stopPreviewMouseCursor", { id: action.id }, true)
     }
   }, [currentTab])
 
@@ -169,7 +169,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
       relative,
       x,
       y,
-    })
+    }, true)
     onChange({
       ...emptyAction,
       relative,
@@ -184,7 +184,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
       relative: action.relative,
       x: coord === "x" ? value : action.x,
       y: coord === "y" ? value : action.y,
-    })
+    }, true)
     onChange({
       ...emptyAction,
       relative: action.relative,

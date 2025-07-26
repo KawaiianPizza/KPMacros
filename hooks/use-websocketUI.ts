@@ -25,7 +25,7 @@ export function useWebSocketUI() {
 
   const COOLDOWN_MS = 300;
 
-  const send = useCallback((action: string, data: any, debounce: boolean = true) => {
+  const send = useCallback((action: string, data: any, debounce: boolean = false) => {
     if (!websocketService) return;
 
     const now = Date.now();
