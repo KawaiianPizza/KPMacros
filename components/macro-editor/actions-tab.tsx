@@ -177,7 +177,8 @@ export default function ActionsTab() {
         actionBuffer.current.push({
           id: uuidv4(),
           type: "mouse",
-          direction
+          scroll: direction,
+          amount: 1
         })
         break;
       case "move":

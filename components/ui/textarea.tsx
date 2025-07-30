@@ -18,16 +18,16 @@ interface AnimatedRange {
 }
 
 interface TextMetrics {
-  charWidth: number
+  ctx: CanvasRenderingContext2D
   lineHeight: number
   font: string
-  maxCharsPerLine: number
+  availableWidth: number
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({ className, animateNewText = false, onChange, ...props }, ref) => {
   const [previousValue, setPreviousValue] = React.useState("")
   const [animatedRanges, setAnimatedRanges] = React.useState<AnimatedRange[]>([])
-  const [textMetrics, setTextMetrics] = React.useState<TextMetrics>({ charWidth: 8, lineHeight: 20, font: "", maxCharsPerLine: 69 })
+  const [textMetrics, setTextMetrics] = React.useState<TextMetrics | undefined>()
 
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
@@ -55,24 +55,37 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
 
     ctx.font = computedStyle.font || font
 
-    const charWidth = ctx.measureText("M").width
 
     const lineHeight = Number.parseInt(computedStyle.lineHeight) || fontSize * 1.2
     const paddingLeft = (Number.parseInt(computedStyle.paddingLeft) + Number.parseInt(computedStyle.paddingRight)) || 0
 
     const scrollbarWidth = textarea.offsetWidth - textarea.clientWidth
     const availableWidth = textarea.clientWidth - paddingLeft - scrollbarWidth
-    let maxCharsPerLine = availableWidth / charWidth
 
-    setTextMetrics({ charWidth, lineHeight, font, maxCharsPerLine })
+    setTextMetrics({ ctx, lineHeight, font, availableWidth })
   }, [])
 
+  function isAsianCharacter(char: string) {
+    const codePoint = char.charCodeAt(0);
+    // CJK Ideographs (Chinese/Japanese Kanji)
+    const isCJK = (codePoint >= 0x4E00 && codePoint <= 0x9FFF) ||
+      (codePoint >= 0x3400 && codePoint <= 0x4DBF) ||
+      (codePoint >= 0x20000 && codePoint <= 0x2A6DF) ||
+      (codePoint >= 0xF900 && codePoint <= 0xFAFF);
+    // Hiragana
+    const isHiragana = (codePoint >= 0x3040 && codePoint <= 0x309F);
+    // Katakana
+    const isKatakana = (codePoint >= 0x30A0 && codePoint <= 0x30FF);
+    // Hangul
+    const isHangul = (codePoint >= 0xAC00 && codePoint <= 0xD7AF);
 
+    return isCJK || isHiragana || isKatakana || isHangul;
+  }
   const calculateWrappedLines = useCallback(() => {
-    if (!textareaRef.current || !textMetrics.charWidth) return []
+    if (!textareaRef.current || !textMetrics) return []
+    const { ctx, lineHeight, font, availableWidth } = textMetrics
 
-    const maxCharsPerLine = textMetrics.maxCharsPerLine
-    if (maxCharsPerLine <= 0) return []
+    if (availableWidth <= 0) return []
 
     const lines = previousValue.split("\n")
     const wrappedLines: {
@@ -87,10 +100,9 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
     lines.forEach((line, index) => {
       const realLineLength = line.length
       const trimmedLine = line.trimEnd()
-      const trimmedLength = trimmedLine.length
 
-      if (trimmedLength <= maxCharsPerLine) {
-        const charIndices = Array.from({ length: trimmedLength }, (_, i) => globalCharIndex + i)
+      if (ctx.measureText(trimmedLine).width <= availableWidth) {
+        const charIndices = Array.from({ length: trimmedLine.length }, (_, i) => globalCharIndex + i)
         wrappedLines.push({
           lineNumber: index + 1,
           isWrapped: false,
@@ -101,7 +113,29 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
         return
       }
 
-      const words = line.match(/\s*\S+\s*/g) || []
+      const words = line.match(/\s*\S+\s*/g)?.flatMap(string => {
+        let slices = []
+        let buffer = ""
+
+        for (let i = 0; i < string.length; i++) {
+          const char = string[i]
+          if (!isAsianCharacter(char)) {
+            buffer += char
+            continue
+          }
+          if (buffer) {
+            slices.push(buffer)
+            buffer = ""
+          }
+          slices.push(char)
+        }
+        
+        if (buffer)
+          slices.push(buffer)
+
+        return slices.length === 1 ? [string] : slices
+      }) || []
+      
       let currentLine = ""
       let currentIndices: number[] = []
       let isFirstPart = true
@@ -112,17 +146,16 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
         const wordIndices = Array.from({ length: word.length }, (_, i) => wordStart + i)
 
         const testLine = currentLine + word
-        const testTrimmedLength = testLine.trimEnd().length
+        const testTrimmed = testLine.trimEnd()
 
-        if (testTrimmedLength <= maxCharsPerLine) {
+        if (ctx.measureText(testTrimmed).width <= availableWidth) {
           currentLine = testLine
           currentIndices.push(...wordIndices)
           lineCursor += word.length
         } else {
           if (currentLine.length > 0) {
             const trimmedCurrentLine = currentLine.trimEnd()
-            const trimmedLength = trimmedCurrentLine.length
-            const trimmedIndices = currentIndices.slice(0, trimmedLength)
+            const trimmedIndices = currentIndices.slice(0, trimmedCurrentLine.length)
 
             wrappedLines.push({
               lineNumber: index + 1,
@@ -137,9 +170,15 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
           currentIndices = wordIndices
           lineCursor += word.length
 
-          while (currentLine.length > maxCharsPerLine) {
-            const chunk = currentLine.slice(0, maxCharsPerLine)
-            const chunkIndices = currentIndices.slice(0, maxCharsPerLine)
+          while (ctx.measureText(currentLine).width > availableWidth) {
+            let accumulatedLine = ""
+            for (let i = 0; i < currentLine.length; i++) {
+              const char = currentLine[i];
+              if (ctx.measureText(accumulatedLine + char).width <= availableWidth)
+                accumulatedLine += char
+            }
+            const chunk = accumulatedLine
+            const chunkIndices = currentIndices.slice(0, accumulatedLine.length)
 
             wrappedLines.push({
               lineNumber: index + 1,
@@ -148,8 +187,8 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
               charIndices: chunkIndices,
             })
 
-            currentLine = currentLine.slice(maxCharsPerLine)
-            currentIndices = currentIndices.slice(maxCharsPerLine)
+            currentLine = currentLine.slice(accumulatedLine.length)
+            currentIndices = currentIndices.slice(accumulatedLine.length)
             isFirstPart = false
           }
         }
@@ -168,6 +207,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
 
       globalCharIndex += realLineLength + 1
     })
+    console.log(wrappedLines)
     return wrappedLines
   }, [textMetrics, previousValue])
 
@@ -183,7 +223,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
   }, [animatedRanges])
 
   const renderCanvasOverlay = useCallback(() => {
-    if (!canvasRef.current || !textareaRef.current || !animateNewText) return
+    if (!canvasRef.current || !textareaRef.current || !animateNewText || !textMetrics) return
 
     const canvas = canvasRef.current
     const ctx = canvas.getContext("2d")!
@@ -239,7 +279,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
           }
         }
 
-        x += textMetrics.charWidth
+        x += textMetrics.ctx.measureText(char).width
       })
 
       if (visualLineIndex < wrappedLines.length - 1) {
@@ -325,8 +365,8 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
             className={cn("relative text-right")}
             style={{
               width,
-              height: `${textMetrics.lineHeight}px`,
-              lineHeight: `${textMetrics.lineHeight}px`,
+              height: `${textMetrics?.lineHeight}px`,
+              lineHeight: `${textMetrics?.lineHeight}px`,
             }}
           >
             {index === 0 && <ArrowUpToLine className="absolute h-3 w-3 top-[5px] -left-[6px]" />}
@@ -341,8 +381,8 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
             className={cn("relative text-right")}
             style={{
               width,
-              height: `${textMetrics.lineHeight}px`,
-              lineHeight: `${textMetrics.lineHeight}px`,
+              height: `${textMetrics?.lineHeight}px`,
+              lineHeight: `${textMetrics?.lineHeight}px`,
             }}
           >
             <ArrowUpToLine className="absolute h-3 w-3 top-[5px] -left-[6px]" />
