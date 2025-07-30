@@ -100,3 +100,44 @@ export interface WebSocketMessage {
   action: string
   data: any
 }
+
+export type InputData = KeyboardData | MouseData | ScrollData | MoveData | DelayData;
+
+export type KeyboardData = {
+  type: "keyboard";
+  data: {
+    key: number;
+    isPressed: boolean;
+    isModifier: boolean;
+  };
+}
+
+export type MouseData = {
+  type: "mouse";
+  data: {
+    button: "Left" | "Right" | "Middle";
+    isPressed: boolean;
+  };
+}
+
+export type ScrollData = {
+  type: "scroll";
+  data: {
+    direction: "Up" | "Down" | "Left" | "Right";
+  };
+}
+
+export type MoveData = {
+  type: "move";
+  data: {
+    x: number;
+    y: number;
+  };
+}
+
+export type DelayData = {
+  type: "delay",
+  data: {
+    duration: number
+  }
+}

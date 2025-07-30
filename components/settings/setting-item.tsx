@@ -97,7 +97,6 @@ export function SettingItem({ groupKey, settingKey, setting, onUpdate }: Setting
             if (!domain || domain.length !== 2) return
             return (
               <Button key={link} size="sm" onClick={() => window.open(link, "_blank")} className="gap-2 rounded-none first:rounded-l-md last:rounded-r-md">
-                <Info className="h-4 w-4" />
                 {domain[1]}
                 <ExternalLink className="h-3 w-3" />
               </Button>)

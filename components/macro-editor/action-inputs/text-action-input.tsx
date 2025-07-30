@@ -207,7 +207,7 @@ export default function TextActionInput({ action, onChange, compact }: TextActio
 
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
         <Label htmlFor="text-value" className="flex items-center gap-2">
           <Type className="h-4 w-4" />

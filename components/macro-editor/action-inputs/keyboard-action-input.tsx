@@ -90,7 +90,7 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
   }
 
   return (
-    <div className="flex flex-wrap gap-4 items-start h-[calc(100%_-_2rem)] content-center">
+    <div className="flex flex-wrap gap-4 items-start content-center">
       <div className="min-w-[126px] flex-shrink space-y-2">
         <Label>Key State</Label>
         <div className="flex">

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useMacroEditor } from "@/contexts/macro-editor-context"
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd"
 import ActionList from "@/components/macro-editor/action-list"
@@ -9,21 +9,71 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { RotateCcw, Plus, ArrowUpFromLine, ArrowDownToLine } from "lucide-react"
+import { RotateCcw, Plus, ArrowUpFromLine, ArrowDownToLine, Disc, Disc2, Disc2Icon, Keyboard, MousePointer, MousePointerClick, MoveRight, MoveVertical, Move, Mouse, ClockPlus } from "lucide-react"
 import ActionInputFactory from "@/components/macro-editor/action-inputs/action-input-factory"
 import { cn } from "@/lib/utils"
-import type { MacroAction } from "@/lib/types"
+import type { InputData, MacroAction } from "@/lib/types"
 import { MacroActionType } from "@/lib/types"
 import TypeRowSelect from "../common/type-row-select"
 import { v4 as uuidv4 } from "uuid"
 import { Separator } from "../ui/separator"
+import { useWebSocketUI } from "@/hooks/use-websocketUI"
+import KEYCODES from "@/lib/KEYCODES"
+import { useToast } from "@/hooks/use-toast"
+import { Tooltip, TooltipContent, TooltipProvider } from "../ui/tooltip"
+import { TooltipTrigger } from "@radix-ui/react-tooltip"
 
 export default function ActionsTab() {
-  const { macro, addAction, moveActionBetweenLists } = useMacroEditor()
+  const { macro, addAction, moveActionBetweenLists, isRecording, setIsRecording } = useMacroEditor()
+  const { send, on, off } = useWebSocketUI()
+  const { toast } = useToast()
   const [newAction, setNewAction] = useState<MacroAction>({
     id: "0",
     type: "keyboard",
   })
+  const [recordingList, setRecordingList] = useState<"start" | "loop" | "finish" | undefined>()
+  const [recordButtonConfigs, setRecordButtonConfigs] = useState([
+    {
+      icon: Keyboard,
+      tooltip: "Record keyboard input" as const,
+      state: false
+    },
+    {
+      icon: Mouse,
+      tooltip: "Record mouse input" as const,
+      state: false
+    },
+    {
+      icon: Move,
+      tooltip: "Record mouse movement" as const,
+      state: false
+    },
+    {
+      icon: ClockPlus,
+      tooltip: "Record delays between inputs" as const,
+      state: false
+    },
+  ])
+  const recordingListRef = useRef(recordingList)
+  const actionBuffer = useRef<MacroAction[]>([])
+  const flushTimer = useRef<NodeJS.Timeout | null>(null)
+  const DEBOUNCE_INTERVAL = 100
+  const disableRecordButtons = useMemo(() => recordButtonConfigs.every(e => !e.state), [recordButtonConfigs])
+  useEffect(() => {
+    recordingListRef.current = recordingList
+  }, [recordingList])
+  useEffect(() => {
+    if (!isRecording) return
+    on("inputData", handleRecordingInput)
+    const [keyboard, mouse, move, delay] = recordButtonConfigs.map(e => e.state || undefined)
+    send("startRecordInput", { interrupt: false, keyboard, mouse, move, delay })
+
+    return () => {
+      send("stopRecordInput", {})
+      off("inputData", handleRecordingInput)
+      setIsRecording(false)
+    }
+  }, [isRecording])
 
   const actionCounts = {
     start: macro.start.length,
@@ -31,12 +81,6 @@ export default function ActionsTab() {
     finish: macro.finish.length,
   }
   const totalCount = Object.values(actionCounts).reduce((sum, count) => sum + count, 0)
-
-  const getCurrentActionType = () => {
-    if (["keydown", "keypress", "keyup"].includes(newAction.type)) return "keyboard"
-    if (["mouse", "mousemove", "mousescroll"].includes(newAction.type)) return "mouse"
-    return newAction.type
-  }
 
   const handleActionTypeChange = (value: typeof MacroActionType[number]) => {
     const actionMap = {
@@ -60,7 +104,7 @@ export default function ActionsTab() {
   }
 
   const handleAddAction = (type: "start" | "loop" | "finish") => {
-    if (getCurrentActionType() === "keyboard" && newAction.state === "press") {
+    if (newAction.type === "keyboard" && newAction.state === "press") {
       addAction(type, {
         ...newAction,
         id: uuidv4(),
@@ -76,9 +120,97 @@ export default function ActionsTab() {
     }
     setNewAction({ ...newAction })
   }
+  const handleToggleRecordActions = (type: "start" | "loop" | "finish") => {
+    if (type === recordingList && isRecording) {
+      send("stopRecordInput", {})
+      setIsRecording(false)
+      return
+    }
+    setIsRecording(true)
+    setRecordingList(type)
+  }
+
+  const flushBufferedActions = () => {
+    const currentRecordingList = recordingListRef.current
+    if (!currentRecordingList || actionBuffer.current.length === 0) return
+
+    for (const action of actionBuffer.current) {
+      addAction(currentRecordingList, action)
+    }
+    actionBuffer.current = []
+  }
+
+  const handleRecordingInput = ({ type, data }: InputData) => {
+    const currentRecordingList = recordingListRef.current
+
+    if (!currentRecordingList) {
+      toast({
+        title: "Recording failed",
+        description: "No active recording session.",
+        variant: "destructive",
+      })
+      return
+    }
+    switch (type) {
+      case "keyboard":
+        const { key, isPressed, isModifier } = data
+        const keyName = KEYCODES.find(e => e.keyCode === key)?.value
+        if (!keyName) return
+        actionBuffer.current.push({
+          id: uuidv4(),
+          type: "keyboard",
+          key: keyName,
+          state: isPressed ? "down" : "up",
+        })
+        break;
+      case "mouse":
+        const { button, isPressed: mouseIsPressed } = data
+        actionBuffer.current.push({
+          id: uuidv4(),
+          type: "mouse",
+          button,
+          state: mouseIsPressed ? "down" : "up"
+        })
+        break
+      case "scroll":
+        const { direction } = data
+        actionBuffer.current.push({
+          id: uuidv4(),
+          type: "mouse",
+          direction
+        })
+        break;
+      case "move":
+        const { x, y } = data
+        actionBuffer.current.push({
+          id: uuidv4(),
+          type: "mouse",
+          x, y,
+          relative: true
+        })
+        break
+      case "delay":
+        const { duration } = data
+        actionBuffer.current.push({
+          id: uuidv4(),
+          type: "delay",
+          duration
+        })
+        break
+    }
+
+
+    if (flushTimer.current) {
+      clearTimeout(flushTimer.current)
+    }
+
+    flushTimer.current = setTimeout(() => {
+      flushBufferedActions()
+    }, DEBOUNCE_INTERVAL)
+  }
 
   const isActionValid = () => {
-    const type = getCurrentActionType()
+    const type = newAction.type
     if (type === "keyboard" && !newAction.key) return false
     if (type === "text" && !newAction.text) return false
     if (type === "delay" && !newAction.duration) return false
@@ -86,6 +218,12 @@ export default function ActionsTab() {
     if (type === "process" && !newAction.filePath) return false
     return true
   }
+
+  const handleToggleRecord = (index: number) => {
+    setRecordButtonConfigs((prev) =>
+      prev.map((e, idx) =>
+        index === idx ? { ...e, state: !e.state } : e));
+  };
 
   const actionListConfigs = [
     {
@@ -158,12 +296,34 @@ export default function ActionsTab() {
               <Label htmlFor="action-type" className="text-xs">
                 Type
               </Label>
-              <TypeRowSelect columns={2} rows={3} id="action-type" options={[...MacroActionType]} value={getCurrentActionType()} onValueChange={handleActionTypeChange}></TypeRowSelect>
+              <TypeRowSelect columns={2} rows={3} id="action-type" options={[...MacroActionType]} value={newAction.type} onValueChange={handleActionTypeChange}></TypeRowSelect>
+              <div className="flex w-48">
+                <TooltipProvider delayDuration={500}>
+                  {recordButtonConfigs.map(({ icon: Icon, tooltip, state }, index) =>
+                    <Tooltip key={index}>
+                      <TooltipTrigger>
+                        <Button className={cn("w-12",
+                          index > 0 && "rounded-l-none",
+                          index < recordButtonConfigs.length - 1 && "rounded-r-none",
+                          state && "text-active border-active"
+                        )}
+                          onClick={() => handleToggleRecord(index)}
+                          disabled={isRecording}>
+                          <Icon />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {tooltip}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </TooltipProvider>
+              </div>
             </div>
 
             <div className="flex flex-col flex-grow space-y-3 py-1">
               <ActionInputFactory
-                actionType={getCurrentActionType()}
+                actionType={newAction.type}
                 action={newAction}
                 onChange={setNewAction}
                 compact={false}
@@ -176,17 +336,25 @@ export default function ActionsTab() {
               if (macro.type === "Command" && type !== "finish") return <></>
               const valid = isActionValid()
               return (
-                <Button
-                  key={type}
-                  variant="default"
-                  disabled={!valid}
-                  className={cn("flex w-min items-center justify-center gap-1", valid && "border-active animate-magic")}
-                  onClick={() => handleAddAction(type)}
-                >
-                  <ArrowUpFromLine />
-                  <span className="text-xs">Add to {title.split(" ")[0]}</span>
-                  <ArrowUpFromLine />
-                </Button>
+                <div className="flex">
+                  <Button
+                    key={type}
+                    variant="default"
+                    disabled={!valid}
+                    className={cn("flex w-min items-center justify-center gap-1 rounded-r-none", valid && "border-active animate-magic")}
+                    onClick={() => handleAddAction(type)}
+                  >
+                    <ArrowUpFromLine />
+                    <span className="text-xs">Add to {title.split(" ")[0]}</span>
+                    <ArrowUpFromLine />
+                  </Button>
+                  <Button className={cn("w-0 rounded-l-none border-l-0", !disableRecordButtons && "border-active animate-magic")}
+                    disabled={disableRecordButtons}
+                    onClick={() => handleToggleRecordActions(type)}>
+                    <Disc2 className={cn(isRecording && recordingList === type && "text-red-600 filter")}
+                      style={{ "--tw-drop-shadow": isRecording && recordingList === type && "drop-shadow(0px 0px 2px rgb(220 38 38 / var(--tw-text-opacity, 1)))" } as any} />
+                  </Button>
+                </div>
               )
             })}
           </div>

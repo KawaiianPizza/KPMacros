@@ -20,6 +20,12 @@ import {
   MouseIcon as MouseUp,
   ArrowUp,
   ArrowDown,
+  CircleArrowRight,
+  CircleArrowLeft,
+  CircleArrowDown,
+  CircleArrowUp,
+  ArrowUpToLine,
+  ArrowDownToLine,
 } from "lucide-react"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { NumberInput } from "@/components/common/number-input"
@@ -88,7 +94,6 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
 
   useEffect(() => {
     const handleMouseLocationUpdate = ({ x, y, id }: { x: number, y: number, id: string }) => {
-      console.log(action)
       if (action.id === id) {
         onChange({
           ...emptyAction,
@@ -244,7 +249,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
                   className="justify-start w-min rounded-md"
                 >
                   <ToggleGroupItem value="left" aria-label="Left Button" title="Left Button">
-                    <MouseLeft className="h-4 w-4 mr-1" />
+                    <CircleArrowLeft className="h-4 w-4 mr-1" />
                     <span>Left</span>
                   </ToggleGroupItem>
                   <ToggleGroupItem value="middle" aria-label="Middle Button" title="Middle Button">
@@ -252,7 +257,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
                     <span>Middle</span>
                   </ToggleGroupItem>
                   <ToggleGroupItem value="right" aria-label="Right Button" title="Right Button">
-                    <MouseRight className="h-4 w-4 mr-1" />
+                    <CircleArrowRight className="h-4 w-4 mr-1" />
                     <span>Right</span>
                   </ToggleGroupItem>
                 </ToggleGroup>
@@ -267,7 +272,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
                   className="justify-start w-min rounded-md"
                 >
                   <ToggleGroupItem value="down" aria-label="Mouse Down" title="Mouse Down">
-                    <MouseDown className="h-4 w-4 mr-1" />
+                    <ArrowDownToLine  className="h-4 w-4 mr-1" />
                     <span>Down</span>
                   </ToggleGroupItem>
                   <ToggleGroupItem value="click" aria-label="Mouse Click" title="Mouse Click">
@@ -275,7 +280,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
                     <span>Click</span>
                   </ToggleGroupItem>
                   <ToggleGroupItem value="up" aria-label="Mouse Up" title="Mouse Up">
-                    <MouseUp className="h-4 w-4 mr-1" />
+                    <ArrowUpToLine className="h-4 w-4 mr-1" />
                     <span>Up</span>
                   </ToggleGroupItem>
                 </ToggleGroup>

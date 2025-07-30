@@ -20,8 +20,6 @@ interface AnimatedRange {
 interface TextMetrics {
   charWidth: number
   lineHeight: number
-  fontSize: number
-  fontFamily: string
   font: string
   maxCharsPerLine: number
 }
@@ -29,7 +27,7 @@ interface TextMetrics {
 const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({ className, animateNewText = false, onChange, ...props }, ref) => {
   const [previousValue, setPreviousValue] = React.useState("")
   const [animatedRanges, setAnimatedRanges] = React.useState<AnimatedRange[]>([])
-  const [textMetrics, setTextMetrics] = React.useState<TextMetrics>({ charWidth: 8, lineHeight: 20, fontSize: 14, fontFamily: "monospace", font: "", maxCharsPerLine: 69 })
+  const [textMetrics, setTextMetrics] = React.useState<TextMetrics>({ charWidth: 8, lineHeight: 20, font: "", maxCharsPerLine: 69 })
 
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
@@ -66,7 +64,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
     const availableWidth = textarea.clientWidth - paddingLeft - scrollbarWidth
     let maxCharsPerLine = availableWidth / charWidth
 
-    setTextMetrics({ charWidth, lineHeight, fontSize, fontFamily, font, maxCharsPerLine })
+    setTextMetrics({ charWidth, lineHeight, font, maxCharsPerLine })
   }, [])
 
 
@@ -104,7 +102,6 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
       }
 
       const words = line.match(/\s*\S+\s*/g) || []
-      console.log(line)
       let currentLine = ""
       let currentIndices: number[] = []
       let isFirstPart = true

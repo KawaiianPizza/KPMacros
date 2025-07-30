@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { Component, ReactElement, useEffect, useMemo, useRef, useState } from "react"
 import { useMacroEditor } from "@/contexts/macro-editor-context"
 import { Droppable, Draggable } from "@hello-pangea/dnd"
 import ActionDisplay from "./action-display"
 import { ScrollArea } from "../ui/scroll-area"
 import type { MacroAction } from "@/lib/types"
 import { v4 as uuidv4 } from "uuid"
+import { cn } from "@/lib/utils"
 
 interface ActionListProps {
   listType: "start" | "loop" | "finish"
@@ -16,9 +17,17 @@ interface ActionListProps {
 }
 
 export default function ActionList({ listType, title, description, compact = false }: ActionListProps) {
-  const { macro, addAction, updateAction, removeAction, reorderActions } = useMacroEditor()
+  const { macro, addAction, updateAction, removeAction, reorderActions, lastAddedActionId, setLastAddedActionId } = useMacroEditor()
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null)
-  const actions = macro[listType]
+  const actions = useMemo(() => macro[listType], [macro[listType]])
+  const lastMessageRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: 'smooth', block: "nearest" })
+      setLastAddedActionId("")
+    }
+  }, [actions])
 
   const handleMoveUp = (index: number) => {
     if (index <= 0) return
@@ -65,26 +74,36 @@ export default function ActionList({ listType, title, description, compact = fal
                     {snapshot.isDraggingOver ? "Drop action here" : "No actions added yet"}
                   </div>
                 ) : (
-                  actions.map((action, index) => (
+                  actions.map((action, index) =>
                     <Draggable key={action.id} draggableId={action.id} index={index}>
-                      {(provided) => (
-                        <ActionDisplay
-                          action={action}
-                          index={index}
-                          listType={listType}
-                          isSelected={selectedActionId === action.id}
-                          onSelect={() => handleSelectAction(action.id)}
-                          onUpdate={(updates) => updateAction(listType, action.id, updates)}
-                          onMoveUp={() => handleMoveUp(index)}
-                          onMoveDown={() => handleMoveDown(index)}
-                          onDuplicate={() => handleDuplicateAction(action)}
-                          onDelete={() => removeAction(listType, action.id)}
-                          dragHandleProps={provided.dragHandleProps}
-                          provided={provided}
-                        />
-                      )}
+                      {(provided) => {
+                        const isLastAdded = action.id === lastAddedActionId;
+                        return (
+                          <div
+                            ref={node => {
+                              if (isLastAdded) lastMessageRef.current = node;
+                              provided.innerRef(node);
+                            }}
+                          >
+                            <ActionDisplay
+                              action={action}
+                              index={index}
+                              listType={listType}
+                              isSelected={selectedActionId === action.id}
+                              onSelect={() => handleSelectAction(action.id)}
+                              onUpdate={(updates) => updateAction(listType, action.id, updates)}
+                              onMoveUp={() => handleMoveUp(index)}
+                              onMoveDown={() => handleMoveDown(index)}
+                              onDuplicate={() => handleDuplicateAction(action)}
+                              onDelete={() => removeAction(listType, action.id)}
+                              dragHandleProps={provided.dragHandleProps}
+                              provided={provided}
+                              className={cn("!animate-update-border")}
+                            />
+                          </div>);
+                      }}
                     </Draggable>
-                  ))
+                  )
                 )}
                 {provided.placeholder}
               </div>

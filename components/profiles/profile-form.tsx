@@ -39,7 +39,6 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
       setTimeout(() => {
         send("getWindows", {})
       }, 5000);
-      console.log("Received windows:", data)
       setWindows(data)
 
       if (profile?.windows && profile.windows.length > 0) {

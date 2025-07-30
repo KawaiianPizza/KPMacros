@@ -87,7 +87,7 @@ export default function SoundActionInput({ action, onChange, compact }: SoundAct
     debouncedOnChange("volume", volume)
   }
   return (
-    <div className="flex flex-wrap gap-4 items-start h-[calc(100%_-_2rem)] content-center">
+    <div className="flex flex-wrap gap-4 items-start content-center">
       <div className="flex-1 space-y-2 min-w-[220px]">
         <Label htmlFor="file-path">File Path</Label>
         <div className="flex">

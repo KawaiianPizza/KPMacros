@@ -10,7 +10,7 @@ import ActionInputFactory from "./action-inputs/action-input-factory"
 import { MacroActionType, type MacroAction } from "@/lib/types"
 import TypeRowSelect from "../common/type-row-select"
 
-interface ActionDisplayProps {
+interface ActionDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
   action: MacroAction
   index: number
   listType: "start" | "loop" | "finish"
@@ -36,6 +36,7 @@ export default function ActionDisplay({
   onDelete,
   dragHandleProps,
   provided,
+  ...props
 }: ActionDisplayProps) {
   const getActionDescription = () => {
     switch (action.type) {
@@ -146,13 +147,13 @@ export default function ActionDisplay({
     }
     onUpdate({ type: value, ...actionMap[value as keyof typeof actionMap] })
   }
-
   return (
     <Card
       ref={provided.innerRef}
       {...provided.draggableProps}
       className={cn(
-        "transition-all duration-200 select-none group w-full overflow-hidden",
+        props.className,
+        "group w-full select-none overflow-hidden transition-all duration-200",
         isSelected ? "shadow-md" : "shadow-sm",
       )}
     >

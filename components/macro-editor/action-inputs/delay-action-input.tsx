@@ -28,7 +28,7 @@ export default function DelayActionInput({ action, onChange }: DelayActionInputP
   }
 
   return (
-    <div className="space-y-2 h-[calc(100%_-_2rem)] content-center">
+    <div className="space-y-2 content-center">
       <Label htmlFor="delay-value">Wait Duration (ms)</Label>
       <NumberInput
         id="delay-value"

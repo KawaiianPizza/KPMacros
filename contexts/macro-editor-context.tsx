@@ -24,6 +24,8 @@ interface MacroEditorContextType {
 
   // Action management
   addAction: (listType: "start" | "loop" | "finish", action: MacroAction) => void
+  lastAddedActionId: string | undefined
+  setLastAddedActionId: (id: string) => void
   updateAction: (
     listType: "start" | "loop" | "finish",
     actionId: string,
@@ -144,6 +146,7 @@ export function MacroEditorProvider({
   const [isActivatorValid, setIsActivatorValid] = useState(validateActivator(macro.activator, macro.type).isValid)
   const [isTesting, setIsTesting] = useState(false)
   const [audioDevices, setAudioDevices] = useState<string[]>([])
+  const [lastAddedActionId, setLastAddedActionId] = useState<string>()
 
   useEffect(() => {
     if (initialMacroData) {
@@ -205,7 +208,7 @@ export function MacroEditorProvider({
         ...prev,
         [listType]: [...prev[listType], action],
       }))
-
+      setLastAddedActionId(action.id)
       setHasUnsavedChanges(true)
       console.log(`Added action to ${listType}:`, action)
     } catch (err) {
@@ -504,6 +507,8 @@ export function MacroEditorProvider({
     currentMacroName,
     isEditingExisting,
     addAction,
+    lastAddedActionId,
+    setLastAddedActionId,
     updateAction,
     removeAction,
     reorderActions,

@@ -74,6 +74,14 @@ const config: Config = {
             color: 'hsl(var(--input-text))',
           },
         },
+        "update-border": {
+          '0%': {
+            borderColor: 'hsl(var(--active))',
+          },
+          '100%': {
+            borderColor: 'hsl(var(--border))',
+          },
+        },
         "magic": {
           '0%, 100%': {
             filter: 'drop-shadow(0px 0px 2px hsl(var(--active)/100%))',
@@ -89,7 +97,8 @@ const config: Config = {
         "breathing": 'breathing 3s ease-out infinite',
         "update-a": 'update-a 2s ease-in-out',
         "update-b": 'update-b 2s ease-in-out',
-        "magic": 'magic 3s ease-in infinite, update-a 2s ease-in-out',
+        "update-border": 'update-border 2s ease-in-out',
+        "magic": 'magic 3s ease-in infinite',
       },
     },
   },
