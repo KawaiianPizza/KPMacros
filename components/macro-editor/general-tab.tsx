@@ -39,11 +39,9 @@ export default function GeneralTab() {
   const handleInterruptChange = (checked: boolean) => {
     updateMacro({ interrupt: checked })
   }
+  
   const handleModChange = (checked: boolean) => {
     updateMacro({ mod: checked })
-  }
-  const handleRepeatDelayChange = (value: number) => {
-    updateMacro({ repeatDelay: value })
   }
 
   const handleMacroTypeChange = (value: string) => {
@@ -257,50 +255,6 @@ export default function GeneralTab() {
               </Label>
             </div>}
           </div>
-
-          {macro.type === "Hotkey" && !macro.mod && (
-            <div className="space-y-2 pt-2">
-              <Label htmlFor="repeatDelay" className="text-foreground flex items-center gap-2">
-                Repeat Delay (ms)
-                <TooltipProvider delayDuration={300}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-foreground/65" />
-                    </TooltipTrigger>
-                    <TooltipContent>Time in milliseconds to wait before repeating the Loop action list</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </Label>
-              <div className="flex items-center">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handleRepeatDelayChange(Math.max(0, macro.repeatDelay - 5))}
-                  className="rounded-r-none border-r-0 border-border"
-                >
-                  -
-                </Button>
-                <NumberInput
-                  id="repeatDelay"
-                  type="number"
-                  min={0}
-                  value={macro.repeatDelay}
-                  onChange={(e) => handleRepeatDelayChange(e || 0)}
-                  className="rounded-none text-center border-border"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handleRepeatDelayChange(macro.repeatDelay + 5)}
-                  className="rounded-l-none border-l-0 border-border"
-                >
-                  +
-                </Button>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>

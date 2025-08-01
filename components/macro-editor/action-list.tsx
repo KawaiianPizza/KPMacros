@@ -62,11 +62,13 @@ export default function ActionList({ listType, title, description, compact = fal
       <div className="flex-1 min-h-0 h-full w-full relative border border-border p-1 rounded-lg bg-background before:absolute before:inset-0 before:bg-card/35 overflow-clip">
         <Droppable droppableId={`${listType}-actions`}>
           {(provided, snapshot) => (
-            <ScrollArea className="h-96 w-full" scrollHideDelay={1000 * 60 * 60 * 24}>
+            <ScrollArea className={cn("h-96 w-full",
+              listType === "loop" && "h-[21.25rem]"
+            )} scrollHideDelay={1000 * 60 * 60 * 24}>
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={`space-y-2 min-h-48 transition-colors w-full ${snapshot.isDraggingOver ? "bg-input/65 rounded-md" : ""
+                className={`space-y-1 min-h-48 transition-colors w-full ${snapshot.isDraggingOver ? "bg-input/65 rounded-md" : ""
                   }`}
               >
                 {actions.length === 0 ? (

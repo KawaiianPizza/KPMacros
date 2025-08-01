@@ -57,33 +57,32 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
 
 
     const lineHeight = Number.parseInt(computedStyle.lineHeight) || fontSize * 1.2
-    const paddingLeft = (Number.parseInt(computedStyle.paddingLeft) + Number.parseInt(computedStyle.paddingRight)) || 0
+    const padding = (Number.parseInt(computedStyle.paddingLeft) + Number.parseInt(computedStyle.paddingRight)) || 0
 
     const scrollbarWidth = textarea.offsetWidth - textarea.clientWidth
-    const availableWidth = textarea.clientWidth - paddingLeft - scrollbarWidth
+    const availableWidth = textarea.clientWidth - padding - scrollbarWidth
 
     setTextMetrics({ ctx, lineHeight, font, availableWidth })
   }, [])
 
   function isAsianCharacter(char: string) {
     const codePoint = char.charCodeAt(0);
-    // CJK Ideographs (Chinese/Japanese Kanji)
+
     const isCJK = (codePoint >= 0x4E00 && codePoint <= 0x9FFF) ||
       (codePoint >= 0x3400 && codePoint <= 0x4DBF) ||
       (codePoint >= 0x20000 && codePoint <= 0x2A6DF) ||
       (codePoint >= 0xF900 && codePoint <= 0xFAFF);
-    // Hiragana
+
     const isHiragana = (codePoint >= 0x3040 && codePoint <= 0x309F);
-    // Katakana
     const isKatakana = (codePoint >= 0x30A0 && codePoint <= 0x30FF);
-    // Hangul
     const isHangul = (codePoint >= 0xAC00 && codePoint <= 0xD7AF);
 
     return isCJK || isHiragana || isKatakana || isHangul;
   }
+
   const calculateWrappedLines = useCallback(() => {
     if (!textareaRef.current || !textMetrics) return []
-    const { ctx, lineHeight, font, availableWidth } = textMetrics
+    const { ctx, availableWidth } = textMetrics
 
     if (availableWidth <= 0) return []
 

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { RotateCcw, Plus, ArrowUpFromLine, ArrowDownToLine, Disc, Disc2, Disc2Icon, Keyboard, MousePointer, MousePointerClick, MoveRight, MoveVertical, Move, Mouse, ClockPlus } from "lucide-react"
+import { RotateCcw, Plus, ArrowUpFromLine, ArrowDownToLine, Disc, Disc2, Disc2Icon, Keyboard, MousePointer, MousePointerClick, MoveRight, MoveVertical, Move, Mouse, ClockPlus, Info } from "lucide-react"
 import ActionInputFactory from "@/components/macro-editor/action-inputs/action-input-factory"
 import { cn } from "@/lib/utils"
 import type { InputData, MacroAction } from "@/lib/types"
@@ -22,9 +22,11 @@ import KEYCODES from "@/lib/KEYCODES"
 import { useToast } from "@/hooks/use-toast"
 import { Tooltip, TooltipContent, TooltipProvider } from "../ui/tooltip"
 import { TooltipTrigger } from "@radix-ui/react-tooltip"
+import { NumberInput } from "../common/number-input"
+import { CountdownTimer } from "../common/countdown-timer"
 
 export default function ActionsTab() {
-  const { macro, addAction, moveActionBetweenLists, isRecording, setIsRecording } = useMacroEditor()
+  const { macro, addAction, moveActionBetweenLists, isRecording, setIsRecording, updateMacro } = useMacroEditor()
   const { send, on, off } = useWebSocketUI()
   const { toast } = useToast()
   const [newAction, setNewAction] = useState<MacroAction>({
@@ -51,14 +53,16 @@ export default function ActionsTab() {
     {
       icon: ClockPlus,
       tooltip: "Record delays between inputs" as const,
-      state: false
+      state: true
     },
   ])
   const recordingListRef = useRef(recordingList)
   const actionBuffer = useRef<MacroAction[]>([])
   const flushTimer = useRef<NodeJS.Timeout | null>(null)
   const DEBOUNCE_INTERVAL = 100
-  const disableRecordButtons = useMemo(() => recordButtonConfigs.every(e => !e.state), [recordButtonConfigs])
+  const disableRecordButtons = useMemo(() => recordButtonConfigs.slice(0,3).every(e => !e.state), [recordButtonConfigs])
+  const [shouldCountdown, setShouldCountdown] = useState<"start" | "loop" | "finish" | undefined>()
+
   useEffect(() => {
     recordingListRef.current = recordingList
   }, [recordingList])
@@ -120,9 +124,15 @@ export default function ActionsTab() {
     }
     setNewAction({ ...newAction })
   }
+
   const handleToggleRecordActions = (type: "start" | "loop" | "finish") => {
+    if (recordButtonConfigs[2].state && !shouldCountdown) {
+      setShouldCountdown(type)
+      return
+    }
     if (type === recordingList && isRecording) {
       send("stopRecordInput", {})
+      setShouldCountdown(undefined)
       setIsRecording(false)
       return
     }
@@ -200,7 +210,6 @@ export default function ActionsTab() {
         break
     }
 
-
     if (flushTimer.current) {
       clearTimeout(flushTimer.current)
     }
@@ -223,8 +232,12 @@ export default function ActionsTab() {
   const handleToggleRecord = (index: number) => {
     setRecordButtonConfigs((prev) =>
       prev.map((e, idx) =>
-        index === idx ? { ...e, state: !e.state } : e));
-  };
+        index === idx ? { ...e, state: !e.state } : e))
+  }
+
+  const handleRepeatDelayChange = (value: number) => {
+    updateMacro({ repeatDelay: value })
+  }
 
   const actionListConfigs = [
     {
@@ -283,6 +296,40 @@ export default function ActionsTab() {
                   </CardHeader>
                   <CardContent className="flex-1 pt-0 p-4">
                     <ActionList listType={type} compact={true} />
+                    {type === "loop" && (
+                      <div className="pt-2 flex justify-between gap-3">
+                        <Label htmlFor="repeatDelay" className="text-foreground flex items-center gap-2 text-nowrap">
+                          Repeat Delay (ms)
+                        </Label>
+                        <div className="flex items-center">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleRepeatDelayChange(Math.max(0, macro.repeatDelay - 5))}
+                            className="rounded-r-none border-r-0 border-border h-9"
+                          >
+                            -
+                          </Button>
+                          <NumberInput
+                            id="repeatDelay"
+                            type="number"
+                            min={0}
+                            value={macro.repeatDelay}
+                            onChange={(e) => handleRepeatDelayChange(e || 0)}
+                            className="rounded-none text-center border-border h-9"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleRepeatDelayChange(macro.repeatDelay + 5)}
+                            className="rounded-l-none border-l-0 border-border h-9"
+                          >
+                            +
+                          </Button>
+                        </div>
+                      </div>)}
                   </CardContent>
                 </Card>
               </div>
@@ -336,6 +383,7 @@ export default function ActionsTab() {
             {actionListConfigs.map(({ type, title }) => {
               if (macro.type === "Command" && type !== "finish") return <></>
               const valid = isActionValid()
+
               return (
                 <div className="flex">
                   <Button
@@ -349,11 +397,14 @@ export default function ActionsTab() {
                     <span className="text-xs">Add to {title.split(" ")[0]}</span>
                     <ArrowUpFromLine />
                   </Button>
-                  <Button className={cn("w-0 rounded-l-none border-l-0", !disableRecordButtons && "border-active animate-magic")}
+                  <Button className={cn("w-9 rounded-l-none border-l-0",
+                    !disableRecordButtons && !isRecording && "border-active animate-magic")}
                     disabled={disableRecordButtons}
                     onClick={() => handleToggleRecordActions(type)}>
-                    <Disc2 className={cn(isRecording && recordingList === type && "text-red-600 filter")}
-                      style={{ "--tw-drop-shadow": isRecording && recordingList === type && "drop-shadow(0px 0px 2px rgb(220 38 38 / var(--tw-text-opacity, 1)))" } as any} />
+                    {type === shouldCountdown && !isRecording ?
+                      <CountdownTimer from={3} className="w-9" finished={() => handleToggleRecordActions(type)} /> :
+                      <Disc2 className={cn(isRecording && recordingList === type && "text-red-600 drop-shadow-[0px_0px_2px_rgb(220_38_38_/_var(--tw-text-opacity,_1))]")} />
+                    }
                   </Button>
                 </div>
               )
