@@ -116,7 +116,6 @@ export default function GeneralTab() {
       send("stopRecordInput", {})
       off("inputData", handleKeyboardInput)
       setIsRecording(false)
-      setActivator(macro.activator)
       if (recordingTimeoutRef.current) {
         clearTimeout(recordingTimeoutRef.current)
       }
