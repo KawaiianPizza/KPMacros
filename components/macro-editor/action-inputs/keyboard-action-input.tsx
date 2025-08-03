@@ -8,14 +8,17 @@ import { Label } from "@/components/ui/label"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { ArrowDownToLine, ArrowUpFromLine, ArrowDownUp, ExternalLinkIcon, Info } from "lucide-react"
+import { ArrowDownToLine, ArrowUpFromLine, ArrowDownUp, ExternalLinkIcon, Info, Loader2 } from "lucide-react"
 import KEYCODES from "@/lib/KEYCODES"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { MacroAction } from "@/lib/types"
+import { MacroAction, Window } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { useWebSocketUI } from "@/hooks/use-websocketUI"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { cn } from "@/lib/utils"
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 
 interface KeyboardActionInputProps {
   action: MacroAction
@@ -25,10 +28,13 @@ interface KeyboardActionInputProps {
 
 export default function KeyboardActionInput({ action, onChange, compact }: KeyboardActionInputProps) {
   const { send, on, off } = useWebSocketUI()
-  const [isSelecting, setIsSelecting] = useState<boolean>(false)
   const [open, setOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const [window, setWindow] = useState<string>(action.window || "")
+  const [windows, setWindows] = useState<Window[]>([])
+  const [isLoadingWindows, setIsLoadingWindows] = useState(true)
+  const [openDialog, setOpenDialog] = useState(false)
+
   useEffect(() => {
     onChange({
       ...action,
@@ -37,25 +43,23 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
   }, [])
 
   useEffect(() => {
-    if (!isSelecting) return
-    send("getFilePath", { filter: "Exe Files|*.exe" })
-    on("filePath", handleFilePath)
-    return () => {
-      off("filePath", handleFilePath)
+    const handleWindows = (data: Window[]) => {
+      setTimeout(() => {
+        send("getWindows", {})
+      }, 5000);
+      setWindows(data)
+      setIsLoadingWindows(false)
     }
-  }, [isSelecting])
 
-  const handleFilePath = (data: { message: string, error?: string, success?: string }) => {
-    setIsSelecting(false)
-    if (data.error) return
-    const match = /.+[\\/](.+)\.exe/.exec(data.message);
-    const filename = match?.[1];
-    setWindow(filename || "")
-    onChange({
-      ...action,
-      window: filename,
-    })
-  }
+    on("windows", handleWindows)
+
+    send("getWindows", {})
+
+    return () => {
+      off("windows", handleWindows)
+    }
+  }, [])
+
   const handleKeyboardModeChange = (value: string) => {
     if (!value) return
     const state = value as "down" | "press" | "up"
@@ -166,8 +170,51 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
             placeholder="File name... (optional)"
             className="flex-1 rounded-r-none min-w-0"
           />
-          <Button type="button" variant="outline" onClick={() => setIsSelecting(true)} className="shrink-0 rounded-l-none">
-            Pick file
+          <Dialog open={openDialog} onOpenChange={() => setOpenDialog(false)}>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="grid gap-6 py-4">
+                <div className="space-y-2">
+                  <div className="border border-border rounded-lg overflow-clip bg-background">
+                    <ScrollArea className="p-3 bg-card/65">
+                      {isLoadingWindows ? (
+                        <div className="flex items-center justify-center py-8 text-foreground/65">
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Loading available windows...
+                        </div>
+                      ) : windows.length === 0 ? (
+                        <div className="text-center py-8 text-foreground/65">
+                          <p>No windows available</p>
+                          <p className="text-xs mt-1">Make sure some applications are running</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {windows.map((window) => {
+                            return (
+                              <Card key={window.pid} onClick={() => { setWindow(window.executable.replace(/\.[^.]+$/, "")); setOpenDialog(false) }}>
+                                <CardHeader className="p-3 gap-1">
+                                  {window.title || window.executable}
+                                  <CardDescription className="pl-3">
+                                    {window.executable}
+                                  </CardDescription>
+                                </CardHeader>
+                              </Card>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </ScrollArea>
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Button type="button" variant="outline" onClick={() => setOpenDialog(true)} className="shrink-0 rounded-l-none">
+            Choose
           </Button>
           <TooltipProvider delayDuration={300}>
             <Tooltip>
