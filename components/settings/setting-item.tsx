@@ -25,19 +25,18 @@ export function SettingItem({ groupKey, settingKey, setting, onUpdate }: Setting
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    if (typeof setting.value !== "object" || !setting.links)
-      return
-    setShouldWrap(true)
+    if (setting.type === "button-group")
+      setShouldWrap(true)
   }, [setting])
 
   const getSettingType = () => {
-    switch (typeof setting.value) {
-      case "boolean":
+    switch (setting.type) {
+      case "toggle":
         const handleBooleanChange = (checked: boolean) => {
           onUpdate(groupKey, settingKey, checked)
         }
         return <Switch checked={setting.value} disabled={setting.disabled} onCheckedChange={handleBooleanChange} />;
-      case "string":
+      case "theme":
         const { themes, currentTheme, setTheme } = useTheme()
         const handleThemeChange = (name: string) => {
           setTheme(name)
@@ -77,21 +76,16 @@ export function SettingItem({ groupKey, settingKey, setting, onUpdate }: Setting
                 </Command>
               </PopoverContent>}
           </Popover>)
-      case "number":
-      case "bigint":
-      case "symbol":
-      case "undefined":
-        if (setting.link)
-          return (
-            <Button size="sm" onClick={() => window.open(setting.link, "_blank")} className="gap-2">
-              <Info className="h-4 w-4" />
-              View
-              <ExternalLink className="h-3 w-3" />
-            </Button>)
-      case "object":
-        if (!setting.links) return;
+      case "button":
+        return (
+          <Button size="sm" onClick={() => window.open(setting.value, "_blank")} className="gap-2">
+            <Info className="h-4 w-4" />
+            View
+            <ExternalLink className="h-3 w-3" />
+          </Button>)
+      case "button-group":
         return (<div className="ml-auto">
-          {setting.links.map((link: string) => {
+          {setting.value.map((link: string) => {
             const domainReg = /(?<=\/\/|^)(?:.+\.)?([a-zA-Z0-9-]+)(?=\.[a-zA-Z]{2,})/g
             const domain = domainReg.exec(link)
             if (!domain || domain.length !== 2) return
@@ -101,12 +95,13 @@ export function SettingItem({ groupKey, settingKey, setting, onUpdate }: Setting
                 <ExternalLink className="h-3 w-3" />
               </Button>)
           })}</div>)
-      case "function":
     }
   }
 
   return (
-    <div className={cn("flex items-start justify-between py-3 px-4 rounded-lg bg-card border border-border text-card-foreground", shouldWrap ? "flex-col space-y-3" : "")}>
+    <div className={cn("flex items-start justify-between py-3 px-4 rounded-lg bg-card border border-border text-card-foreground",
+      shouldWrap && "flex-col space-y-3",
+      setting.disabled && "opacity-35")}>
       <div className="flex-1 space-y-1">
         <div className="flex items-center gap-2">
           <h4 className="font-medium leading-none">{setting.label}</h4>

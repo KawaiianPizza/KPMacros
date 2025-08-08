@@ -5,13 +5,30 @@ import { useToast } from "@/components/ui/use-toast"
 import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 
-export interface Setting {
-    value: any
+export type Setting = ToggleSetting | ButtonSetting | ButtonGroupSetting | InfoSetting | ThemeSetting;
+export interface BaseSetting {
     label: string
     description: string | undefined
-    link?: string
-    links?: string[]
     disabled?: boolean
+}
+interface ToggleSetting extends BaseSetting {
+    type: "toggle"
+    value: boolean,
+}
+interface ButtonSetting extends BaseSetting {
+    type: "button",
+    value: string
+}
+interface ButtonGroupSetting extends BaseSetting {
+    type: "button-group",
+    value: string[]
+}
+interface InfoSetting extends BaseSetting {
+    type: "info",
+}
+interface ThemeSetting extends BaseSetting {
+    type: "theme"
+    value: string
 }
 
 export interface SettingsData {
@@ -23,12 +40,14 @@ export interface SettingsData {
 const defaultSettings: SettingsData = {
     general: {
         runAsAdmin: {
+            type: "toggle",
             value: false,
             label: "Run as administrator",
             description:
                 "Run KPMacros with elevated privileges. Needed to work on elevated processes. (KPMacros needs to be restarted to take effect)",
         },
         runAtStartup: {
+            type: "toggle",
             value: false,
             label: "Run at startup",
             description: "Automatically start the application when your computer boots",
@@ -36,11 +55,13 @@ const defaultSettings: SettingsData = {
     },
     updates: {
         checkForUpdates: {
+            type: "toggle",
             value: true,
             label: "Check for updates",
             description: "Automatically check for application updates on startup",
         },
         autoUpdateUI: {
+            type: "toggle",
             value: true,
             label: "Auto-update UI",
             description: "Automatically download and install UI updates without prompting",
@@ -49,6 +70,7 @@ const defaultSettings: SettingsData = {
     },
     theme: {
         selectedTheme: {
+            type: "theme",
             value: "Hallowed Mint",
             label: "Selected theme",
             description: "Currently selected theme name",
@@ -56,32 +78,32 @@ const defaultSettings: SettingsData = {
     },
     about: {
         info: {
-            value: undefined,
+            type: "info",
             label: "Application Information",
             description: "Author: KawaiianPizza\n" + "",
         },
         discord: {
-            value: undefined,
+            type: "button",
+            value: "https://discord.gg/GVCzVagyu7",
             label: "Discord",
             description: "Need help or have a suggestion? Join the Discord and let me know! :D",
-            link: "https://discord.gg/GVCzVagyu7",
         },
         supportMe: {
-            value: {},
-            label: "Support me",
-            description: "Here are some ways to support me and the development of KPMacros 💝",
-            links: [
+            type: "button-group",
+            value: [
                 "https://streamelements.com/kawaiianpizza/tip",
                 "https://www.paypal.me/kawaiianpizza",
                 "https://www.patreon.com/KawaiianPizza",
                 "https://boosty.to/kawaiianpizza",
-            ]
+            ],
+            label: "Support me",
+            description: "Here are some ways to support me and the development of KPMacros 💝",
         },
         github: {
-            value: undefined,
+            type: "button",
+            value: "https://github.com/KawaiianPizza/KPMacros",
             label: "Source code",
             description: "View the source code on Github",
-            link: "https://github.com/KawaiianPizza/KPMacros",
         },
     },
 }
@@ -101,11 +123,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             const newSettings = { ...defaultSettings };
             for (const group in data) {
                 for (const key in data[group]) {
-                    newSettings[group][key].value = data[group][key];
+                    const newSetting = newSettings[group][key];
+                    const oldSetting = data[group][key];
+                    if ("value" in newSetting && "value" in oldSetting)
+                        newSetting.value = oldSetting.value;
                 }
             }
             if (newSettings.updates?.autoUpdateUI && newSettings.updates?.checkForUpdates) {
-                newSettings.updates.autoUpdateUI.disabled = !newSettings.updates.checkForUpdates.value;
+                newSettings.updates.autoUpdateUI.disabled = !(newSettings.updates.checkForUpdates as ToggleSetting).value;
             }
             setSettings(newSettings);
         };
@@ -170,7 +195,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 for (const category in newSettings) {
                     flattenSettings[category] = {}
                     for (const key in newSettings[category]) {
-                        flattenSettings[category][key] = newSettings[category][key].value;
+                        const newSetting = newSettings[category][key];
+                        if ("value" in newSetting)
+                            flattenSettings[category][key] = newSetting.value;
                     }
                 }
                 send("saveSettings", flattenSettings)
@@ -193,7 +220,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const getSettingValue = useCallback(
         (groupKey: string, settingKey: string): any => {
-            return settings[groupKey]?.[settingKey]?.value
+            const newSetting = settings[groupKey]?.[settingKey];
+            if ("value" in newSetting)
+                return newSetting?.value
         },
         [settings],
     )
