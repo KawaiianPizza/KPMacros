@@ -101,6 +101,11 @@ export function useWebSocketUI() {
       description: "Please reopen the editor from the tray",
       variant: "destructive",
     })
+    !process.env.NODE_ENV &&
+      setTimeout(() => {
+        window.open('', '_self');
+        window.close();
+      }, 3000);
   }, [isClosed])
   if (websocketService)
     websocketService.onCloseCallback = () => setIsClosed(true)

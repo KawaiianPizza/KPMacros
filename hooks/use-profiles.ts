@@ -12,13 +12,13 @@ const DEFAULT_PROFILES: Profile[] = [
 ]
 
 export function useProfiles() {
+  const searchParams = useSearchParams()
   const [profiles, setProfiles] = useState<Profile[]>(DEFAULT_PROFILES)
-  const [selectedProfile, setSelectedProfile] = useState<string>("Global")
+  const [selectedProfile, setSelectedProfile] = useState<string>(searchParams.get("profile") || "Global")
   const [deletingProfile, setDeletingProfile] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
   const { send, on, off } = useWebSocketUI()
   const { toast } = useToast()
-  const searchParams = useSearchParams()
 
   const loadProfiles = useCallback(() => {
     setIsLoading(true)

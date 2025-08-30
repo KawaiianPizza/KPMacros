@@ -443,18 +443,15 @@ export function MacroEditorProvider({
   }, [macro, profileName, toast, isTesting, setIsTesting])
 
   const cancelEditing = useCallback(() => {
+    const queryParams = new URLSearchParams({
+      profile: currentProfile
+    })
     try {
-      if (hasUnsavedChanges) {
-        if (window.confirm("You have unsaved changes. Are you sure you want to leave?")) {
-          router.push("/profiles")
-        }
-      } else {
-        router.push("/profiles")
-      }
+      if (hasUnsavedChanges && !window.confirm("You have unsaved changes. Are you sure you want to leave?")) return
     } catch (err) {
       console.error("Error during cancel:", err)
-      router.push("/profiles")
     }
+    router.push(`/profiles?${queryParams}`)
   }, [hasUnsavedChanges, router])
 
   const startRecording = useCallback(() => {
@@ -484,8 +481,7 @@ export function MacroEditorProvider({
     }
   }, [macro.modifierMode, updateMacro])
 
-  useMemo(() => {
-
+  useEffect(() => {
     const handleAudioDevices = (data: string[]) => {
       setAudioDevices(data)
     }

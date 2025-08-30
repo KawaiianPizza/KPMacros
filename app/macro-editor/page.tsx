@@ -9,18 +9,24 @@ import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent } from "@/components/ui/card"
 import { AlertTriangle } from "lucide-react"
 import { MacroData, Modifiers } from "@/lib/types"
+import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 
 export default function MacroEditorPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { toast } = useToast()
+  const { send } = useWebSocketUI()
 
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [parsedMacroData, setParsedMacroData] = useState<MacroData | null>(null)
   const [profileName, setProfileName] = useState<string>("")
   const [macroName, setMacroName] = useState<string | null>(null)
+
+  useEffect(() => {
+    send("parseMods", {})
+  }, [])
 
   useEffect(() => {
     try {
@@ -114,7 +120,11 @@ export default function MacroEditorPage() {
   }, [searchParams, toast])
 
   const handleGoBack = () => {
-    router.push("/profiles")
+    const profile = searchParams.get("profile") || "Global"
+    const queryParams = new URLSearchParams({
+      profile
+    })
+    router.push(`/profiles?${queryParams}`)
   }
 
   if (isLoading) {

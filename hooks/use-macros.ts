@@ -20,7 +20,6 @@ export function useMacros(profileName: string) {
   const pendingChangesRef = useRef<Map<string, PendingChange>>(new Map())
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const { send, on, off } = useWebSocketUI()
-
   const ensureMacroUUIDs = useCallback((macrosData: any[]): MacroData[] => {
     return macrosData.map((macro) => ({
       ...macro,
@@ -136,7 +135,7 @@ export function useMacros(profileName: string) {
       setIsLoading(false)
       pendingChangesRef.current.clear()
     }
-
+    console.log(profileName)
     const handlebatchMacrosUpdated = (data: { success: boolean; errors?: any[] }) => {
       if (!data.success) {
         console.error("Batch update failed:", data.errors)
@@ -150,7 +149,7 @@ export function useMacros(profileName: string) {
       off("macros", handleMacros)
       off("batchMacrosUpdated", handlebatchMacrosUpdated)
     }
-  }, [ensureMacroUUIDs, on, off])
+  }, [ensureMacroUUIDs, on, off, profileName])
 
   useEffect(() => {
     loadMacros()

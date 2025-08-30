@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Search, X } from "lucide-react"
+import { Search, X, Palette } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { SettingsGroup } from "./settings-group"
 import { SettingsPanel } from "./settings-panel"
 import { Setting, SettingsData, useSettingsContext } from "@/contexts/settings-context"
+import { ThemeCreatorDialog } from "@/components/common/theme-creator-dialog"
 
 interface SettingsDialogProps {
   open: boolean
@@ -19,6 +20,7 @@ interface SettingsDialogProps {
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
+  const [themeCreatorOpen, setThemeCreatorOpen] = useState(false)
   const { settings, updateSetting, isSaving } = useSettingsContext()
 
   const filteredSettings = useMemo(() => {
@@ -72,13 +74,21 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-4xl max-h-[80vh] h-full p-0 flex flex-col text-foreground overflow-hidden">
         <DialogHeader className="px-6 py-4 border-b">
-          <DialogTitle>Settings</DialogTitle>
-          {isSaving && (
-            <div className="flex items-center gap-2 text-sm text-foreground/65">
-              <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
-              <span>Saving settings...</span>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle>Settings</DialogTitle>
+              {isSaving && (
+                <div className="flex items-center gap-2 text-sm text-foreground/65">
+                  <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                  <span>Saving settings...</span>
+                </div>
+              )}
             </div>
-          )}
+            <Button onClick={() => setThemeCreatorOpen(true)} className="gap-2">
+              <Palette className="h-4 w-4" />
+              Create Theme
+            </Button>
+          </div>
         </DialogHeader>
 
         <div className="flex flex-1 min-h-0">
@@ -136,6 +146,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </div>
         </div>
       </DialogContent>
+      <ThemeCreatorDialog open={themeCreatorOpen} onOpenChange={setThemeCreatorOpen} />
     </Dialog>
   )
 }
