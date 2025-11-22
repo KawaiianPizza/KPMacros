@@ -13,7 +13,7 @@ With a file size under 1MB, **KPMacros** features a user-friendly **browser-base
 ### ✨ Key Features of KPMacros
 
 * 🚀 **Ultra-Low Resource Usage** -
-  Uses less than **50MB RAM** even with **20 active macros across 3 profiles**, ideal for low-end PCs and gaming setups.
+  Uses less than **50MB RAM** even with **70 active macros across 6 profiles**, ideal for low-end PCs and gaming setups.
 
 * 📦 **Tiny Program Size (<1MB)** -
   Lightweight enough to replace bloated macro/keybinding tools without sacrificing function.
