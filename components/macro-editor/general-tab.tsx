@@ -128,7 +128,7 @@ export default function GeneralTab() {
           <CardDescription>Choose how this macro will be triggered</CardDescription>
         </CardHeader>
         <CardContent>
-          <TypeSwitch options={["Hotkey", "Command"]} value={macro.type || "Hotkey"} onValueChange={handleMacroTypeChange} disabled={macro.mod ? "Command" : undefined} />
+          <TypeSwitch options={["Hotkey", "Command"]} value={macro.type || "Hotkey"} onValueChange={handleMacroTypeChange} disabled={macro.mod ? "Command" : undefined} className="w-96" />
         </CardContent>
       </Card>
 

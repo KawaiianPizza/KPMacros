@@ -13,7 +13,7 @@ type TypeSwitchProps<T extends readonly [string, string]> = {
 
 export default function TypeSwitch<T extends readonly [string, string]>({ options, disabled, value, onValueChange, className }: TypeSwitchProps<T>) {
   return (
-    <div className={cn("mx-auto w-[20dvw] rounded-lg border border-border/35 overflow-clip", className)}>
+    <div className={cn("mx-auto rounded-lg border border-border/35 overflow-clip", className)}>
       <div className="relative z-10 flex h-full cursor-pointer select-none items-center justify-between bg-input blend-33 p-1 *:first:rounded-r-none *:last:rounded-l-none" onClick={() => disabled || onValueChange(value === options[0] ? options[1] : options[0])}>
         <Button className={cn("relative z-20 flex flex-1 items-center justify-center text-xl font-medium transition-colors duration-200 hover:text-input-text overflow-clip",
           value === options[0] ? "border-active text-active-text hover:text-active-text" : "bg-input hover:border-active hover:text-active")}>

@@ -147,7 +147,7 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
 
   const toggleWindow = (window: Window) => {
     if (!name)
-      setName(window.title.replaceAll(/[\\/:*?"<>|]/g, ""))
+      setName((window.title || window.executable).replaceAll(/[\\/:*?"<>|]/g, ""))
     setSelectedWindows((prev) => {
       const newSelection = prev.includes(window.executable)
         ? prev.filter((id) => id !== window.executable)
