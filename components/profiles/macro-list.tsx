@@ -70,7 +70,7 @@ export default function MacroList({
                   <Badge>{macro.type}</Badge>
                   <Badge
                     variant={macro.enabled ? "default" : "outline"}
-                    className={cn(macro.enabled || "bg-input/35 text-input-text/65")}
+                    className={cn(macro.enabled || "bg-input blend-66 text-input-text/65")}
                   >
                     {macro.enabled ? "Enabled" : "Disabled"}
                   </Badge>
@@ -106,8 +106,8 @@ export default function MacroList({
           </div>
         </div>
 
-        <CardContent className={cn("overflow-clip rounded-b-lg bg-card/65 px-0 pb-4 transition-all duration-300", isSelected ? "h-[70px] delay-200" : "h-0 p-0")}>
-          <div className="p-4 bg-card/65 rounded-lg border border-dashed border-active rounded-t-none">
+        <CardContent className={cn("overflow-clip rounded-b-lg bg-card px-0 pb-4 transition-all duration-300", isSelected ? "h-[70px] delay-200" : "h-0 p-0")}>
+          <div className="p-4 bg-card blend-33 rounded-lg border border-dashed border-active rounded-t-none">
             <div className="flex items-center gap-2 justify-end *:bg-input">
               <Button size="sm" onClick={() => onEditMacro(macro.id!)}>
                 <Edit className="h-4 w-4" />
@@ -165,7 +165,7 @@ export default function MacroList({
             </Button>
           </div>
         ) : (
-          <ScrollArea className="h-full pb-4 border border-border p-1 rounded-md bg-background before:absolute before:inset-0 before:bg-card/35 overflow-clip">
+          <ScrollArea className="h-full border border-border p-1 rounded-md bg-card blend-66 overflow-clip">
             <div className="space-y-2 max-h-[75dvh] z-10 relative">{macros.map(renderMacroRow)}</div>
           </ScrollArea>
         )}

@@ -17,13 +17,8 @@ export function useProfiles() {
   const [selectedProfile, setSelectedProfile] = useState<string>(searchParams.get("profile") || "Global")
   const [deletingProfile, setDeletingProfile] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
-  const { send, on, off } = useWebSocketUI()
+  const { once } = useWebSocketUI()
   const { toast } = useToast()
-
-  const loadProfiles = useCallback(() => {
-    setIsLoading(true)
-    send("getProfiles", {})
-  }, [send])
 
   const saveProfile = useCallback(
     (profile: Profile) => {
@@ -39,17 +34,47 @@ export function useProfiles() {
         }
       })
 
-      send("saveProfile", profile)
+      const handleProfileSaved = (response: { success?: string; error?: string; profile?: Profile }) => {
+        if (response.success) {
+          toast({
+            title: "Profile saved",
+            description: `Profile has been saved successfully.`,
+          })
+        } else if (response.error) {
+          toast({
+            title: "Error saving profile",
+            description: response.error,
+            variant: "destructive",
+          })
+        }
+      }
+      once("saveProfile", profile, handleProfileSaved)
     },
-    [send],
+    [toast],
   )
 
   const deleteProfile = useCallback(
     (profileName: string) => {
-      send("deleteProfile", { name: profileName })
+      const handleProfileDeleted = (response: { success?: string; error?: string }) => {
+        if (response.success) {
+          toast({
+            title: "Profile deleted",
+            description: "Profile has been deleted successfully.",
+          })
+          setProfiles(prev => prev.filter(e => e.name !== deletingProfile))
+          setDeletingProfile(undefined)
+        } else if (response.error) {
+          toast({
+            title: "Error deleting profile",
+            description: response.error,
+            variant: "destructive",
+          })
+        }
+      }
       setDeletingProfile(profileName)
+      once("deleteProfile", { name: profileName }, handleProfileDeleted)
     },
-    [send],
+    [toast],
   )
 
   useEffect(() => {
@@ -60,58 +85,19 @@ export function useProfiles() {
       const profile = searchParams.get("profile")
 
       setProfiles([globalProfile, globalExclusiveProfile, ...otherProfiles])
-      setIsLoading(false)
       setSelectedProfile(profile || "Global")
+      setIsLoading(false)
     }
 
-    const handleProfileSaved = (response: { success?: string; error?: string; profile?: Profile }) => {
-      if (response.success) {
-        toast({
-          title: "Profile saved",
-          description: `Profile has been saved successfully.`,
-        })
-      } else if (response.error) {
-        toast({
-          title: "Error saving profile",
-          description: response.error,
-          variant: "destructive",
-        })
-      }
-    }
-
-    const handleProfileDeleted = (response: { success?: string; error?: string }) => {
-      if (response.success) {
-        toast({
-          title: "Profile deleted",
-          description: "Profile has been deleted successfully.",
-        })
-        setProfiles(prev => prev.filter(e => e.name !== deletingProfile))
-      } else if (response.error) {
-        toast({
-          title: "Error deleting profile",
-          description: response.error,
-          variant: "destructive",
-        })
-      }
-    }
-
-    on("profiles", handleProfiles)
-    on("profileSaved", handleProfileSaved)
-    on("profileDeleted", handleProfileDeleted)
-
-    return () => {
-      off("profiles", handleProfiles)
-      off("profileSaved", handleProfileSaved)
-      off("profileDeleted", handleProfileDeleted)
-    }
-  }, [on, off, toast])
+    setIsLoading(true)
+    once("getProfiles", {}, handleProfiles)
+  }, [])
 
   return {
     profiles,
     selectedProfile,
     setSelectedProfile,
     isLoading,
-    loadProfiles,
     saveProfile,
     deleteProfile,
   }

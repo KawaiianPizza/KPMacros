@@ -74,8 +74,7 @@ class WebSocketService {
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
       const host = window.location.host
 
-      const wsUrl = process?.env?.NODE_ENV === "development" ? "http://localhost:3001/" : `${protocol}//${host}/`
-
+      const wsUrl = process.env.NODE_ENV !== "development" ? `${protocol}//${host}/` : "http://localhost:3001/"
       console.log(`WebSocket connecting to ${wsUrl}`)
       this.socket = new WebSocket(wsUrl)
 

@@ -22,12 +22,36 @@ export interface MacroData {
   finish: MacroAction[]
   cooldown: number
 }
-export interface MacroAction extends Record<string, any> {
-  id: string
-  type: typeof MacroActionType[number]
-}
 
-export const MacroActionType = <const>["keyboard", "mouse", "text", "delay", "sound", "process"]
+export const MacroActionType = <const>[
+  "keyboard",
+  "mouse",
+  "text",
+  "delay",
+  "sound",
+  "process",
+];
+
+export interface KeyboardAction { type: "keyboard"; key: string; state: "down" | "press" | "up"; }
+export interface MouseButtonAction { type: "mouse"; button: "left" | "middle" | "right"; state: "down" | "click" | "up"; }
+export interface MouseMoveAction { type: "mouse"; x: number; y: number; relative: boolean; }
+export interface MouseScrollAction { type: "mouse"; scroll: "left" | "down" | "right" | "up"; amount: number; }
+export interface TextAction { type: "text"; text: string }
+export interface DelayAction { type: "delay"; duration: number }
+export interface SoundAction { type: "sound"; filePath: string; volume?: number }
+export interface ProcessAction { type: "process"; filePath: string; arguments?: string; hidden: boolean }
+
+export type MacroActionUnion =
+  | KeyboardAction
+  | MouseButtonAction
+  | MouseMoveAction
+  | MouseScrollAction
+  | TextAction
+  | DelayAction
+  | SoundAction
+  | ProcessAction
+
+export type MacroAction = MacroActionUnion & { id: string, type: typeof MacroActionType[number] };
 
 export enum Modifiers {
   Shift = 1 << 0,
@@ -115,7 +139,7 @@ export type KeyboardData = {
 export type MouseData = {
   type: "mouse";
   data: {
-    button: "Left" | "Right" | "Middle";
+    button: "left" | "right" | "middle";
     isPressed: boolean;
   };
 }
@@ -123,7 +147,7 @@ export type MouseData = {
 export type ScrollData = {
   type: "scroll";
   data: {
-    direction: "Up" | "Down" | "Left" | "Right";
+    direction: "up" | "down" | "left" | "right";
   };
 }
 

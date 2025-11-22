@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils"
 import type { InputData, MacroAction } from "@/lib/types"
 import { MacroActionType } from "@/lib/types"
 import TypeRowSelect from "../common/type-row-select"
-import { v4 as uuidv4 } from "uuid"
 import { Separator } from "../ui/separator"
 import { useWebSocketUI } from "@/hooks/use-websocketUI"
 import KEYCODES from "@/lib/KEYCODES"
@@ -38,7 +37,7 @@ export default function ActionsTab() {
     {
       icon: Keyboard,
       tooltip: "Record keyboard input" as const,
-      state: false
+      state: true
     },
     {
       icon: Mouse,
@@ -60,7 +59,7 @@ export default function ActionsTab() {
   const actionBuffer = useRef<MacroAction[]>([])
   const flushTimer = useRef<NodeJS.Timeout | null>(null)
   const DEBOUNCE_INTERVAL = 100
-  const disableRecordButtons = useMemo(() => recordButtonConfigs.slice(0,3).every(e => !e.state), [recordButtonConfigs])
+  const disableRecordButtons = useMemo(() => recordButtonConfigs.slice(0, 3).every(e => !e.state), [recordButtonConfigs])
   const [shouldCountdown, setShouldCountdown] = useState<"start" | "loop" | "finish" | undefined>()
 
   useEffect(() => {
@@ -111,16 +110,16 @@ export default function ActionsTab() {
     if (newAction.type === "keyboard" && newAction.state === "press") {
       addAction(type, {
         ...newAction,
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         state: "down",
       })
       addAction(type, {
         ...newAction,
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         state: "up",
       })
     } else {
-      addAction(type, { ...newAction, id: uuidv4() })
+      addAction(type, { ...newAction, id: crypto.randomUUID() })
     }
     setNewAction({ ...newAction })
   }
@@ -161,13 +160,14 @@ export default function ActionsTab() {
       })
       return
     }
+    const id = crypto.randomUUID()
     switch (type) {
       case "keyboard":
         const { key, isPressed, isModifier } = data
         const keyName = KEYCODES.find(e => e.keyCode === key)?.value
         if (!keyName) return
         actionBuffer.current.push({
-          id: uuidv4(),
+          id,
           type: "keyboard",
           key: keyName,
           state: isPressed ? "down" : "up",
@@ -176,7 +176,7 @@ export default function ActionsTab() {
       case "mouse":
         const { button, isPressed: mouseIsPressed } = data
         actionBuffer.current.push({
-          id: uuidv4(),
+          id,
           type: "mouse",
           button,
           state: mouseIsPressed ? "down" : "up"
@@ -185,7 +185,7 @@ export default function ActionsTab() {
       case "scroll":
         const { direction } = data
         actionBuffer.current.push({
-          id: uuidv4(),
+          id,
           type: "mouse",
           scroll: direction,
           amount: 1
@@ -194,7 +194,7 @@ export default function ActionsTab() {
       case "move":
         const { x, y } = data
         actionBuffer.current.push({
-          id: uuidv4(),
+          id,
           type: "mouse",
           x, y,
           relative: true
@@ -203,7 +203,7 @@ export default function ActionsTab() {
       case "delay":
         const { duration } = data
         actionBuffer.current.push({
-          id: uuidv4(),
+          id,
           type: "delay",
           duration
         })
@@ -346,19 +346,18 @@ export default function ActionsTab() {
               </Label>
               <TypeRowSelect columns={2} rows={3} id="action-type" options={[...MacroActionType]} value={newAction.type} onValueChange={handleActionTypeChange}></TypeRowSelect>
               <div className="flex w-48">
-                <TooltipProvider delayDuration={500}>
+                <TooltipProvider delayDuration={300}>
                   {recordButtonConfigs.map(({ icon: Icon, tooltip, state }, index) =>
                     <Tooltip key={index}>
-                      <TooltipTrigger>
-                        <Button className={cn("w-12",
+                      <TooltipTrigger
+                        onClick={() => handleToggleRecord(index)}
+                        disabled={isRecording}
+                        className={cn("focus-visible:ring-ring inline-flex h-10 w-12 items-center justify-center gap-2 rounded-md border border-border bg-input px-4 py-2 text-sm font-medium whitespace-nowrap text-input-text ring-offset-background transition-colors hover:text-active focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
                           index > 0 && "rounded-l-none",
                           index < recordButtonConfigs.length - 1 && "rounded-r-none",
                           state && "text-active border-active"
-                        )}
-                          onClick={() => handleToggleRecord(index)}
-                          disabled={isRecording}>
-                          <Icon />
-                        </Button>
+                        )}>
+                        <Icon />
                       </TooltipTrigger>
                       <TooltipContent>
                         {tooltip}
@@ -369,7 +368,7 @@ export default function ActionsTab() {
               </div>
             </div>
 
-            <div className="flex flex-col flex-grow space-y-3 py-1">
+            <div className="flex flex-col grow space-y-3 py-1">
               <ActionInputFactory
                 actionType={newAction.type}
                 action={newAction}
@@ -380,12 +379,12 @@ export default function ActionsTab() {
           </div>
           <Separator className="my-3" />
           <div className="flex justify-around">
-            {actionListConfigs.map(({ type, title }) => {
+            {actionListConfigs.map(({ type, title }, index) => {
               if (macro.type === "Command" && type !== "finish") return <></>
               const valid = isActionValid()
 
               return (
-                <div className="flex">
+                <div key={index} className="flex">
                   <Button
                     key={type}
                     variant="default"
@@ -403,7 +402,7 @@ export default function ActionsTab() {
                     onClick={() => handleToggleRecordActions(type)}>
                     {type === shouldCountdown && !isRecording ?
                       <CountdownTimer from={3} className="w-9" finished={() => handleToggleRecordActions(type)} /> :
-                      <Disc2 className={cn(isRecording && recordingList === type && "text-red-600 drop-shadow-[0px_0px_2px_rgb(220_38_38_/_var(--tw-text-opacity,_1))]")} />
+                      <Disc2 className={cn(isRecording && recordingList === type && "text-red-600 drop-shadow-[0px_0px_2px_rgb(220_38_38/var(--tw-text-opacity,1))]")} />
                     }
                   </Button>
                 </div>

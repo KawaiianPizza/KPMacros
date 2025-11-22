@@ -25,7 +25,7 @@ export default function TypeRowSelect<T extends readonly string[]>({ options, va
     }
 
     return (
-        <div {...props} className={cn("relative overflow-clip rounded-md border border-border grid bg-input/100", className)}
+        <div {...props} className={cn("relative overflow-clip rounded-md border border-border grid bg-input", className)}
             style={{
                 width: 6 * columns + "rem",
                 gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`
@@ -34,13 +34,13 @@ export default function TypeRowSelect<T extends readonly string[]>({ options, va
 
             {options.map((text, index) => (
                 <Button key={index} className={cn(
-                    "relative z-20 rounded-none border-0 bg-transparent capitalize transition-colors duration-300 ease-in-out before:content-none hover:bg-input/65",
-                    text === value ? "text-active-text hover:bg-transparent hover:text-active-text" : "hover:bg-background/35",
+                    "relative z-20 rounded-none border-0 bg-transparent capitalize transition-colors duration-300 ease-in-out",
+                    text === value ? "text-active-text hover:text-active-text hover:bg-transparent!" : "",
                     cn(index <= columns * rows - columns - 1 && "border-b-2",
                         index % columns !== columns - 1 && "border-r-2"),
                 )}
                     onClick={() => onValueChange(text)} >
-                    <span className={cn(text === value && "")}>{text}</span>
+                    <span>{text}</span>
                 </Button>
             ))}
         </div>

@@ -95,14 +95,14 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
 
   return (
     <div className="flex flex-wrap gap-4 items-start content-center">
-      <div className="min-w-[126px] flex-shrink space-y-2">
+      <div className="min-w-[126px] shrink space-y-2">
         <Label>Key State</Label>
         <div className="flex">
           <ToggleGroup
             type="single"
             value={action.state}
             onValueChange={handleKeyboardModeChange}
-            className="flex-shrink-0 rounded-lg"
+            className="shrink-0 rounded-lg"
           >
             <ToggleGroupItem value="down" aria-label="Key Down" title="Key Down">
               <ArrowDownToLine className="h-4 w-4" />
@@ -117,7 +117,7 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
         </div>
       </div>
 
-      <div className="min-w-[240px] flex-1 space-y-2">
+      <div className="min-w-60 flex-1 space-y-2">
         <Label>Key</Label>
         <div className="flex">
           <Popover open={open} onOpenChange={setOpen}>
@@ -140,7 +140,7 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
                           return (
                             <>
                               <CommandItem key={keycode.value} value={keycode.value + keycode.label} onSelect={() => handleKeycodeSelect(keycode.value)}
-                                className="group w-auto min-w-fit flex-shrink-0 gap-0.5">
+                                className="group w-auto min-w-fit shrink-0 gap-0.5">
                                 {keycode.label == "Space bar" ? "Spacebar" :
                                   keycode.label.length === 3 && keycode.label[1] === ' '
                                     ? <>{keycode.label[0]}<span className="text-[0.625rem] leading-5 tracking-[-0.25rem] text-input-text/65 group-data-[selected='true']:text-active/65">{keycode.label[2]}</span></>
@@ -179,8 +179,8 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
 
               <div className="grid gap-6 py-4">
                 <div className="space-y-2">
-                  <div className="border border-border rounded-lg overflow-clip bg-background">
-                    <ScrollArea className="p-3 bg-card/65">
+                  <div className="border border-border rounded-lg overflow-clip">
+                    <ScrollArea className="p-3 bg-card blend-33">
                       {isLoadingWindows ? (
                         <div className="flex items-center justify-center py-8 text-foreground/65">
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />

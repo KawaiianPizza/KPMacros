@@ -19,7 +19,7 @@ interface SoundActionInputProps {
 }
 
 export default function SoundActionInput({ action, onChange, compact }: SoundActionInputProps) {
-  const { send, on, off } = useWebSocketUI()
+  const { once } = useWebSocketUI()
   const { audioDevices } = useMacroEditor()
   const [filePath, setFilePath] = useState<string>(action.filePath || "")
   const [isSelecting, setIsSelecting] = useState<boolean>(false)
@@ -60,11 +60,7 @@ export default function SoundActionInput({ action, onChange, compact }: SoundAct
 
   useEffect(() => {
     if (!isSelecting) return
-    send("getFilePath", { filePath, filter: "Audio Files|*.wav;*.mp3;*.ogg;*.flac;*.aac" })
-    on("filePath", handleFilePath)
-    return () => {
-      off("filePath", handleFilePath)
-    }
+    once("getFilePath", { filePath, filter: "Audio Files|*.wav;*.mp3;*.ogg;*.flac;*.aac" }, handleFilePath)
   }, [isSelecting])
 
   const handleFilePathChange = (e: React.ChangeEvent<HTMLInputElement>) => {

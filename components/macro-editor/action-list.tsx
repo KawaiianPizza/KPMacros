@@ -6,7 +6,6 @@ import { Droppable, Draggable } from "@hello-pangea/dnd"
 import ActionDisplay from "./action-display"
 import { ScrollArea } from "../ui/scroll-area"
 import type { MacroAction } from "@/lib/types"
-import { v4 as uuidv4 } from "uuid"
 import { cn } from "@/lib/utils"
 
 interface ActionListProps {
@@ -43,7 +42,7 @@ export default function ActionList({ listType, title, description, compact = fal
 
   const handleDuplicateAction = (action: MacroAction) => {
     const { id, ...actionWithoutId } = action
-    addAction(listType, { ...actionWithoutId, id: uuidv4() })
+    addAction(listType, { ...actionWithoutId, id: crypto.randomUUID() })
   }
 
   const handleSelectAction = (actionId: string) => {
@@ -59,11 +58,11 @@ export default function ActionList({ listType, title, description, compact = fal
         </div>
       )}
 
-      <div className="flex-1 min-h-0 h-full w-full relative border border-border p-1 rounded-lg bg-background before:absolute before:inset-0 before:bg-card/35 overflow-clip">
+      <div className="flex-1 min-h-0 h-full w-full relative border border-border p-1 rounded-lg bg-card blend-33 overflow-clip">
         <Droppable droppableId={`${listType}-actions`}>
           {(provided, snapshot) => (
             <ScrollArea className={cn("h-96 w-full",
-              listType === "loop" && "h-[21.25rem]"
+              listType === "loop" && "h-85"
             )} scrollHideDelay={1000 * 60 * 60 * 24}>
               <div
                 {...provided.droppableProps}
@@ -100,7 +99,7 @@ export default function ActionList({ listType, title, description, compact = fal
                               onDelete={() => removeAction(listType, action.id)}
                               dragHandleProps={provided.dragHandleProps}
                               provided={provided}
-                              className={cn("!animate-update-border")}
+                              className={cn("animate-update-border!")}
                             />
                           </div>);
                       }}

@@ -56,6 +56,25 @@ export function useWebSocketUI() {
     cooldownRefs.current.set(action, { lastSent: now, });
   }, []);
 
+  const once = useCallback((action: string, data: any, handler: MessageHandler) => {
+    if (!websocketService) return
+
+    const id = `${action}:${crypto.randomUUID()}`
+    const onceHandler = () => {
+      if (!websocketService) return
+      handler(data)
+      websocketService.off(id, onceHandler)
+      handlersRef.current.delete(id)
+    }
+
+    if (!handlersRef.current.has(id)) {
+      handlersRef.current.set(id, [])
+    }
+    handlersRef.current.get(id)?.push(onceHandler)
+
+    websocketService.on(id, handler)
+    websocketService.send(id, data);
+  }, [])
 
   const on = useCallback((action: string, handler: MessageHandler) => {
     if (!websocketService) return
@@ -101,7 +120,7 @@ export function useWebSocketUI() {
       description: "Please reopen the editor from the tray",
       variant: "destructive",
     })
-    !process.env.NODE_ENV &&
+    process.env.NODE_ENV !== "development" &&
       setTimeout(() => {
         window.open('', '_self');
         window.close();
@@ -110,5 +129,5 @@ export function useWebSocketUI() {
   if (websocketService)
     websocketService.onCloseCallback = () => setIsClosed(true)
 
-  return { send, on, off }
+  return { send, on, once, off }
 }

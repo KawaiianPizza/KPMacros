@@ -56,14 +56,14 @@ export default function ActionDisplay({
           </span>
         )
       case "mouse":
-        if (action.state)
+        if ("state" in action)
           return (
             <span>
               <span className="text-info-text">{action.button}</span> mouse{" "}
               <span className="text-info-text">{action.state}</span>
             </span>
           )
-        if (action.x !== undefined || action.y !== undefined) {
+        if ("x" in action && "y" in action && "relative" in action) {
           const relative = action.relative
           const x = action.x || 0
           const y = action.y || 0
@@ -85,7 +85,7 @@ export default function ActionDisplay({
             </span>
           )
         }
-        if (action.scroll)
+        if ("scroll" in action && "amount" in action)
           return (
             <span>
               Scroll{" "}
@@ -122,7 +122,7 @@ export default function ActionDisplay({
           </span>
         )
       default:
-        return `${action.type}: ${action.value}`
+        return `${(action as any).type}: ${(action as any).value}`
     }
   }
 
@@ -136,21 +136,21 @@ export default function ActionDisplay({
     return true
   }
 
-  const handleActionTypeChange = (value: string) => {
-    const actionMap = {
+  const handleActionTypeChange = (value: typeof MacroActionType[number]) => {
+    const defaults = {
       keyboard: { state: "press" },
       mouse: { button: "left", state: "click" },
       text: { text: "" },
       delay: { duration: 25 },
       sound: {},
       process: {},
-    }
-    onUpdate({ type: value, ...actionMap[value as keyof typeof actionMap] })
+    } as const
+    onUpdate({ type: value, ...defaults[value] })
   }
   return (
     <Card
-      ref={provided.innerRef}
-      {...provided.draggableProps}
+      ref={provided?.innerRef}
+      {...provided?.draggableProps}
       className={cn(
         props.className,
         "group w-full select-none overflow-hidden transition-all duration-200",
@@ -169,7 +169,7 @@ export default function ActionDisplay({
         }}
       >
         <div className="flex items-center cursor-grab w-0 flex-1 min-w-0">
-          <div className="mr-2 flex-shrink-0">
+          <div className="mr-2 shrink-0">
             <GripVertical className="h-4 w-4 text-foreground/65" />
           </div>
           <CardTitle className="text-sm font-medium w-0 flex-1 min-w-0 break-all hyphens-auto overflow-hidden">
@@ -190,7 +190,7 @@ export default function ActionDisplay({
         </div>
         <div
           className={cn(
-            "absolute right-2.5 top-0 !mt-0 flex space-x-1 rounded-md border border-border/35 bg-card/100 p-2 transition-all duration-200",
+            "absolute right-2.5 top-0 mt-0! flex space-x-1 rounded-md border border-border/35 bg-card p-2 transition-all duration-200",
             "w-0 min-w-0 overflow-hidden opacity-0 group-hover:w-32 group-hover:min-w-32 group-hover:opacity-100",
             isSelected && "w-32 min-w-32 opacity-100",
           )}
@@ -201,7 +201,7 @@ export default function ActionDisplay({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 flex-shrink-0"
+                  className="h-6 w-6 shrink-0"
                   onClick={(e) => {
                     e.stopPropagation()
                     onMoveUp()
@@ -220,7 +220,7 @@ export default function ActionDisplay({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 flex-shrink-0"
+                  className="h-6 w-6 shrink-0"
                   onClick={(e) => {
                     e.stopPropagation()
                     onMoveDown()
@@ -239,7 +239,7 @@ export default function ActionDisplay({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 flex-shrink-0"
+                  className="h-6 w-6 shrink-0"
                   onClick={(e) => {
                     e.stopPropagation()
                     onDuplicate()
@@ -258,7 +258,7 @@ export default function ActionDisplay({
                 <Button
                   variant="destructive"
                   size="icon"
-                  className="h-6 w-6 flex-shrink-0"
+                  className="h-6 w-6 shrink-0"
                   onClick={(e) => {
                     e.stopPropagation()
                     onDelete()

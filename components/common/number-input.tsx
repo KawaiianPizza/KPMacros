@@ -56,7 +56,6 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
           step={step}
           className={cn(
             "flex h-10 w-full border border-border px-3 py-2 pr-8 md:text-sm",
-            type === "number" &&
             "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
             className,
           )}

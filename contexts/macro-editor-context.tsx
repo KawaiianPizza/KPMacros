@@ -3,7 +3,6 @@
 import type React from "react"
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { v4 as uuidv4 } from "uuid"
 import { useToast } from "@/hooks/use-toast"
 import { validateActivator } from "@/lib/validation-utils"
 import { MacroAction, MacroData, Modifiers } from "@/lib/types"
@@ -101,7 +100,7 @@ export function MacroEditorProvider({
   macroName = null,
 }: MacroEditorProviderProps) {
   const router = useRouter()
-  const { send, on, off } = useWebSocketUI()
+  const { send, on, once, off } = useWebSocketUI()
   const { toast } = useToast()
 
   const [macro, setMacro] = useState<MacroData>(() => {
@@ -111,15 +110,15 @@ export function MacroEditorProvider({
         oldName: initialMacroData.name,
         start: initialMacroData.start.map((action) => ({
           ...action,
-          id: action.id || uuidv4(),
+          id: action.id || crypto.randomUUID(),
         })),
         loop: initialMacroData.loop.map((action) => ({
           ...action,
-          id: action.id || uuidv4(),
+          id: action.id || crypto.randomUUID(),
         })),
         finish: initialMacroData.finish.map((action) => ({
           ...action,
-          id: action.id || uuidv4(),
+          id: action.id || crypto.randomUUID(),
         })),
       }
       console.log("Initialized macro with provided data:", processedMacro)
@@ -485,13 +484,7 @@ export function MacroEditorProvider({
     const handleAudioDevices = (data: string[]) => {
       setAudioDevices(data)
     }
-
-    on("audioDevices", handleAudioDevices)
-    send("getAudioDevices", {}, false)
-
-    return () => {
-      off("audioDevices", handleAudioDevices)
-    }
+    once("getAudioDevices", {}, handleAudioDevices)
   }, [])
 
   const contextValue: MacroEditorContextType = {

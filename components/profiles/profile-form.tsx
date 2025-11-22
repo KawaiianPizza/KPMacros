@@ -12,7 +12,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, Loader2 } from "lucide-react"
 import type { Profile, Window } from "@/lib/types"
 import { validateWindowsFilename } from "@/lib/validation-utils"
-import { v4 as uuidv4 } from "uuid"
 import { cn } from "@/lib/utils"
 import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
@@ -47,7 +46,7 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
           .map((executable) => ({
             executable,
             title: executable, // Use executable as title when title is undefined
-            pid: uuidv4()
+            pid: crypto.randomUUID()
           }))
 
         if (missingWindows.length > 0) {
@@ -213,7 +212,7 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
             )}
 
             <div className="border border-border rounded-md overflow-clip bg-background">
-              <ScrollArea className="h-[250px] p-3 bg-card/65">
+              <ScrollArea className="h-[250px] p-3 bg-card blend-33">
                 {isLoadingWindows ? (
                   <div className="flex items-center justify-center py-8 text-foreground/65">
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -238,7 +237,7 @@ export default function ProfileForm({ profile, profiles, onSave, onCancel }: Pro
                       }).map((window) => {
                         const checked = selectedWindows.includes(window.executable)
                         return (
-                          <div key={window.pid} className="relative z-10 flex items-start space-x-3 overflow-clip rounded border border-border bg-background p-2 before:absolute before:inset-0 before:-z-10 before:bg-input/100 hover:border-active before:hover:bg-input/65" onClick={() => toggleWindow(window)}>
+                          <div key={window.pid} className="relative z-10 flex items-start space-x-3 overflow-clip rounded border border-border bg-input p-2 hover:border-active hover:blend-[11%]" onClick={() => toggleWindow(window)}>
                             <Checkbox
                               id={`window-${window.executable}`}
                               checked={checked}

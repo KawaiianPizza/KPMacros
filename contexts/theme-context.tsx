@@ -25,20 +25,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { settings } = useSettingsContext()
 
   useEffect(() => {
-    const handleGetTheme = ({ message, error }: { message: ThemeColors, success?: string, error?: string }) => {
+    const handleGetTheme = ({ message, error }: { message: Theme, success?: string, error?: string }) => {
       if (error) {
         const theme = themes.find((t) => t.name === settings.theme.selectedTheme.value)
+        console.log(theme)
         if (theme)
           setCurrentTheme(theme)
         return
       }
-      applyThemeColors(message)
+      setCurrentTheme(message)
+      applyThemeColors(message.colors)
     }
 
-    const handleGetThemes = ({ message, error }: { message: Theme[], success?: string, error?: string }) => {
+    const handleGetThemes = ({ message, success, error }: { message: Theme[], success?: string, error?: string }) => {
       if (error) return
       if (!message) return
-      setThemes(prev => [...prev, ...message])
+      setThemes([...defaultThemes, ...message])
     }
 
     on("theme", handleGetTheme)
@@ -53,10 +55,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const theme = settings.theme.selectedTheme.value
     if (theme !== currentTheme.name)
       send("getTheme", { name: theme })
-  }, [settings.theme.selectedTheme.value])
+  }, [settings])
 
   useEffect(() => {
-    if (process?.env?.NODE_ENV !== "development") return
+    if (process.env.NODE_ENV !== "development") return
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "F2") return;

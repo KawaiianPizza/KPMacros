@@ -6,11 +6,11 @@ import { useRef, useEffect } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { NumberInput } from "@/components/common/number-input"
-import { MacroAction } from "@/lib/types"
+import { DelayAction } from "@/lib/types"
 
 interface DelayActionInputProps {
-  action: MacroAction
-  onChange: (action: MacroAction) => void
+  action: DelayAction
+  onChange: (action: DelayAction) => void
   compact: boolean
 }
 

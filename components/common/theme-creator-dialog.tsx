@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Palette, Eye, EyeOff, Save, X, RefreshCcw } from 'lucide-react'
+import { Palette, Eye, EyeOff, Save, X, RefreshCcw, ChevronDown, ChevronRight } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -18,16 +18,48 @@ import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 import { useTheme } from "@/contexts/theme-context"
+import { hexToHsl } from "@/lib/theme-config"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Badge } from "../ui/badge"
+import { MacroAction, MacroData, Modifiers } from "@/lib/types"
+import MacroList from "../profiles/macro-list"
+import ActionDisplay from "../macro-editor/action-display"
+import { Draggable, Droppable } from "@hello-pangea/dnd"
+import TypeRowSelect from "./type-row-select"
+import TypeSwitch from "./type-switch"
+import { useWebSocketUI } from "@/hooks/use-websocketUI"
+import { toast, useToast } from "@/hooks/use-toast"
+
+const MACROS: MacroData[] = [
+  {
+    id: "0",
+    name: "Macro Name",
+    activator: "Ctrl+F",
+    enabled: true,
+    loopMode: "Held",
+    type: "Hotkey",
+    cooldown: 0, start: [], loop: [], finish: [], interrupt: true, mod: false, modifierMode: "Inclusive", modifiers: Modifiers.Control, repeatDelay: 0,
+  },
+  {
+    id: "1",
+    name: "Macro Name 2",
+    activator: "/command",
+    enabled: false,
+    loopMode: "Toggle",
+    type: "Command",
+    cooldown: 0, start: [], loop: [], finish: [], interrupt: false, mod: false, modifierMode: "Exclusive", modifiers: Modifiers.None, repeatDelay: 0,
+  }
+]
+const ACTIONS: MacroAction[] = [
+  { id: "0", type: "keyboard", key: "A", state: "press" },
+  { id: "1", type: "mouse", button: "left", state: "click" },
+  { id: "2", type: "mouse", x: 100, y: -50, relative: true },
+  { id: "3", type: "mouse", scroll: "down", amount: 1 },
+  { id: "4", type: "delay", duration: 50 },
+  { id: "5", type: "text", text: "This is sample text" },
+]
 
 type ColorKey =
   | "background"
@@ -46,78 +78,21 @@ type ThemeColorsLocal = Record<ColorKey, string>
 
 const COLOR_FIELDS: { key: ColorKey; label: string }[] = [
   { key: "background", label: "Background" },
-  { key: "foreground", label: "Foreground" },
-  { key: "card", label: "Card" },
-  { key: "border", label: "Border" },
+  { key: "foreground", label: "Background Text" },
   { key: "input", label: "Input" },
   { key: "inputText", label: "Input Text" },
   { key: "info", label: "Info" },
   { key: "infoText", label: "Info Text" },
   { key: "active", label: "Active" },
   { key: "activeText", label: "Active Text" },
-  { key: "destructive", label: "Destructive" },
+  { key: "card", label: "Card" },
+  { key: "border", label: "Border" },
 ]
 
-// Safe, common stacks (no remote font loading)
-const FONT_OPTIONS: { id: string; label: string; stack: string }[] = [
-  {
-    id: "system",
-    label: "System Default",
-    stack:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif',
-  },
-  {
-    id: "inter",
-    label: "Inter-like",
-    stack:
-      'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-  },
-  {
-    id: "roboto",
-    label: "Roboto",
-    stack:
-      'Roboto, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-  },
-  {
-    id: "sfmono",
-    label: "SF Mono-like",
-    stack:
-      'ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-  },
-]
-
-// Local helper: convert HEX to "h s% l%" used by Tailwind hsl(var(--token))
-function hexToHsl(hex: string): string {
-  const clean = hex?.trim()
-  if (!clean || !/^#([0-9A-Fa-f]{6})$/.test(clean)) return "0 0% 0%"
-  const r = parseInt(clean.slice(1, 3), 16) / 255
-  const g = parseInt(clean.slice(3, 5), 16) / 255
-  const b = parseInt(clean.slice(5, 7), 16) / 255
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-  let h = 0
-  let s = 0
-  const l = (max + min) / 2
-  if (max !== min) {
-    const d = max - min
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-    switch (max) {
-      case r:
-        h = (g - b) / d + (g < b ? 6 : 0)
-        break
-      case g:
-        h = (b - r) / d + 2
-        break
-      case b:
-        h = (r - g) / d + 4
-        break
-    }
-    h /= 6
-  }
-  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`
+function toKebab(input: string) {
+  return input.replace(/([A-Z])/g, "-$1").toLowerCase()
 }
 
-// Validate simple 6-char hex
 function isHex(hex: string) {
   return /^#([0-9A-Fa-f]{6})$/.test(hex)
 }
@@ -129,6 +104,8 @@ interface ThemeCreatorDialogProps {
 
 export function ThemeCreatorDialog({ open, onOpenChange }: ThemeCreatorDialogProps) {
   const { currentTheme, setTheme } = useTheme()
+  const { once } = useWebSocketUI()
+  const { toast } = useToast()
   const [name, setName] = useState("Custom Theme")
   const [colors, setColors] = useState<ThemeColorsLocal>(() => ({
     background: currentTheme.colors.background,
@@ -143,25 +120,28 @@ export function ThemeCreatorDialog({ open, onOpenChange }: ThemeCreatorDialogPro
     destructive: currentTheme.colors.destructive,
     border: currentTheme.colors.border,
   }))
-  const [fontId, setFontId] = useState<string>("system")
-  const [radius, setRadius] = useState<number>(8)
+  const [dPadValue, setDPadValue] = useState("⬤" as "🢄" | "🢁" | "🢅" | "🢀" | "⬤" | "🢂" | "🢇" | "🢃" | "🢆")
+  const [selectedAction, setSelectedAction] = useState("0")
   const [livePreview, setLivePreview] = useState<boolean>(false)
   const rootPrevVars = useRef<Map<string, string>>(new Map())
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // precompute HSL vars for preview container
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
+      }
+    }
+  }, [])
+
   const hslVars = useMemo(() => {
     const vars: Record<string, string> = {}
     for (const key of Object.keys(colors) as ColorKey[]) {
-      vars[`--${toKebab(key)}`] = hexToHsl(colors[key])
+      vars[`--color-${toKebab(key)}`] = `hsl(${hexToHsl(colors[key])})`
     }
-    vars["--radius"] = `${radius}px`
     return vars
-  }, [colors, radius])
+  }, [colors])
 
-  const fontStack = useMemo(
-    () => FONT_OPTIONS.find((f) => f.id === fontId)?.stack ?? FONT_OPTIONS[0].stack,
-    [fontId],
-  )
 
   // Live preview on :root via CSS variables (and restore on disable/close)
   useEffect(() => {
@@ -179,21 +159,18 @@ export function ThemeCreatorDialog({ open, onOpenChange }: ThemeCreatorDialogPro
     for (const [cssVar, value] of Object.entries(hslVars)) {
       root.style.setProperty(cssVar, value)
     }
-    root.style.fontFamily = fontStack
 
     return () => {
       // cleanup only when effect re-runs with livePreview still true
       // restoration happens in dedicated cleanup below (on toggle off/unmount)
     }
-  }, [hslVars, fontStack, livePreview])
+  }, [hslVars, livePreview])
 
-  // Restore original :root vars when live preview is turned off or dialog closes
   useEffect(() => {
     if (!open || !livePreview) return
     return () => {
       restoreRootVars()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, livePreview])
 
   function restoreRootVars() {
@@ -209,9 +186,14 @@ export function ThemeCreatorDialog({ open, onOpenChange }: ThemeCreatorDialogPro
   }
 
   function handleColorChange(key: ColorKey, value: string) {
-    if (!value.startsWith("#")) value = "#" + value
-    if (/^#[a-fA-f0-9]{6}$/.test(value))
-      setColors((prev) => ({ ...prev, [key]: value }))
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current)
+    }
+    debounceTimeoutRef.current = setTimeout(() => {
+      if (!value.startsWith("#")) value = "#" + value
+      if (/^#[a-fA-f0-9]{6}$/.test(value))
+        setColors((prev) => ({ ...prev, [key]: value }))
+    }, 1)
   }
 
   function resetToCurrent() {
@@ -229,8 +211,6 @@ export function ThemeCreatorDialog({ open, onOpenChange }: ThemeCreatorDialogPro
       destructive: currentTheme.colors.destructive,
       border: currentTheme.colors.border,
     })
-    setFontId("system")
-    setRadius(8)
   }
 
   function handleClose(nextOpen: boolean) {
@@ -258,9 +238,19 @@ export function ThemeCreatorDialog({ open, onOpenChange }: ThemeCreatorDialogPro
       isDefault: false,
     }
     // add + activate
-    //addTheme(newTheme, true)
-    setTheme(newTheme.name)
-    handleClose(false)
+    const saveThemeHandler = ({ message, success, error }: { message: string, success?: string, error?: string }) => {
+      if (error) {
+        toast({
+          title: "Error saving theme",
+          description: message,
+          variant: "destructive",
+        })
+        return
+      }
+      setTheme(newTheme.name)
+      handleClose(false)
+    }
+    once("saveTheme", newTheme, saveThemeHandler)
   }
 
   return (
@@ -271,10 +261,10 @@ export function ThemeCreatorDialog({ open, onOpenChange }: ThemeCreatorDialogPro
             <div>
               <DialogTitle className="flex items-center gap-2">
                 <Palette className="h-5 w-5 text-active" aria-hidden="true" />
-                Create Custom Theme
+                Create New Theme
               </DialogTitle>
               <DialogDescription className="mt-1">
-                Choose colors, fonts, and layout options. Preview updates in real time.
+                Choose main colors for the UI elements.
               </DialogDescription>
             </div>
             <div className="flex items-center gap-3">
@@ -306,10 +296,10 @@ export function ThemeCreatorDialog({ open, onOpenChange }: ThemeCreatorDialogPro
           </div>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-6">
+        <div className="relative grid max-h-[70vh] grid-cols-1 grid-rows-[1fr_auto_1fr] gap-3 p-3 lg:max-h-[75vh] lg:grid-cols-2 lg:grid-rows-1">
           {/* Left: Form */}
-          <ScrollArea className="max-h-[70vh] lg:max-h-[75vh] px-6 py-5">
-            <div className="space-y-6">
+          <ScrollArea className="h-full rounded-md">
+            <div className="space-y-3">
               {/* Theme Name */}
               <div className="space-y-2">
                 <Label htmlFor="theme-name">Theme name</Label>
@@ -321,21 +311,21 @@ export function ThemeCreatorDialog({ open, onOpenChange }: ThemeCreatorDialogPro
                   aria-invalid={!name.trim()}
                 />
                 <p className="text-xs text-foreground/65">
-                  Give your theme a unique, descriptive name.
+                  Give your theme a unique name.
                 </p>
               </div>
 
               <Separator />
 
               {/* Colors */}
-              <div className="space-y-3">
+              <div className="space-y-3 pb-1">
                 <div>
                   <h3 className="text-sm font-medium">Colors</h3>
                   <p className="text-xs text-foreground/65">
-                    Adjust core colors used across the app UI.
+                    Adjust core colors used across the UI.
                   </p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-1">
                   {COLOR_FIELDS.map(({ key, label }) => (
                     <ColorField
                       key={key}
@@ -353,82 +343,79 @@ export function ThemeCreatorDialog({ open, onOpenChange }: ThemeCreatorDialogPro
           <Separator className="lg:hidden" />
 
           {/* Right: Preview */}
-          <div className="bg-background/50 p-4 lg:p-6">
-            <div
-              className={cn(
-                "w-full h-full rounded-lg border",
-                "bg-background text-foreground",
-              )}
-              // Apply CSS variables + font only inside preview container
-              style={{
-                ...(hslVars as React.CSSProperties),
-                fontFamily: fontStack,
-              }}
-            >
-              <Card className="bg-card/100 border-border">
+          <ScrollArea className="h-full rounded-md border border-border bg-background p-3"
+            style={{
+              ...(hslVars as React.CSSProperties),
+            }}>
+            <div className="space-y-3 pb-0.5">
+              <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Theme Preview</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Buttons */}
+                <CardContent>
                   <div className="flex flex-wrap gap-3">
-                    <Button className="bg-active text-active-text hover:opacity-90">
+                    <Button className="bg-active text-active-text hover:blend-[0%]">
                       Primary Action
                     </Button>
-                    <Button variant="outline" className="border-border text-foreground">
+                    <Button>
                       Secondary
                     </Button>
-                    <Button variant="destructive" className="bg-destructive text-active-text">
-                      Destructive
-                    </Button>
-                  </div>
-
-                  {/* Form controls */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm">Text input</Label>
-                      <Input
-                        placeholder="Placeholder"
-                        className="bg-input text-input-text border-border"
-                        value=""
-                        onChange={() => { }}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm">Another input</Label>
-                      <Input
-                        placeholder="Type here"
-                        className="bg-input text-input-text border-border"
-                        value=""
-                        onChange={() => { }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Info block */}
-                  <div className="rounded-md border border-border p-4 bg-info text-info-text">
-                    This is an info surface. Make sure text meets contrast requirements.
-                  </div>
-
-                  {/* Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="rounded-lg border border-border bg-card p-4">
-                      <div className="text-sm font-medium mb-2">Card Title</div>
-                      <p className="text-sm text-foreground/80">
-                        Card body copy showing typical paragraph text color.
-                      </p>
-                    </div>
-                    <div className="rounded-lg border border-border bg-card p-4">
-                      <div className="text-sm font-medium mb-2">Another Card</div>
-                      <p className="text-sm text-foreground/80">
-                        Links, inputs, and controls inherit these variables.
-                      </p>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
+
+              <MacroList
+                macros={MACROS}
+                isLoading={false}
+                selectedProfile={""}
+                onToggleEnabled={() => { }}
+                onUpdateLoopMode={() => { }}
+                onEditMacro={() => { }}
+                onRenameMacro={() => { }}
+                onDeleteMacro={() => { }}
+                onCreateNewMacro={() => { }}
+              />
+
+              <TypeRowSelect columns={3} rows={3} options={["🢄", "🢁", "🢅", "🢀", "⬤", "🢂", "🢇", "🢃", "🢆"]} onValueChange={(value) => setDPadValue(value as typeof dPadValue)} value={dPadValue} />
+              <TypeSwitch options={["Option 1", "Option 2"]} value="Option 1" onValueChange={() => { }}></TypeSwitch>
+
+              <div className="space-y-4 h-full flex flex-col w-full overflow-hidden">
+                <div className="mb-3">
+                  <h4 className="text-sm font-medium mb-1">Test List</h4>
+                  <p className="text-xs text-foreground/65">Test List description</p>
+                </div>
+
+                <div className="flex-1 min-h-0 h-full w-full relative border border-border p-1 rounded-lg bg-card blend-33 overflow-clip">
+                  <ScrollArea className={cn("h-96 w-full")} scrollHideDelay={1000 * 60 * 60 * 24}>
+                    <div
+                      className={`space-y-1 min-h-48 transition-colors w-full`}
+                    >
+                      {ACTIONS.map((action, index) =>
+                        <div key={index}>
+                          <ActionDisplay
+                            action={action}
+                            index={index}
+                            listType={"finish"}
+                            isSelected={action.id === selectedAction}
+                            onSelect={() => setSelectedAction(action.id === selectedAction ? "" : action.id)}
+                            onUpdate={() => { }}
+                            onMoveUp={() => { }}
+                            onMoveDown={() => { }}
+                            onDuplicate={() => { }}
+                            onDelete={() => { }}
+                            dragHandleProps={null}
+                            provided={null}
+                            className={cn("animate-update-border!")}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
+              </div>
+
             </div>
-          </div>
+          </ScrollArea>
         </div>
 
         <DialogFooter className="border-t px-6 py-4">
@@ -448,13 +435,9 @@ export function ThemeCreatorDialog({ open, onOpenChange }: ThemeCreatorDialogPro
             </div>
           </div>
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </DialogContent >
+    </Dialog >
   )
-}
-
-function toKebab(input: string) {
-  return input.replace(/([A-Z])/g, "-$1").toLowerCase()
 }
 
 interface ColorFieldProps {

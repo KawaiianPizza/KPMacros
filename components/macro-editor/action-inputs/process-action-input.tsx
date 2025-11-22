@@ -16,7 +16,7 @@ interface ProcessActionInputProps {
 }
 
 export default function ProcessActionInput({ action, onChange, compact }: ProcessActionInputProps) {
-  const { send, on, off } = useWebSocketUI()
+  const { once } = useWebSocketUI()
 
   const inputRef = useRef<HTMLInputElement>(null)
   const [filePath, setFilePath] = useState<string>(action.filePath || "")
@@ -63,11 +63,7 @@ export default function ProcessActionInput({ action, onChange, compact }: Proces
 
   useEffect(() => {
     if (!isSelecting) return
-    send("getFilePath", { filePath })
-    on("filePath", handleFilePath)
-    return () => {
-      off("filePath", handleFilePath)
-    }
+    once("getFilePath", { filePath }, handleFilePath)
   }, [isSelecting])
 
   const handleFilePathChange = (e: React.ChangeEvent<HTMLInputElement>): void => {

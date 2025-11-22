@@ -2,7 +2,7 @@
 
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Info } from "lucide-react"
+import { ExternalLink, Info, Palette, Plus, PlusIcon, PlusSquare } from "lucide-react"
 import type { Setting } from "@/contexts/settings-context"
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
@@ -11,6 +11,7 @@ import { ScrollArea } from "../ui/scroll-area"
 import { useTheme } from "@/contexts/theme-context"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { useWebSocketUI } from "@/hooks/use-websocketUI"
+import { ThemeCreatorDialog } from "../common/theme-creator-dialog"
 
 interface SettingItemProps {
   groupKey: string
@@ -20,14 +21,21 @@ interface SettingItemProps {
 }
 
 export function SettingItem({ groupKey, settingKey, setting, onUpdate }: SettingItemProps) {
+  const { themes, currentTheme, setTheme } = useTheme()
   const { send } = useWebSocketUI()
   const [shouldWrap, setShouldWrap] = useState(false)
   const [open, setOpen] = useState(false)
+  const [themeCreatorOpen, setThemeCreatorOpen] = useState(false)
 
   useEffect(() => {
     if (setting.type === "button-group")
       setShouldWrap(true)
   }, [setting])
+
+  useEffect(() => {
+    if (open)
+      send("getThemes", {})
+  }, [open])
 
   const getSettingType = () => {
     switch (setting.type) {
@@ -37,45 +45,51 @@ export function SettingItem({ groupKey, settingKey, setting, onUpdate }: Setting
         }
         return <Switch checked={setting.value} disabled={setting.disabled} onCheckedChange={handleBooleanChange} />;
       case "theme":
-        const { themes, currentTheme, setTheme } = useTheme()
         const handleThemeChange = (name: string) => {
           setTheme(name)
           onUpdate(groupKey, settingKey, name)
         }
-        if (open)
-          send("getThemes", {})
 
         return (
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between">
-                {currentTheme.name}
-              </Button>
-            </PopoverTrigger>
-            {open &&
-              <PopoverContent className="p-0 md:w-96">
-                <Command>
-                  <CommandInput placeholder="Search theme..." />
-                  <CommandEmpty>No theme found.</CommandEmpty>
-                  <CommandGroup>
-                    <ScrollArea className="max-h-[300px]">
-                      <CommandList>
-                        <div className="flex flex-wrap gap-2 border-0 p-2">
-                          {themes.map((theme) => {
-                            if (theme.isDefault && theme.name !== "Hallowed Mint") return undefined
-                            return (
-                              <CommandItem key={theme.name} value={theme.name} onSelect={() => handleThemeChange(theme.name)}
-                                className="group w-auto min-w-fit flex-shrink-0 gap-0.5">
-                                {theme.name}
-                              </CommandItem>)
-                          })}
-                        </div>
-                      </CommandList>
-                    </ScrollArea>
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>}
-          </Popover>)
+          <div className="flex gap-3">
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between">
+                  {currentTheme.name}
+                </Button>
+              </PopoverTrigger>
+              {open &&
+                <PopoverContent className="p-0 md:w-96">
+                  <Command>
+                    <CommandInput placeholder="Search theme..." />
+                    <CommandEmpty>No theme found.</CommandEmpty>
+                    <CommandGroup>
+                      <ScrollArea className="max-h-[300px]">
+                        <CommandList>
+                          <div className="flex flex-wrap gap-2 border-0 p-2">
+                            {themes.map((theme) => {
+                              if (theme.isDefault && theme.name !== "Hallowed Mint") return undefined
+                              return (
+                                <CommandItem key={theme.name} value={theme.name} onSelect={() => handleThemeChange(theme.name)}
+                                  className={cn("group w-auto min-w-fit shrink-0 gap-0.5",
+                                    currentTheme.name === theme.name && "bg-active text-active-text"
+                                  )}>
+                                  {theme.name}
+                                </CommandItem>)
+                            })}
+                          </div>
+                        </CommandList>
+                      </ScrollArea>
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>}
+            </Popover>
+            <Button onClick={() => setThemeCreatorOpen(true)} className="gap-2">
+              <Plus className="h-4 w-4" />
+            </Button>
+            {themeCreatorOpen && <ThemeCreatorDialog open={themeCreatorOpen} onOpenChange={setThemeCreatorOpen} />}
+
+          </div>)
       case "button":
         return (
           <Button size="sm" onClick={() => window.open(setting.value, "_blank")} className="gap-2">
@@ -109,7 +123,7 @@ export function SettingItem({ groupKey, settingKey, setting, onUpdate }: Setting
         <p className="text-sm text-foreground/65 leading-relaxed whitespace-pre-wrap">{setting.description}</p>
       </div>
 
-      <div className={cn("ml-4 flex-shrink-0 place-self-center", shouldWrap ? "ml-auto" : "")}>
+      <div className={cn("ml-4 shrink-0 place-self-center", shouldWrap ? "ml-auto" : "")}>
         {getSettingType()}
       </div>
     </div>

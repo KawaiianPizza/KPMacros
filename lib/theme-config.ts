@@ -12,7 +12,7 @@ export const defaultThemes: Theme[] = [
       infoText: "#ff00ff",
       card: "#aaaaff",
       active: "#ffffaa",
-      activeText: "#ffffaa",
+      activeText: "#aaaaaa",
       destructive: "#dc2626",
       border: "#bb00bb",
     },

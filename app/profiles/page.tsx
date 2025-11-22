@@ -28,7 +28,6 @@ function ProfilesContent() {
     selectedProfile,
     setSelectedProfile,
     isLoading: isLoadingProfiles,
-    loadProfiles,
     saveProfile,
     deleteProfile,
   } = useProfiles()
@@ -53,8 +52,7 @@ function ProfilesContent() {
 
   React.useEffect(() => {
     send("testMacroStop", { clearMods: true })
-    loadProfiles()
-  }, [loadProfiles])
+  }, [])
 
   const handleNewProfile = useCallback(() => {
     setEditingProfile(null)

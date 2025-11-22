@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useWebSocketUI } from "./use-websocketUI"
 import { useToast } from "@/hooks/use-toast"
-import { v4 as uuidv4 } from "uuid"
 import { MacroData } from "@/lib/types"
 
 interface PendingChange {
@@ -19,32 +18,30 @@ export function useMacros(profileName: string) {
   const [isLoading, setIsLoading] = useState(false)
   const pendingChangesRef = useRef<Map<string, PendingChange>>(new Map())
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const { send, on, off } = useWebSocketUI()
+  const { send, once } = useWebSocketUI()
   const ensureMacroUUIDs = useCallback((macrosData: any[]): MacroData[] => {
     return macrosData.map((macro) => ({
       ...macro,
-      id: macro.id || uuidv4(),
+      id: macro.id || crypto.randomUUID(),
     }))
   }, [])
-
-  const loadMacros = useCallback(() => {
-    if (!profileName) return
-
-    setIsLoading(true)
-    send("getMacros", { profile: profileName })
-  }, [profileName, send])
 
   const sendBatchedUpdates = useCallback(async (): Promise<void> => {
     const pendingChanges = pendingChangesRef.current
     if (pendingChanges.size === 0) return
 
     try {
-      const macrosToUpdate = Array.from(pendingChanges.values()).map((change) => change.macro)
+      const handlebatchMacrosUpdated = (data: { success: boolean; errors?: any[] }) => {
+        if (!data.success) {
+          console.error("Batch update failed:", data.errors)
+        }
+      }
 
-      send("batchUpdateMacros", {
+      const macrosToUpdate = Array.from(pendingChanges.values()).map((change) => change.macro)
+      once("batchUpdateMacros", {
         profile: profileName,
         macros: macrosToUpdate,
-      })
+      }, handlebatchMacrosUpdated)
 
       pendingChangesRef.current.clear()
     } catch (error) {
@@ -135,25 +132,11 @@ export function useMacros(profileName: string) {
       setIsLoading(false)
       pendingChangesRef.current.clear()
     }
-    console.log(profileName)
-    const handlebatchMacrosUpdated = (data: { success: boolean; errors?: any[] }) => {
-      if (!data.success) {
-        console.error("Batch update failed:", data.errors)
-      }
-    }
 
-    on("macros", handleMacros)
-    on("batchMacrosUpdated", handlebatchMacrosUpdated)
-
-    return () => {
-      off("macros", handleMacros)
-      off("batchMacrosUpdated", handlebatchMacrosUpdated)
-    }
-  }, [ensureMacroUUIDs, on, off, profileName])
-
-  useEffect(() => {
-    loadMacros()
-  }, [loadMacros])
+    if (!profileName) return
+    setIsLoading(true)
+    once("getMacros", { profile: profileName }, handleMacros)
+  }, [ensureMacroUUIDs, profileName])
 
   useEffect(() => {
     return () => {
@@ -166,7 +149,6 @@ export function useMacros(profileName: string) {
   return {
     macros,
     isLoading,
-    loadMacros,
     updateMacro,
     renameMacro,
     deleteMacro,

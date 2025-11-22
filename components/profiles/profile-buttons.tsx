@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Plus, Pencil, Trash2 } from "lucide-react"
+import { Plus, Pencil, Trash2, Trash } from "lucide-react"
 import type { Profile } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -33,7 +33,7 @@ export default function ProfileButtons({
             const isGlobal = isGlobalProfile(profile.name)
 
             return (
-              <div key={profile.name} className="relative flex-shrink-0 overflow-clip rounded-md border border-border bg-input">
+              <div key={profile.name} className="relative shrink-0 overflow-clip rounded-md border border-border bg-input">
                 <div className={cn("flex rounded-md h-16", isSelected && "border-active overflow-hidden")}>
                   <Button
                     variant="default"
@@ -69,7 +69,7 @@ export default function ProfileButtons({
                       }}
                       title="Delete Profile"
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
@@ -79,7 +79,7 @@ export default function ProfileButtons({
 
           <Button
             variant="outline"
-            className="h-16 w-16 flex-shrink-0"
+            className="h-16 w-16 shrink-0"
             onClick={onNewProfile}
             title="Create New Profile"
           >

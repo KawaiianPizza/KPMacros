@@ -15,7 +15,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const dynamic = "error"
 
 export const metadata: Metadata = {
-  title: "KPMacros UI v25.8.10",
+  title: "KPMacros UI v25.11.21",
   description: "UI for managing macros",
   icons: "icon.ico"
 }
@@ -29,7 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ScrollArea className="h-screen">
-          {!process.env.NODE_ENV ? <RefreshPrevention /> : null}
+          {process.env.NODE_ENV !== "development" ? <RefreshPrevention /> : null}
           <SettingsProvider>
             <ThemeProvider>
               <ProfileProvider>

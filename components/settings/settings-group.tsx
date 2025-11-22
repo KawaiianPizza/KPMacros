@@ -26,7 +26,7 @@ export function SettingsGroup({ groupKey, isSelected, onSelect, settingsCount }:
       onClick={() => onSelect(groupKey)}
     >
       <span className="font-medium">{label}</span>
-      <Badge variant="outline" className="ml-2">
+      <Badge variant="outline" className="ml-2 text-info-text bg-info">
         {settingsCount}
       </Badge>
     </Button>

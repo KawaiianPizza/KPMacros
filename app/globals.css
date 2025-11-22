@@ -1,46 +1,122 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@layer theme, base, components, utilities;
 
-@layer utilities {
-  .bg-input {
-    position: relative;
-    z-index: 10;
-    background-color: hsl(var(--background));
-    overflow: clip;
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-input: hsl(var(--input));
+  --color-input-text: hsl(var(--input-text));
+  --color-info: hsl(var(--info));
+  --color-info-text: hsl(var(--info-text));
+  --color-card: hsl(var(--card));
+  --color-active: hsl(var(--active));
+  --color-active-text: hsl(var(--active-text));
+  --color-destructive: hsl(var(--destructive));
+  --color-border: hsl(var(--border));
+
+  --rounded-sm: calc(var(--radius) - 4px);
+  --rounded-md: calc(var(--radius) - 2px);
+  --rounded-lg: var(--radius);
+
+  --radius: 0.5rem;
+
+  --blend-0: 0%;
+  --blend-11: 11.11%;
+  --blend-33: 33.33%;
+  --blend-66: 66.66%;
+
+  /* Custom animations */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-breathing: breathing 3s ease-in-out infinite;
+  --animate-update-a: update-a 2s ease-in-out;
+  --animate-update-b: update-b 2s ease-in-out;
+  --animate-update-border: update-border 2s ease-in-out;
+  --animate-magic: magic 3s ease-in infinite;
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
   }
 
-  .bg-input::before {
-    content: var(--tw-content);
-    position: absolute;
-    inset: 0;
-    z-index: -10;
-    background-color: hsl(var(--input)/100%);
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
   }
 
-  .bg-input:hover::before {
-    content: var(--tw-content);
-    position: absolute;
-    inset: 0;
-    z-index: -10;
-    background-color: hsl(var(--input)/65%);
+  to {
+    height: 0;
+  }
+}
+
+@keyframes breathing {
+
+  0%,
+  100% {
+    opacity: 1;
   }
 
-  .bg-input[data-state=on]::before {
-    content: var(--tw-content);
-    position: absolute;
-    inset: 0;
-    z-index: -10;
-    background-color: hsl(var(--input)/65%);
+  50% {
+    opacity: 0.65;
+  }
+}
+
+@keyframes update-a {
+  from {
+    color: hsl(var(--active));
   }
 
-  /* Focus state */
-  .focus-ring:focus {
-    outline: 2px solid hsl(var(--ring));
-    outline-offset: 2px;
+  to {
+    color: hsl(var(--input-text));
+  }
+}
+
+@keyframes update-b {
+  from {
+    color: hsl(var(--active));
   }
 
-  :root {
-    --radius: 0.5rem
+  to {
+    color: hsl(var(--input-text));
   }
+}
+
+@keyframes update-border {
+  from {
+    border-color: hsl(var(--active));
+  }
+
+  to {
+    border-color: hsl(var(--border));
+  }
+}
+
+@keyframes magic {
+
+  0%,
+  100% {
+    filter: drop-shadow(0px 0px 2px hsl(var(--active) / 100%));
+  }
+
+  50% {
+    filter: drop-shadow(0px 0px 2px hsl(var(--active) / 0%));
+  }
+}
+
+@utility bg-* {
+  --background-color: --value(--color-*)
+}
+
+@utility blend-* {
+  --blend-percent: --value([percentage], --blend-*);
+
+  background-color: color-mix(in oklab,
+      var(--background-color) calc(100% - var(--blend-percent)),
+      var(--color-background) var(--blend-percent)) !important;
 }

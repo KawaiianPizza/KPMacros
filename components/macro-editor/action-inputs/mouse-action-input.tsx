@@ -239,8 +239,8 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
 
         {currentTab === "buttons" && (
           <div className="space-y-3">
-            <div className="flex flex-wrap gap-4">
-              <div className="min-w-[200px] flex-1 justify-items-center space-y-1">
+            <div className="flex flex-wrap shrink gap-3">
+              <div className="min-w-72 flex-1 justify-items-center space-y-1">
                 <Label className="text-xs mb-1 block">Button</Label>
                 <ToggleGroup
                   type="single"
@@ -263,7 +263,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
                 </ToggleGroup>
               </div>
 
-              <div className="min-w-[200px] flex-1 justify-items-center space-y-1">
+              <div className="min-w-72 flex-1 justify-items-center space-y-1">
                 <Label className="text-xs mb-1 block">State</Label>
                 <ToggleGroup
                   type="single"
@@ -292,7 +292,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
         {currentTab === "move" && (
           <div className="flex flex-wrap gap-2">
 
-            <div className="space-y-1 min-w-[80px] flex-1">
+            <div className="space-y-1 min-w-20 flex-1">
               <div className="flex items-center">
                 <MoveHorizontal className="h-3.5 w-3.5 mr-1" />
                 <Label className="text-xs">X {!!action.relative ? "offset" : "position"}</Label>
@@ -303,7 +303,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
                 onChange={(e) => handleCoordinateChange("x", e || 0)}
               />
             </div>
-            <div className="space-y-1 min-w-[80px] flex-1">
+            <div className="space-y-1 min-w-20 flex-1">
               <div className="flex items-center">
                 <MoveVertical className="h-3.5 w-3.5 mr-1" />
                 <Label className="text-xs">Y {!!action.relative ? "offset" : "position"}</Label>
@@ -314,9 +314,9 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
                 onChange={(e) => handleCoordinateChange("y", e || 0)}
               />
             </div>
-            <div className="flex flex-col items-center space-y-1.5 min-w-[80px]">
+            <div className="flex flex-col items-center space-y-1.5 min-w-20">
               <Label htmlFor="relative-position" className="text-xs">
-                {!!action.relative ? "Relative" : "Absolute"} position
+                Position: {!!action.relative ? "Relative" : "Absolute"}
               </Label>
               <div className="flex items-center h-10">
                 <Switch id="relative-position" checked={!!action.relative} onCheckedChange={handlePositionModeChange} />
@@ -345,7 +345,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
                 </ToggleGroupItem>
               </ToggleGroup>
             </div>
-            <div className="space-y-1 flex-1 min-w-[80px]">
+            <div className="space-y-1 flex-1 min-w-20">
               <Label className="text-xs">Amount (clicks)</Label>
               <NumberInput
                 type="number"

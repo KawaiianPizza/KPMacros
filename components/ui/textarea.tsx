@@ -4,7 +4,6 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useMemo, useCallback, useEffect } from "react"
 import { ArrowDownToLine, ArrowUpToLine } from "lucide-react"
-import { v4 as uuidv4 } from "uuid"
 
 interface AnimatedTextareaProps extends React.ComponentProps<"textarea"> {
   animateNewText?: boolean
@@ -33,6 +32,15 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
   const animationFrameRef = React.useRef<number>(0)
   const measureCanvasRef = React.useRef<HTMLCanvasElement | null>(null)
+  const debounceTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
+      }
+    }
+  }, [])
 
   React.useImperativeHandle(ref, () => textareaRef.current!)
 
@@ -128,13 +136,13 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
           }
           slices.push(char)
         }
-        
+
         if (buffer)
           slices.push(buffer)
 
         return slices.length === 1 ? [string] : slices
       }) || []
-      
+
       let currentLine = ""
       let currentIndices: number[] = []
       let isFirstPart = true
@@ -206,7 +214,6 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
 
       globalCharIndex += realLineLength + 1
     })
-    console.log(wrappedLines)
     return wrappedLines
   }, [textMetrics, previousValue])
 
@@ -307,16 +314,22 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
   }, [animate, animatedRanges.length])
 
   useEffect(() => {
-    measureTextMetrics()
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current)
+    }
+    debounceTimeoutRef.current = setTimeout(() => {
+      measureTextMetrics()
+    }, 1)
+  }, [previousValue])
 
+  useEffect(() => {
     const handleResize = () => {
       measureTextMetrics()
       renderCanvasOverlay()
     }
-
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
-  }, [previousValue])
+  }, [])
 
   useEffect(() => {
     setPreviousValue(props.value + "")
@@ -331,7 +344,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, AnimatedTextareaProps>(({
       const lastHalf = newValue.slice(selectionEnd)
       const firstHalf = oldValue.substring(0, oldValue.length - lastHalf.length)
       const newTextLength = newValue.length - oldValue.length
-      const animationId = uuidv4()
+      const animationId = crypto.randomUUID()
 
       const newRange: AnimatedRange = {
         start: firstHalf.length,

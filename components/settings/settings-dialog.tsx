@@ -84,10 +84,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 </div>
               )}
             </div>
-            <Button onClick={() => setThemeCreatorOpen(true)} className="gap-2">
-              <Palette className="h-4 w-4" />
-              Create Theme
-            </Button>
           </div>
         </DialogHeader>
 
@@ -127,7 +123,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     variant="ghost"
                     size="sm"
                     onClick={clearSearch}
-                    className="!absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                    className="absolute! right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -136,7 +132,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             </div>
           </div>
 
-          <div className="flex-1 min-h-0 relative bg-background before:absolute before:inset-0 before:bg-card/65">
+          <div className="flex-1 min-h-0 relative bg-card blend-33">
             <SettingsPanel
               settings={filteredSettings}
               selectedGroup={selectedGroup}
@@ -146,7 +142,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </div>
         </div>
       </DialogContent>
-      <ThemeCreatorDialog open={themeCreatorOpen} onOpenChange={setThemeCreatorOpen} />
     </Dialog>
   )
 }
