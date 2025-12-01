@@ -58,6 +58,9 @@ With a file size under 1MB, **KPMacros** features a user-friendly **browser-base
   No paywalls, no bloat, just a clean and efficient macro tool. Donations welcome 😽
 
 ---
+# Requirements:
+.Net 10: https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.100/dotnet-sdk-10.0.100-win-x64.exe
+---
 
 ### 🙏 Special Thanks
 
