@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
@@ -24,6 +24,7 @@ export default function GeneralTab() {
   const { macro, updateMacro, isRecording, setIsRecording, startRecording, toggleModifierMode, isActivatorValid, isTesting } = useMacroEditor()
   const { send, on, off } = useWebSocketUI()
   const [activator, setActivator] = useState<string>(macro.activator || "")
+  const activatorRef = useRef<HTMLInputElement>(null)
 
   const recordingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -39,13 +40,24 @@ export default function GeneralTab() {
   const handleInterruptChange = (checked: boolean) => {
     updateMacro({ interrupt: checked })
   }
-  
+
   const handleModChange = (checked: boolean) => {
     updateMacro({ mod: checked })
   }
 
-  const handleMacroTypeChange = (value: string) => {
-    updateMacro({ type: value as "Hotkey" | "Command" })
+  const handleMacroTypeChange = (value: "Hotkey" | "Command") => {
+    if (isRecording) {
+      setIsRecording(false)
+      send("stopRecordInput", {})
+    }
+    if (recordingTimeoutRef.current) {
+      clearTimeout(recordingTimeoutRef.current)
+    }
+    if (value === "Command") {
+      console.log(value)
+      activatorRef.current?.focus()
+    }
+    updateMacro({ type: value })
   }
 
   useEffect(() => {
@@ -120,6 +132,14 @@ export default function GeneralTab() {
     }
   }, [isRecording, setIsRecording, updateMacro])
 
+  const activatorFocusHandler = (e: React.MouseEvent<HTMLInputElement>) => {
+    if (macro.type === "Hotkey") {
+      setActivator("")
+      startRecording()
+      return
+    }
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -128,7 +148,7 @@ export default function GeneralTab() {
           <CardDescription>Choose how this macro will be triggered</CardDescription>
         </CardHeader>
         <CardContent>
-          <TypeSwitch options={["Hotkey", "Command"]} value={macro.type || "Hotkey"} onValueChange={handleMacroTypeChange} disabled={macro.mod ? "Command" : undefined} className="w-96" />
+          <TypeSwitch options={["Hotkey", "Command"]} value={macro.type || "Hotkey"} onValueChange={(value) => handleMacroTypeChange(value as "Hotkey" | "Command")} disabled={macro.mod ? "Command" : undefined} className="w-96" />
         </CardContent>
       </Card>
 
@@ -171,22 +191,19 @@ export default function GeneralTab() {
 
               <Input
                 id="activator"
+                ref={activatorRef}
                 placeholder={
                   isRecording
                     ? "Press keys..."
                     : macro.type === "Hotkey"
                       ? "e.g. Ctrl+Alt+A, Mod+F1"
-                      : "e.g. /mycommand"
+                      : "e.g. /command"
                 }
                 maxLength={macro.type === "Command" ? 32 : 0}
                 value={activator}
                 onChange={handleActivatorChange}
                 disabled={isTesting}
-                onFocusCapture={() => {
-                  if (macro.type === "Command") return
-                  setActivator("")
-                  startRecording()
-                }}
+                onClick={activatorFocusHandler}
                 className={cn("border-border",
                   macro.type === "Hotkey" ? "rounded-none" : "rounded-l-md",
                   isRecording && "border-active animate-breathing",

@@ -124,6 +124,7 @@ export interface WebSocketMessage {
   action: string
   data: any
 }
+export type WSUIMessage = { message: any, success?: string, error?: string }
 
 export type InputData = KeyboardData | MouseData | ScrollData | MoveData | DelayData;
 

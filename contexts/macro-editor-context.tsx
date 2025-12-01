@@ -5,7 +5,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo } 
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { validateActivator } from "@/lib/validation-utils"
-import { MacroAction, MacroData, Modifiers } from "@/lib/types"
+import { MacroAction, MacroData, Modifiers, WebSocketMessage, WSUIMessage } from "@/lib/types"
 import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 
@@ -327,74 +327,71 @@ export function MacroEditorProvider({
   )
 
   const saveMacro = useCallback(async (): Promise<void> => {
-    try {
-      setIsLoading(true)
-      setError(null)
+    setIsLoading(true)
+    setError(null)
 
-      if (!currentProfile) {
-        throw new Error("Profile is required")
-      }
-
-      const macroToSave = macro.mod ? {
-        name: macro.name ? macro.name : macro.activator,
-        oldName: isEditingExisting ? macro.oldName : undefined,
-        activator: macro.activator,
-        modifiers: macro.modifiers,
-        enabled: macro.enabled,
-        interrupt: macro.interrupt,
-        modifierMode: macro.modifierMode,
-        mod: macro.mod,
-      } : {
-        ...macro,
-        name: macro.name ? macro.name : macro.activator,
-        start: macro.start.map(({ id, ...rest }) => rest),
-        loop: macro.loop.map(({ id, ...rest }) => rest),
-        finish: macro.finish.map(({ id, ...rest }) => rest),
-        oldName: isEditingExisting ? macro.oldName : undefined,
-      }
-
-      console.log("Saving macro:", {
-        profile: currentProfile,
-        macroId: currentMacroId,
-        isEditing: isEditingExisting,
-        macro: macroToSave,
-      })
-
-      const saveData = {
-        profile: currentProfile,
-        macro: macroToSave,
-        isEditing: isEditingExisting,
-      }
-
-      send("saveMacro", saveData)
-
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      setHasUnsavedChanges(false)
-
-      toast({
-        title: isEditingExisting ? "Macro updated" : "Macro created",
-        description: `${macro.name} has been ${isEditingExisting ? "updated" : "created"} successfully.`,
-        duration: 2000
-      })
-      const queryParams = new URLSearchParams({
-        profile: currentProfile
-      })
-      router.push(`/profiles?${queryParams}`)
-
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to save macro"
-      console.error("Error saving macro:", errorMessage)
-      setError(errorMessage)
-
-      toast({
-        title: "Save failed",
-        description: errorMessage,
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
+    if (!currentProfile) {
+      throw new Error("Profile is required")
     }
+
+    const macroToSave = macro.mod ? {
+      name: macro.name ? macro.name : macro.activator,
+      oldName: isEditingExisting ? macro.oldName : undefined,
+      activator: macro.activator,
+      modifiers: macro.modifiers,
+      enabled: macro.enabled,
+      interrupt: macro.interrupt,
+      modifierMode: macro.modifierMode,
+      mod: macro.mod,
+    } : {
+      ...macro,
+      name: macro.name ? macro.name : macro.activator,
+      start: macro.start.map(({ id, ...rest }) => rest),
+      loop: macro.loop.map(({ id, ...rest }) => rest),
+      finish: macro.finish.map(({ id, ...rest }) => rest),
+      oldName: isEditingExisting ? macro.oldName : undefined,
+    }
+
+    console.log("Saving macro:", {
+      profile: currentProfile,
+      macroId: currentMacroId,
+      isEditing: isEditingExisting,
+      macro: macroToSave,
+    })
+
+    const saveData = {
+      profile: currentProfile,
+      macro: macroToSave,
+      isEditing: isEditingExisting,
+    }
+    const macroSaved = ({ message, success, error }: WSUIMessage) => {
+      console.log(message, success, error)
+      setHasUnsavedChanges(false)
+      if (success) {
+        toast({
+          title: isEditingExisting ? "Macro updated" : "Macro created",
+          description: `${macro.name} has been ${isEditingExisting ? "updated" : "created"} successfully.`,
+          duration: 2000
+        })
+        const queryParams = new URLSearchParams({
+          profile: currentProfile
+        })
+        router.push(`/profiles?${queryParams}`)
+      }
+      if (error) {
+        const errorMessage = message || "Failed to save macro"
+        console.error("Error saving macro:", errorMessage)
+        setError(errorMessage)
+
+        toast({
+          title: "Save failed",
+          description: errorMessage,
+          variant: "destructive",
+        })
+        setIsLoading(false)
+      }
+    }
+    once("saveMacro", saveData, macroSaved)
   }, [macro, currentProfile, currentMacroId, isEditingExisting, router, toast])
 
   const toggleTesting = useCallback(async (): Promise<void> => {

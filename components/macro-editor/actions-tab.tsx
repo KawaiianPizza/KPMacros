@@ -289,10 +289,10 @@ export default function ActionsTab() {
                       <div className={`flex items-center justify-center w-6 h-6 rounded-full`}>
                         <Icon className={`h-3 w-3`} />
                       </div>
-                      {title}
+                      {type === "finish" && macro.type === "Command" ? "Actions List" : title}
                       {count > 0 && <Badge className="ml-auto">{count}</Badge>}
                     </CardTitle>
-                    <p className="text-xs text-foreground/65">{description}</p>
+                    <p className="text-xs text-foreground/65">{type === "finish" && macro.type === "Command" ? "Actions to execute once the command is activated" : description}</p>
                   </CardHeader>
                   <CardContent className="flex-1 pt-0 p-4">
                     <ActionList listType={type} compact={true} />
@@ -393,7 +393,7 @@ export default function ActionsTab() {
                     onClick={() => handleAddAction(type)}
                   >
                     <ArrowUpFromLine />
-                    <span className="text-xs">Add to {title.split(" ")[0]}</span>
+                    <span className="text-xs">Add to {macro.type === "Command" ? "List" : title.split(" ")[0]}</span>
                     <ArrowUpFromLine />
                   </Button>
                   <Button className={cn("w-9 rounded-l-none border-l-0",
