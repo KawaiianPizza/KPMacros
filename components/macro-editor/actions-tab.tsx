@@ -31,7 +31,8 @@ export default function ActionsTab() {
   const [newAction, setNewAction] = useState<MacroAction>({
     id: "0",
     type: "keyboard",
-  })
+    state: "press"
+  } as MacroAction)
   const [recordingList, setRecordingList] = useState<"start" | "loop" | "finish" | undefined>()
   const [recordButtonConfigs, setRecordButtonConfigs] = useState([
     {
@@ -94,7 +95,7 @@ export default function ActionsTab() {
       sound: { volume: 100 },
       process: {},
     }
-    setNewAction({ id: newAction.id, type: value, ...actionMap[value] })
+    setNewAction({ id: newAction.id, type: value, ...actionMap[value] } as MacroAction)
   }
 
   const handleDragEnd = (result: DropResult) => {
@@ -107,6 +108,7 @@ export default function ActionsTab() {
   }
 
   const handleAddAction = (type: "start" | "loop" | "finish") => {
+    Object.keys(newAction).forEach(key => (newAction as any)[key] === undefined && delete (newAction as any)[key])
     if (newAction.type === "keyboard" && newAction.state === "press") {
       addAction(type, {
         ...newAction,

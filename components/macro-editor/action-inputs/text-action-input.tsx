@@ -7,13 +7,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { ArrowDownToLine, ArrowUpToLine, Copy, RotateCcw, Type } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { MacroAction } from "@/lib/types"
+import { MacroAction, TextAction } from "@/lib/types"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 
 interface TextActionInputProps {
-  action: MacroAction
-  onChange: (action: MacroAction) => void
+  action: TextAction & MacroAction
+  onChange: (action: TextAction) => void
   compact: boolean
 }
 
@@ -109,7 +109,7 @@ export default function TextActionInput({ action, onChange, compact }: TextActio
     const newText = newLines.join("\n")
 
     setLocalValue(newText)
-    onChange({ ...action, value: newText })
+    onChange({ ...action, text: newText })
 
     requestAnimationFrame(() => {
       if (textareaRef.current) {
@@ -148,7 +148,7 @@ export default function TextActionInput({ action, onChange, compact }: TextActio
     const newText = newLines.join("\n")
 
     setLocalValue(newText)
-    onChange({ ...action, value: newText })
+    onChange({ ...action, text: newText })
 
     requestAnimationFrame(() => {
       if (textareaRef.current) {

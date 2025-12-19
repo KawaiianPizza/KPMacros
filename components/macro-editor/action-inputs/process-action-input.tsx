@@ -5,13 +5,13 @@ import { useRef, useEffect, useState, useCallback } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import type { MacroAction } from "@/lib/types"
+import type { MacroAction, ProcessAction } from "@/lib/types"
 import { Switch } from "@/components/ui/switch"
 import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 interface ProcessActionInputProps {
-  action: MacroAction
-  onChange: (action: MacroAction) => void
+  action: ProcessAction & MacroAction
+  onChange: (action: ProcessAction) => void
   compact: boolean
 }
 

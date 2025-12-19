@@ -6,15 +6,15 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { MacroAction } from "@/lib/types"
+import type { MacroAction, SoundAction } from "@/lib/types"
 import { useMacroEditor } from "@/contexts/macro-editor-context"
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 interface SoundActionInputProps {
-  action: MacroAction
-  onChange: (action: MacroAction) => void
+  action: SoundAction & MacroAction
+  onChange: (action: SoundAction) => void
   compact: boolean
 }
 

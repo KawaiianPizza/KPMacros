@@ -1,14 +1,12 @@
 "use client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { ArrowUp, ArrowDown, Trash, GripVertical, Copy } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import ActionInputFactory from "./action-inputs/action-input-factory"
 import { MacroActionType, type MacroAction } from "@/lib/types"
-import TypeRowSelect from "../common/type-row-select"
+import { useMemo } from "react"
 
 interface ActionDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
   action: MacroAction
@@ -38,7 +36,7 @@ export default function ActionDisplay({
   provided,
   ...props
 }: ActionDisplayProps) {
-  const getActionDescription = () => {
+  const getActionDescription = useMemo(() => {
     switch (action.type) {
       case "keyboard":
         return (
@@ -124,9 +122,9 @@ export default function ActionDisplay({
       default:
         return `${(action as any).type}: ${(action as any).value}`
     }
-  }
+  }, [action])
 
-  const isActionValid = () => {
+  const isActionValid = useMemo(() => {
     const type = action.type
     if (type === "keyboard" && !action.key) return false
     if (type === "text" && !action.text) return false
@@ -134,7 +132,7 @@ export default function ActionDisplay({
     if (type === "sound" && !action.filePath) return false
     if (type === "process" && !action.filePath) return false
     return true
-  }
+  }, [action])
 
   const handleActionTypeChange = (value: typeof MacroActionType[number]) => {
     const defaults = {
@@ -175,15 +173,10 @@ export default function ActionDisplay({
           <CardTitle className="text-sm font-medium w-0 flex-1 min-w-0 break-all hyphens-auto overflow-hidden">
             <TooltipProvider delayDuration={300}>
               <Tooltip>
-                {(() => {
-                  const text = getActionDescription()
-                  return <>
-                    <TooltipTrigger asChild>
-                      <div className="w-full break-all hyphens-auto overflow-hidden truncate">{text}</div>
-                    </TooltipTrigger>
-                    <TooltipContent>{text}</TooltipContent>
-                  </>
-                })()}
+                <TooltipTrigger asChild>
+                  <div className="w-full break-all hyphens-auto overflow-hidden truncate">{getActionDescription}</div>
+                </TooltipTrigger>
+                <TooltipContent>{getActionDescription}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </CardTitle>
@@ -274,7 +267,7 @@ export default function ActionDisplay({
       </CardHeader>
 
       {isSelected && (
-        <CardContent className={cn("px-4 pb-4 pt-3 w-full overflow-hidden bg-background/25", !isActionValid() && "ring-inset ring-1 ring-red-600")}>
+        <CardContent className={cn("px-4 pb-4 pt-3 w-full overflow-hidden bg-background/25", !isActionValid && "ring-inset ring-1 ring-red-600")}>
           <div className="space-y-4 w-full overflow-hidden">
             <div className="grid grid-row-1 gap-4 w-full overflow-hidden">
               {/* <div className="space-y-1 w-full overflow-hidden">

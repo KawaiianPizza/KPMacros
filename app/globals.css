@@ -109,6 +109,18 @@
   }
 }
 
+@keyframes fade-out {
+  to {
+    --opacity: 0%;
+  }
+}
+
+@keyframes angle-spin {
+  to {
+    --angle: 360deg
+  }
+}
+
 @utility bg-* {
   --background-color: --value(--color-*)
 }
@@ -119,4 +131,42 @@
   background-color: color-mix(in oklab,
       var(--background-color) calc(100% - var(--blend-percent)),
       var(--color-background) var(--blend-percent)) !important;
+}
+
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --opacity {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 100%;
+}
+
+@layer components {
+  .glow {
+    position: relative;
+  }
+
+  :has(.glow) {
+    isolation: isolate;
+  }
+
+  .glow::before,
+  .glow::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: conic-gradient(from var(--angle), #ff4545, #00ff99, #006aff, #ff0095, #ff4545);
+    z-index: -1;
+    border-radius: inherit;
+    animation: 3s angle-spin linear infinite, 1s fade-out ease-out 1 4s forwards;
+    opacity: var(--opacity);
+  }
+
+  .glow::before {
+    filter: opacity(80%) blur(12px);
+  }
 }

@@ -225,7 +225,12 @@ export function MacroEditorProvider({
 
         setMacro((prev) => ({
           ...prev,
-          [listType]: prev[listType].map((action) => (action.id === actionId ? { ...action, ...updates } : action)),
+          [listType]: prev[listType].map((action) => {
+            if(action.id !== actionId) return action
+            const updatedAction = { ...action, ...updates }
+            Object.keys(updatedAction).forEach(key => (updatedAction as any)[key] === undefined && delete (updatedAction as any)[key])
+            return updatedAction
+          }),
         }))
 
         setHasUnsavedChanges(true)

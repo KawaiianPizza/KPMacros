@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import React from "react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { CircleUserRound, Settings } from "lucide-react"
+import { CircleUserRound } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useProfiles } from "@/hooks/use-profiles"
 import { useMacros } from "@/hooks/use-macros"

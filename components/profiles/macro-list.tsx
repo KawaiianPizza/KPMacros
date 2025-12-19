@@ -144,7 +144,7 @@ export default function MacroList({
                 : "Click on a macro to select it and view action options"}
             </CardDescription>
           </div>
-          <Button onClick={onCreateNewMacro} className="gap-2">
+          <Button onClick={onCreateNewMacro} className="gap-2 glow">
             <Plus className="h-4 w-4" />
             New Macro
           </Button>

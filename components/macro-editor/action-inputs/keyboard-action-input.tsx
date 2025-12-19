@@ -11,7 +11,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { ArrowDownToLine, ArrowUpFromLine, ArrowDownUp, ExternalLinkIcon, Info, Loader2 } from "lucide-react"
 import KEYCODES from "@/lib/KEYCODES"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { MacroAction, Window } from "@/lib/types"
+import { KeyboardAction, MacroAction, Window } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { useWebSocketUI } from "@/hooks/use-websocketUI"
@@ -21,8 +21,8 @@ import { cn } from "@/lib/utils"
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 
 interface KeyboardActionInputProps {
-  action: MacroAction
-  onChange: (action: MacroAction) => void
+  action: KeyboardAction
+  onChange: (action: KeyboardAction) => void
   compact: boolean
 }
 
@@ -38,9 +38,9 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
   useEffect(() => {
     onChange({
       ...action,
-      state: action.state || "press",
+      window,
     })
-  }, [])
+  }, [window])
 
   useEffect(() => {
     const handleWindows = (data: Window[]) => {
@@ -100,7 +100,7 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
         <div className="flex">
           <ToggleGroup
             type="single"
-            value={action.state}
+            value={action.state || "press"}
             onValueChange={handleKeyboardModeChange}
             className="shrink-0 rounded-lg"
           >

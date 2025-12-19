@@ -1,6 +1,6 @@
 "use client"
 
-import { Component, ReactElement, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useMacroEditor } from "@/contexts/macro-editor-context"
 import { Droppable, Draggable } from "@hello-pangea/dnd"
 import ActionDisplay from "./action-display"
@@ -16,38 +16,50 @@ interface ActionListProps {
 }
 
 export default function ActionList({ listType, title, description, compact = false }: ActionListProps) {
-  const { macro, addAction, updateAction, removeAction, reorderActions, lastAddedActionId, setLastAddedActionId } = useMacroEditor()
+  const { macro, addAction, updateAction, removeAction, reorderActions, lastAddedActionId, setLastAddedActionId } =
+    useMacroEditor()
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null)
   const actions = useMemo(() => macro[listType], [macro[listType]])
-  const lastMessageRef = useRef<HTMLDivElement>(null);
+  const lastMessageRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (lastMessageRef.current) {
-      lastMessageRef.current.scrollIntoView({ behavior: 'smooth', block: "nearest" })
+      lastMessageRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" })
       setLastAddedActionId("")
     }
   }, [actions])
 
-  const handleMoveUp = (index: number) => {
-    if (index <= 0) return
-    const items = Array.from(actions);[items[index - 1], items[index]] = [items[index], items[index - 1]]
-    reorderActions(listType, items)
-  }
+  const handleMoveUp = useCallback(
+    (index: number) => {
+      if (index <= 0) return
+      const items = Array.from(actions)
+      ;[items[index - 1], items[index]] = [items[index], items[index - 1]]
+      reorderActions(listType, items)
+    },
+    [actions, listType, reorderActions],
+  )
 
-  const handleMoveDown = (index: number) => {
-    if (index >= actions.length - 1) return
-    const items = Array.from(actions);[items[index], items[index + 1]] = [items[index + 1], items[index]]
-    reorderActions(listType, items)
-  }
+  const handleMoveDown = useCallback(
+    (index: number) => {
+      if (index >= actions.length - 1) return
+      const items = Array.from(actions)
+      ;[items[index], items[index + 1]] = [items[index + 1], items[index]]
+      reorderActions(listType, items)
+    },
+    [actions, listType, reorderActions],
+  )
 
-  const handleDuplicateAction = (action: MacroAction) => {
-    const { id, ...actionWithoutId } = action
-    addAction(listType, { ...actionWithoutId, id: crypto.randomUUID() })
-  }
+  const handleDuplicateAction = useCallback(
+    (action: MacroAction) => {
+      const { id, ...actionWithoutId } = action
+      addAction(listType, { ...actionWithoutId, id: crypto.randomUUID() })
+    },
+    [addAction, listType],
+  )
 
-  const handleSelectAction = (actionId: string) => {
-    setSelectedActionId(selectedActionId === actionId ? null : actionId)
-  }
+  const handleSelectAction = useCallback((actionId: string) => {
+    setSelectedActionId((prev) => (prev === actionId ? null : actionId))
+  }, [])
 
   return (
     <div className="space-y-4 h-full flex flex-col w-full overflow-hidden">
@@ -61,29 +73,31 @@ export default function ActionList({ listType, title, description, compact = fal
       <div className="flex-1 min-h-0 h-full w-full relative border border-border p-1 rounded-lg bg-card blend-33 overflow-clip">
         <Droppable droppableId={`${listType}-actions`}>
           {(provided, snapshot) => (
-            <ScrollArea className={cn("h-96 w-full",
-              listType === "loop" && "h-85"
-            )} scrollHideDelay={1000 * 60 * 60 * 24}>
+            <ScrollArea
+              className={cn("h-96 w-full", listType === "loop" && "h-85")}
+              scrollHideDelay={1000 * 60 * 60 * 24}
+            >
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={`space-y-1 min-h-48 transition-colors w-full ${snapshot.isDraggingOver ? "bg-input/65 rounded-md" : ""
-                  }`}
+                className={`space-y-1 min-h-48 transition-colors w-full ${
+                  snapshot.isDraggingOver ? "bg-input/65 rounded-md" : ""
+                }`}
               >
                 {actions.length === 0 ? (
                   <div className="text-center py-6 border border-dashed rounded-md text-foreground/65 text-sm">
                     {snapshot.isDraggingOver ? "Drop action here" : "No actions added yet"}
                   </div>
                 ) : (
-                  actions.map((action, index) =>
+                  actions.map((action, index) => (
                     <Draggable key={action.id} draggableId={action.id} index={index}>
                       {(provided) => {
-                        const isLastAdded = action.id === lastAddedActionId;
+                        const isLastAdded = action.id === lastAddedActionId
                         return (
                           <div
-                            ref={node => {
-                              if (isLastAdded) lastMessageRef.current = node;
-                              provided.innerRef(node);
+                            ref={(node) => {
+                              if (isLastAdded) lastMessageRef.current = node
+                              provided.innerRef(node)
                             }}
                           >
                             <ActionDisplay
@@ -101,10 +115,11 @@ export default function ActionList({ listType, title, description, compact = fal
                               provided={provided}
                               className={cn("animate-update-border!")}
                             />
-                          </div>);
+                          </div>
+                        )
                       }}
                     </Draggable>
-                  )
+                  ))
                 )}
                 {provided.placeholder}
               </div>
