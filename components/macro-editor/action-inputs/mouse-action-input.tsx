@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -162,7 +162,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
     } as MouseButtonAction)
   }
 
-  const handlePositionModeChange = (relative: boolean) => {
+  const handlePositionModeChange = useCallback((relative: boolean) => {
     const mouseMove = action as MouseMoveAction
     const x = !relative ? mouseMove.x !== undefined ? mouseMove.x : 0 : 0
     const y = !relative ? mouseMove.y !== undefined ? mouseMove.y : 0 : 0
@@ -178,7 +178,7 @@ export default function MouseActionInput({ action, onChange, compact }: MouseAct
       x,
       y,
     } as MouseMoveAction)
-  }
+  }, [action])
 
   const handleCoordinateChange = (coord: "x" | "y", value: number) => {
     const mouseMove = action as MouseMoveAction

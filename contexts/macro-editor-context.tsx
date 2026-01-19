@@ -226,7 +226,7 @@ export function MacroEditorProvider({
         setMacro((prev) => ({
           ...prev,
           [listType]: prev[listType].map((action) => {
-            if(action.id !== actionId) return action
+            if (action.id !== actionId) return action
             const updatedAction = { ...action, ...updates }
             Object.keys(updatedAction).forEach(key => (updatedAction as any)[key] === undefined && delete (updatedAction as any)[key])
             return updatedAction
@@ -413,6 +413,7 @@ export function MacroEditorProvider({
 
       const macroToTest = {
         ...macro,
+        enabled: true,
         start: macro.start.map(({ id, ...rest }) => rest),
         loop: macro.loop.map(({ id, ...rest }) => rest),
         finish: macro.finish.map(({ id, ...rest }) => rest),
