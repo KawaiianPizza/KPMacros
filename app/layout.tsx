@@ -16,7 +16,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const dynamic = "error"
 
 export const metadata: Metadata = {
-  title: "KPMacros UI v26.2.27",
+  title: "KPMacros UI v26.3.2",
   description: "UI for managing macros",
   icons: "icon.ico"
 }

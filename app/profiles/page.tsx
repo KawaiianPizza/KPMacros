@@ -39,7 +39,6 @@ function ProfilesContent() {
     renameMacro,
     deleteMacro,
     sendBatchedUpdates,
-    sendModMacros
   } = useMacros(selectedProfile)
 
   const { send } = useWebSocketUI()
@@ -49,10 +48,6 @@ function ProfilesContent() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [profileToDelete, setProfileToDelete] = useState<Profile | null>(null)
   const [isDeletingProfile, setIsDeletingProfile] = useState(false)
-
-  React.useEffect(() => {
-    send("testMacroStop", { clearMods: true })
-  }, [])
 
   const handleNewProfile = useCallback(() => {
     setEditingProfile(null)
@@ -141,7 +136,6 @@ function ProfilesContent() {
       if (!macro) return
 
       sendBatchedUpdates()
-      sendModMacros()
 
       const queryParams = new URLSearchParams({
         profile: selectedProfile,
@@ -151,7 +145,7 @@ function ProfilesContent() {
       })
       router.push(`/macro-editor?${queryParams.toString()}`)
     },
-    [macros, selectedProfile, router, sendBatchedUpdates, sendModMacros],
+    [macros, selectedProfile, router, sendBatchedUpdates],
   )
 
   const handleRenameMacro = useCallback(
@@ -192,11 +186,10 @@ function ProfilesContent() {
 
   const handleCreateNewMacro = useCallback(() => {
     sendBatchedUpdates()
-    sendModMacros()
 
     const queryParams = new URLSearchParams({ profile: selectedProfile })
     router.push(`/macro-editor?${queryParams.toString()}`)
-  }, [selectedProfile, router, sendBatchedUpdates, sendModMacros])
+  }, [selectedProfile, router, sendBatchedUpdates])
 
   return (
     <main className="min-h-screen bg-background">

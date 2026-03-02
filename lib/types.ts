@@ -38,7 +38,7 @@ export interface MouseMoveAction { type: "mouse"; x: number; y: number; relative
 export interface MouseScrollAction { type: "mouse"; scroll: "left" | "down" | "right" | "up"; amount: number; }
 export interface TextAction { type: "text"; text: string }
 export interface DelayAction { type: "delay"; duration: number }
-export interface SoundAction { type: "sound"; filePath: string; audioDevice: string; volume?: number }
+export interface SoundAction { type: "sound"; filePath: string; audioDevice?: string; volume?: number }
 export interface ProcessAction { type: "process"; filePath: string; arguments?: string; hidden: boolean }
 
 export type MacroActionUnion =

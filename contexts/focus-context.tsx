@@ -29,7 +29,7 @@ export default function FocusProvider() {
   }, [])
 
   useEffect(() => {
-    send("focusChange", isFocused)
+    send("focusChange", { isFocused })
   }, [isFocused])
 
   return (

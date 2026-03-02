@@ -382,7 +382,7 @@ export default function ActionsTab() {
           <Separator className="my-3" />
           <div className="flex justify-around">
             {actionListConfigs.map(({ type, title }, index) => {
-              if (macro.type === "Command" && type !== "finish") return <></>
+              if (macro.type === "Command" && type !== "finish") return
               const valid = isActionValid()
 
               return (

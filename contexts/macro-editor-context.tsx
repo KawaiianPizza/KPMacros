@@ -162,6 +162,12 @@ export function MacroEditorProvider({
 
   const updateMacro = useCallback((updates: Partial<MacroData>) => {
     try {
+      if (updates.activator) {
+        send("testMacroStop", {
+          profile: currentProfile,
+          macro,
+        })
+      }
       setMacro((prev) => {
         const updated = { ...prev, ...updates }
         const validation = validateActivator(updated.activator, updated.type)
@@ -378,6 +384,7 @@ export function MacroEditorProvider({
       }
     }
     once("saveMacro", saveData, macroSaved)
+    send("testMacro", saveData)
   }, [macro, currentProfile, currentMacroId, isEditingExisting, router, toast])
 
   const toggleTesting = useCallback(() => {
@@ -416,11 +423,9 @@ export function MacroEditorProvider({
         profile: currentProfile,
         macro: macroToTest,
       }
-      send("testMacroStop", { profile: currentProfile, clearMods: false })
       send("testMacro", macroData)
       return
     }
-    send("testMacroStop", { profile: currentProfile, clearMods: false })
   }, [macro, isTesting])
 
 

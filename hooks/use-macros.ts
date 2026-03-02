@@ -49,12 +49,6 @@ export function useMacros(profileName: string) {
     }
   }, [profileName, send])
 
-  const sendModMacros = useCallback(async (): Promise<void> => {
-    const mods = macros.filter(e => e.mod)
-    for (const mod of mods)
-      send("testMacro", { profile: profileName, macro: mod })
-  }, [macros, profileName, send])
-
   const scheduleAutoSave = useCallback((): void => {
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current)
@@ -153,6 +147,5 @@ export function useMacros(profileName: string) {
     renameMacro,
     deleteMacro,
     sendBatchedUpdates,
-    sendModMacros
   }
 }

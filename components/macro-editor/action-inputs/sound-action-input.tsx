@@ -12,6 +12,8 @@ import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
+const DEFAULT_WINDOWS_DEVICE = "Default (Windows)"
+
 interface SoundActionInputProps {
   action: SoundAction & MacroAction
   onChange: (action: SoundAction) => void
@@ -23,7 +25,7 @@ export default function SoundActionInput({ action, onChange, compact }: SoundAct
   const { audioDevices } = useMacroEditor()
   const [filePath, setFilePath] = useState<string>(action.filePath || "")
   const [isSelecting, setIsSelecting] = useState<boolean>(false)
-  const [selectedDevice, setSelectedDevice] = useState<string>(action.audioDevice || "")
+  const [selectedDevice, setSelectedDevice] = useState(action.audioDevice)
   const [volume, setVolume] = useState<number>(action.volume || 100)
   const debounceTimeoutRef = useRef<NodeJS.Timeout>(null)
 
@@ -36,7 +38,7 @@ export default function SoundActionInput({ action, onChange, compact }: SoundAct
   }, [])
 
   const debouncedOnChange = useCallback(
-    (prop: string, newValue: string | boolean | number) => {
+    (prop: string, newValue?: string | boolean | number) => {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current)
       }
@@ -72,10 +74,9 @@ export default function SoundActionInput({ action, onChange, compact }: SoundAct
   const handleBrowseFile = () => {
     setIsSelecting(true)
   }
-
   const handleDeviceChange = (deviceId: string) => {
     setSelectedDevice(deviceId)
-    debouncedOnChange("audioDevice", deviceId.trim())
+    debouncedOnChange("audioDevice", deviceId === DEFAULT_WINDOWS_DEVICE ? undefined : deviceId.trim())
   }
   const handleVolumeChange = (value: number[]) => {
     const volume = value[0]
@@ -107,7 +108,7 @@ export default function SoundActionInput({ action, onChange, compact }: SoundAct
             <SelectValue placeholder="Select audio device..." />
           </SelectTrigger>
           <SelectContent>
-            {audioDevices?.map((device) => (
+            {[DEFAULT_WINDOWS_DEVICE, ...audioDevices].map((device) => (
               <SelectItem key={device} value={device}>
                 {device}
               </SelectItem>

@@ -25,10 +25,6 @@ export default function MacroEditorPage() {
   const [macroName, setMacroName] = useState<string | null>(null)
 
   useEffect(() => {
-    send("parseMods", {})
-  }, [])
-
-  useEffect(() => {
     try {
       setIsLoading(true)
       setError(null)
