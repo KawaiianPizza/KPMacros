@@ -1,12 +1,13 @@
 "use client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowUp, ArrowDown, Trash, GripVertical, Copy } from "lucide-react"
+import { ArrowUp, ArrowDown, Trash, GripVertical, Copy, PencilLine, Save } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import ActionInputFactory from "./action-inputs/action-input-factory"
-import { MacroActionType, type MacroAction } from "@/lib/types"
-import { useMemo } from "react"
+import { DelayAction, KeyboardAction, MacroActionType, MouseButtonAction, MouseMoveAction, MouseScrollAction, ProcessAction, SoundAction, TextAction, type MacroAction } from "@/lib/types"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { Input } from "../ui/input"
 
 interface ActionDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
   action: MacroAction
@@ -36,7 +37,14 @@ export default function ActionDisplay({
   provided,
   ...props
 }: ActionDisplayProps) {
+  const [isRenaming, setIsRenaming] = useState<boolean>(false)
+  const [description, setDescription] = useState(action.description)
+
   const getActionDescription = useMemo(() => {
+    if (action.description) {
+      return (<span className="text-info-text">{action.description}</span>)
+    }
+
     switch (action.type) {
       case "keyboard":
         return (
@@ -126,12 +134,30 @@ export default function ActionDisplay({
 
   const isActionValid = useMemo(() => {
     const type = action.type
-    if (type === "keyboard" && !action.key) return false
-    if (type === "text" && !action.text) return false
-    if (type === "delay" && !action.duration) return false
-    if (type === "sound" && !action.filePath) return false
-    if (type === "process" && !action.filePath) return false
-    return true
+    switch (type) {
+      case "keyboard":
+        return typeof action === 'object' && action !== null && action.key && typeof action.state === 'string'
+      case "mouse":
+        return (
+          ("button" in action && "state" in action) ||
+          ("x" in action && "y" in action && "relative" in action) ||
+          ("scroll" in action && "amount" in action)
+        )
+      case "text":
+        return typeof action.text === 'string'
+      case "delay":
+        return typeof action.duration === 'number'
+      case "sound":
+        return typeof action.filePath === 'string' && action.filePath.includes('\\')
+      case "process":
+        return (
+          typeof action.filePath === 'string' &&
+          (action.arguments === undefined || typeof action.arguments === 'string') &&
+          typeof action.hidden === 'boolean'
+        )
+      default:
+        return type satisfies never && false
+    }
   }, [action])
 
   const handleActionTypeChange = (value: typeof MacroActionType[number]) => {
@@ -145,6 +171,25 @@ export default function ActionDisplay({
     } as const
     onUpdate({ type: value, ...defaults[value] })
   }
+
+  useEffect(() => {
+    onUpdate({ description })
+  }, [isRenaming])
+
+  const descriptionToHTML = useMemo(() => {
+    if (!description) return undefined
+    const parts = description.split(/(\\[[\]])|(\[[^\[\]]+\])/g)
+    return <span>
+      {parts.filter(part => part !== undefined && part !== '').map((part, index) => {
+        if (part.startsWith('[') && part.endsWith(']')) {
+          return <span className="text-info-text" key={index}>{part.slice(1, -1)}</span>
+        } else {
+          return <span key={index}>{part.replace(/\\([\[\]])/g, "$1")}</span>
+        }
+      })}
+    </span>
+  }, [description])
+
   return (
     <Card
       ref={provided?.innerRef}
@@ -157,16 +202,16 @@ export default function ActionDisplay({
     >
       <CardHeader
         className={cn(
-          "py-3 px-4 flex flex-row items-center justify-between cursor-pointer w-full relative",
-          isSelected ? "border-b" : "",
+          "gloss relative flex w-full cursor-pointer flex-row items-center justify-between rounded-lg px-4 py-3",
+          isSelected ? "border-b border-border rounded-b-none" : "",
         )}
         {...dragHandleProps}
         onClick={(e) => {
-          if ((e.target as HTMLElement).closest("button")) return
+          if ((e.target as HTMLElement).closest("button") || isRenaming) return
           onSelect()
         }}
       >
-        <div className="flex items-center cursor-grab w-0 flex-1 min-w-0">
+        <div className="flex items-center cursor-grab w-0 flex-1 min-w-0 m-auto">
           <div className="mr-2 shrink-0">
             <GripVertical className="h-4 w-4 text-foreground/65" />
           </div>
@@ -174,95 +219,51 @@ export default function ActionDisplay({
             <TooltipProvider delayDuration={300}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="w-full break-all hyphens-auto overflow-hidden truncate">{getActionDescription}</div>
+                  {isRenaming ?
+                    <div className="flex">
+                      <Input className="w-full break-all hyphens-auto rounded-r-none" value={description} onClick={e => e.stopPropagation()} onChange={e => setDescription(e.target.value)} />
+                      <Button variant="ghost" size="icon" className="rounded-l-none" onClick={() => setIsRenaming(false)}><Save className="h-3 w-3" /></Button>
+                    </div>
+                    : <div className="w-full break-all hyphens-auto overflow-hidden truncate">{descriptionToHTML || getActionDescription}</div>
+                  }
                 </TooltipTrigger>
-                <TooltipContent>{getActionDescription}</TooltipContent>
+                <TooltipContent>{descriptionToHTML || getActionDescription}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </CardTitle>
         </div>
+        {/* Toolbar */}
         <div
           className={cn(
-            "absolute right-2.5 top-0 mt-0! flex space-x-1 rounded-md border border-border/35 bg-card p-2 transition-all duration-200",
-            "w-0 min-w-0 overflow-hidden opacity-0 group-hover:w-32 group-hover:min-w-32 group-hover:opacity-100",
-            isSelected && "w-32 min-w-32 opacity-100",
+            "absolute right-2.5 my-auto flex space-x-1 p-2 transition-all duration-200 rounded-md before:border before:border-border",
+            "w-0 min-w-0 overflow-clip px-0 gloss",
+            !isRenaming && "group-hover:w-38 group-hover:min-w-38 group-hover:px-2",
+            !isRenaming && isSelected && "w-38 min-w-38 px-2",
           )}
         >
-          <TooltipProvider delayDuration={300}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 shrink-0"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onMoveUp()
-                  }}
-                >
-                  <ArrowUp className="h-3 w-3" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Move up</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider delayDuration={300}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 shrink-0"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onMoveDown()
-                  }}
-                >
-                  <ArrowDown className="h-3 w-3" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Move down</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider delayDuration={300}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 shrink-0"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onDuplicate()
-                  }}
-                >
-                  <Copy className="h-3 w-3" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Duplicate</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider delayDuration={300}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  className="h-6 w-6 shrink-0"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onDelete()
-                  }}
-                >
-                  <Trash className="h-3 w-3" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Delete</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {[{ name: "Rename", icon: PencilLine, function: () => setIsRenaming(prev => !prev) },
+          { name: "Move up", icon: ArrowUp, function: () => onMoveUp() },
+          { name: "Move down", icon: ArrowDown, function: () => onMoveDown() },
+          { name: "Duplicate", icon: Copy, function: () => onDuplicate() },
+          { name: "Delete", icon: Trash, function: () => onDelete(), destructive: true }].map((button, index) =>
+            <TooltipProvider delayDuration={300} key={index}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={button.destructive ? "destructive" : "ghost"}
+                    size="icon"
+                    className="h-6 w-6 shrink-0 bg-input/10 backdrop-blur-sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      button.function()
+                    }}
+                  >
+                    <button.icon className="h-3 w-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{button.name}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>)}
         </div>
       </CardHeader>
 

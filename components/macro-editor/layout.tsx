@@ -78,7 +78,7 @@ export default function MacroEditorLayout() {
         {hasUnsavedChanges && (
           <span className="ml-3 text-sm text-active">• Unsaved changes</span>
         )}
-        <Button disabled={isRecording} onClick={toggleTesting} className={cn("ml-auto", isTesting && "border-active")}>{isTesting ? "Testing Macro..." : "Test Macro"}</Button>
+        <Button disabled={isRecording} onClick={()=>toggleTesting(false)} className={cn("ml-auto", isTesting && "border-active")}>{isTesting ? "Testing Macro..." : "Test Macro"}</Button>
       </div>
 
       {error && (

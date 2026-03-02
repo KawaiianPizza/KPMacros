@@ -61,7 +61,7 @@ interface MacroEditorContextType {
   saveMacro: () => Promise<void>
   cancelEditing: () => void
   startRecording: () => void
-  toggleTesting: () => void
+  toggleTesting: (update: boolean) => void
   toggleModifierMode: () => void
 }
 
@@ -162,16 +162,14 @@ export function MacroEditorProvider({
 
   const updateMacro = useCallback((updates: Partial<MacroData>) => {
     try {
-      if (isTesting)
-        toggleTesting()
-
       setMacro((prev) => {
         const updated = { ...prev, ...updates }
         const validation = validateActivator(updated.activator, updated.type)
-        //console.log("Updating macro:", { previous: prev, updates, result: updated })
+        console.debug("Updating macro:", { previous: prev, updates, result: updated })
         setIsActivatorValid(validation.isValid)
         return updated
       })
+
       setHasUnsavedChanges(true)
       setError(null)
     } catch (err) {
@@ -183,11 +181,9 @@ export function MacroEditorProvider({
 
   const resetMacro = useCallback(() => {
     try {
-      if (isTesting)
-        toggleTesting()
-
       const defaultMacro = initialMacroData || createDefaultMacroData()
       setMacro(defaultMacro)
+
       setHasUnsavedChanges(false)
       setError(null)
       console.log("Reset macro to:", defaultMacro)
@@ -200,16 +196,14 @@ export function MacroEditorProvider({
 
   const addAction = useCallback((listType: "start" | "loop" | "finish", action: MacroAction) => {
     try {
-      if (isTesting)
-        toggleTesting()
-
       setMacro((prev) => ({
         ...prev,
         [listType]: [...prev[listType], action],
       }))
+
       setLastAddedActionId(action.id)
       setHasUnsavedChanges(true)
-      console.log(`Added action to ${listType}:`, action)
+      console.debug(`Added action to ${listType}:`, action)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to add action"
       console.error("Error adding action:", errorMessage)
@@ -220,9 +214,6 @@ export function MacroEditorProvider({
   const updateAction = useCallback(
     (listType: "start" | "loop" | "finish", actionId: string, updates: Partial<Omit<MacroAction, "id">>) => {
       try {
-        if (isTesting)
-          toggleTesting()
-
         setMacro((prev) => ({
           ...prev,
           [listType]: prev[listType].map((action) => {
@@ -234,7 +225,7 @@ export function MacroEditorProvider({
         }))
 
         setHasUnsavedChanges(true)
-        console.log(`Updated action ${actionId} in ${listType}:`, updates)
+        console.debug(`Updated action ${actionId} in ${listType}:`, updates)
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Failed to update action"
         console.error("Error updating action:", errorMessage)
@@ -246,16 +237,13 @@ export function MacroEditorProvider({
 
   const removeAction = useCallback((listType: "start" | "loop" | "finish", actionId: string) => {
     try {
-      if (isTesting)
-        toggleTesting()
-
       setMacro((prev) => ({
         ...prev,
         [listType]: prev[listType].filter((action) => action.id !== actionId),
       }))
 
       setHasUnsavedChanges(true)
-      console.log(`Removed action ${actionId} from ${listType}`)
+      console.debug(`Removed action ${actionId} from ${listType}`)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to remove action"
       console.error("Error removing action:", errorMessage)
@@ -265,16 +253,13 @@ export function MacroEditorProvider({
 
   const reorderActions = useCallback((listType: "start" | "loop" | "finish", newOrder: MacroAction[]) => {
     try {
-      if (isTesting)
-        toggleTesting()
-
       setMacro((prev) => ({
         ...prev,
         [listType]: newOrder,
       }))
 
       setHasUnsavedChanges(true)
-      console.log(`Reordered actions in ${listType}:`, newOrder)
+      console.debug(`Reordered actions in ${listType}:`, newOrder)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to reorder actions"
       console.error("Error reordering actions:", errorMessage)
@@ -290,8 +275,6 @@ export function MacroEditorProvider({
       destinationIndex: number,
     ) => {
       try {
-        if (isTesting)
-          toggleTesting()
         setMacro((prev) => {
           if (sourceListType === destinationListType) {
             const items = Array.from(prev[sourceListType])
@@ -319,9 +302,7 @@ export function MacroEditorProvider({
         })
 
         setHasUnsavedChanges(true)
-        console.log(
-          `Moved action from ${sourceListType}[${sourceIndex}] to ${destinationListType}[${destinationIndex}]`,
-        )
+        console.debug(`Moved action from ${sourceListType}[${sourceIndex}] to ${destinationListType}[${destinationIndex}]`,)
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Failed to move action between lists"
         console.error("Error moving action between lists:", errorMessage)
@@ -399,38 +380,10 @@ export function MacroEditorProvider({
     once("saveMacro", saveData, macroSaved)
   }, [macro, currentProfile, currentMacroId, isEditingExisting, router, toast])
 
-  const toggleTesting = useCallback(async (): Promise<void> => {
+  const toggleTesting = useCallback(() => {
     try {
       setError(null)
       setIsTesting(prev => !prev)
-      if (isTesting) {
-        send("testMacroStop", { profile: currentProfile, clearMods: false })
-        return
-      }
-      if (!currentProfile) {
-        throw new Error("Profile is required")
-      }
-
-      const macroToTest = {
-        ...macro,
-        enabled: true,
-        start: macro.start.map(({ id, ...rest }) => rest),
-        loop: macro.loop.map(({ id, ...rest }) => rest),
-        finish: macro.finish.map(({ id, ...rest }) => rest),
-      }
-
-      console.log("Testing macro:", {
-        profile: currentProfile,
-        macro: macroToTest,
-      })
-
-      const macroData = {
-        profile: currentProfile,
-        macro: macroToTest,
-      }
-
-      send("testMacro", macroData)
-
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to test macro"
       console.error("Error testing macro:", errorMessage)
@@ -443,6 +396,33 @@ export function MacroEditorProvider({
       })
     }
   }, [macro, profileName, toast, isTesting, setIsTesting])
+
+  useEffect(() => {
+    if (isTesting) {
+      if (!currentProfile) {
+        throw new Error("Profile is required")
+      }
+
+      const macroToTest = {
+        ...macro,
+        enabled: true,
+        start: macro.start.map(({ id, ...rest }) => rest),
+        loop: macro.loop.map(({ id, ...rest }) => rest),
+        finish: macro.finish.map(({ id, ...rest }) => rest),
+        testing: true
+      }
+
+      const macroData = {
+        profile: currentProfile,
+        macro: macroToTest,
+      }
+      send("testMacroStop", { profile: currentProfile, clearMods: false })
+      send("testMacro", macroData)
+      return
+    }
+    send("testMacroStop", { profile: currentProfile, clearMods: false })
+  }, [macro, isTesting])
+
 
   const cancelEditing = useCallback(() => {
     const queryParams = new URLSearchParams({
@@ -463,7 +443,7 @@ export function MacroEditorProvider({
       setIsRecording(true)
       setHasUnsavedChanges(true)
 
-      console.log("Started recording")
+      console.debug("Started recording")
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to start recording"
       console.error("Error starting recording:", errorMessage)
@@ -475,7 +455,7 @@ export function MacroEditorProvider({
     try {
       const newMode = macro.modifierMode === "Inclusive" ? "Exclusive" : "Inclusive"
       updateMacro({ modifierMode: newMode })
-      console.log("Toggled modifier mode to:", newMode)
+      console.debug("Toggled modifier mode to:", newMode)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to toggle modifier mode"
       console.error("Error toggling modifier mode:", errorMessage)

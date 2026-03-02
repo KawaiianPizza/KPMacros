@@ -51,7 +51,7 @@ export type MacroActionUnion =
   | SoundAction
   | ProcessAction
 
-export type MacroAction = MacroActionUnion & { id: string, type: typeof MacroActionType[number] };
+export type MacroAction = MacroActionUnion & { id: string, description?: string, type: typeof MacroActionType[number] };
 
 export enum Modifiers {
   Shift = 1 << 0,

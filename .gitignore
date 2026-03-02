@@ -29,3 +29,6 @@ next-env.d.ts
 
 *.zip
 public/icon.ico
+
+# lock files
+*.lock

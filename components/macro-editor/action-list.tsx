@@ -16,8 +16,7 @@ interface ActionListProps {
 }
 
 export default function ActionList({ listType, title, description, compact = false }: ActionListProps) {
-  const { macro, addAction, updateAction, removeAction, reorderActions, lastAddedActionId, setLastAddedActionId } =
-    useMacroEditor()
+  const { macro, addAction, updateAction, removeAction, reorderActions, lastAddedActionId, setLastAddedActionId } = useMacroEditor()
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null)
   const actions = useMemo(() => macro[listType], [macro[listType]])
   const lastMessageRef = useRef<HTMLDivElement>(null)
@@ -33,7 +32,7 @@ export default function ActionList({ listType, title, description, compact = fal
     (index: number) => {
       if (index <= 0) return
       const items = Array.from(actions)
-      ;[items[index - 1], items[index]] = [items[index], items[index - 1]]
+        ;[items[index - 1], items[index]] = [items[index], items[index - 1]]
       reorderActions(listType, items)
     },
     [actions, listType, reorderActions],
@@ -43,7 +42,7 @@ export default function ActionList({ listType, title, description, compact = fal
     (index: number) => {
       if (index >= actions.length - 1) return
       const items = Array.from(actions)
-      ;[items[index], items[index + 1]] = [items[index + 1], items[index]]
+        ;[items[index], items[index + 1]] = [items[index + 1], items[index]]
       reorderActions(listType, items)
     },
     [actions, listType, reorderActions],
@@ -60,6 +59,28 @@ export default function ActionList({ listType, title, description, compact = fal
   const handleSelectAction = useCallback((actionId: string) => {
     setSelectedActionId((prev) => (prev === actionId ? null : actionId))
   }, [])
+
+  const renderDraggableItem = useCallback((action: MacroAction, index: number) => {
+    const isLastAdded = action.id === lastAddedActionId
+    return (
+      <ActionDisplay
+        key={action.id}
+        action={action}
+        index={index}
+        listType={listType}
+        isSelected={selectedActionId === action.id}
+        onSelect={() => handleSelectAction(action.id)}
+        onUpdate={(updates) => updateAction(listType, action.id, updates)}
+        onMoveUp={() => handleMoveUp(index)}
+        onMoveDown={() => handleMoveDown(index)}
+        onDuplicate={() => handleDuplicateAction(action)}
+        onDelete={() => removeAction(listType, action.id)}
+        dragHandleProps={null}
+        provided={null}
+        className={cn(isLastAdded && "animate-update-border!")}
+      />
+    )
+  }, [lastAddedActionId, selectedActionId, handleSelectAction, handleMoveUp, handleMoveDown, handleDuplicateAction, removeAction, listType])
 
   return (
     <div className="space-y-4 h-full flex flex-col w-full overflow-hidden">
@@ -80,9 +101,8 @@ export default function ActionList({ listType, title, description, compact = fal
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={`space-y-1 min-h-48 transition-colors w-full ${
-                  snapshot.isDraggingOver ? "bg-input/65 rounded-md" : ""
-                }`}
+                className={`space-y-1 min-h-48 transition-colors w-full ${snapshot.isDraggingOver ? "bg-input/65 rounded-md" : ""
+                  }`}
               >
                 {actions.length === 0 ? (
                   <div className="text-center py-6 border border-dashed rounded-md text-foreground/65 text-sm">
@@ -91,33 +111,20 @@ export default function ActionList({ listType, title, description, compact = fal
                 ) : (
                   actions.map((action, index) => (
                     <Draggable key={action.id} draggableId={action.id} index={index}>
-                      {(provided) => {
-                        const isLastAdded = action.id === lastAddedActionId
-                        return (
-                          <div
-                            ref={(node) => {
-                              if (isLastAdded) lastMessageRef.current = node
-                              provided.innerRef(node)
-                            }}
-                          >
-                            <ActionDisplay
-                              action={action}
-                              index={index}
-                              listType={listType}
-                              isSelected={selectedActionId === action.id}
-                              onSelect={() => handleSelectAction(action.id)}
-                              onUpdate={(updates) => updateAction(listType, action.id, updates)}
-                              onMoveUp={() => handleMoveUp(index)}
-                              onMoveDown={() => handleMoveDown(index)}
-                              onDuplicate={() => handleDuplicateAction(action)}
-                              onDelete={() => removeAction(listType, action.id)}
-                              dragHandleProps={provided.dragHandleProps}
-                              provided={provided}
-                              className={cn("animate-update-border!")}
-                            />
-                          </div>
-                        )
-                      }}
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className={cn(
+                            "transition-all duration-100 mb-1",
+                            snapshot.isDragging ? "shadow-lg z-10" : "duration-[0]",
+                            action.id === lastAddedActionId ? "animate-update-border!" : ""
+                          )}
+                        >
+                          {renderDraggableItem(action, index)}
+                        </div>
+                      )}
                     </Draggable>
                   ))
                 )}
