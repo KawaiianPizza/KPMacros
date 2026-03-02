@@ -9,6 +9,7 @@ import RefreshPrevention from "@/components/common/refresh-prevention"
 import { Suspense } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { SettingsProvider } from "@/contexts/settings-context"
+import FocusProvider from "@/contexts/focus-context"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -28,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <FocusProvider />
         <ScrollArea className="h-screen">
           {process.env.NODE_ENV !== "development" ? <RefreshPrevention /> : null}
           <SettingsProvider>

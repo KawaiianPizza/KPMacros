@@ -75,7 +75,7 @@ class WebSocketService {
       const host = window.location.host
 
       const wsUrl = process.env.NODE_ENV !== "development" ? `${protocol}//${host}/` : "http://localhost:3001/"
-      console.log(`WebSocket connecting to ${wsUrl}`)
+      console.debug(`WebSocket connecting to ${wsUrl}`)
       this.socket = new WebSocket(wsUrl)
 
       this.socket.onopen = this.handleOpen.bind(this)
@@ -83,7 +83,7 @@ class WebSocketService {
       this.socket.onclose = this.handleClose.bind(this)
       this.socket.onerror = this.handleError.bind(this)
     } catch (error) {
-      console.error("Error connecting to WebSocket:", error)
+      console.debug("Error connecting to WebSocket:", error)
       this.isConnecting = false
       this.attemptReconnect()
     }
@@ -108,7 +108,7 @@ class WebSocketService {
   }
 
   private handleClose(): void {
-    console.log("WebSocket connection closed")
+    console.debug("WebSocket connection closed")
     if (this.hasConnected && this.onCloseCallback) {
       this.onCloseCallback()
       return
@@ -118,7 +118,7 @@ class WebSocketService {
   }
 
   private handleError(error: Event): void {
-    console.error("WebSocket error:", error)
+    console.debug("WebSocket error:", error)
     this.isConnecting = false
     this.socket?.close()
   }
@@ -144,7 +144,7 @@ class WebSocketService {
     this.reconnectAttempts++
     const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000)
 
-    console.log(`Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts})`)
+    console.debug(`Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts})`)
 
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout)

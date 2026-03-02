@@ -241,27 +241,27 @@ export default function ActionDisplay({
             !isRenaming && isSelected && "w-38 min-w-38 px-2",
           )}
         >
-          {[{ name: "Rename", icon: PencilLine, function: () => setIsRenaming(prev => !prev) },
-          { name: "Move up", icon: ArrowUp, function: () => onMoveUp() },
-          { name: "Move down", icon: ArrowDown, function: () => onMoveDown() },
-          { name: "Duplicate", icon: Copy, function: () => onDuplicate() },
-          { name: "Delete", icon: Trash, function: () => onDelete(), destructive: true }].map((button, index) =>
+          {[{ name: "Rename", icon: PencilLine, handler: () => setIsRenaming(prev => !prev) },
+          { name: "Move up", icon: ArrowUp, handler: () => onMoveUp() },
+          { name: "Move down", icon: ArrowDown, handler: () => onMoveDown() },
+          { name: "Duplicate", icon: Copy, handler: () => onDuplicate() },
+          { name: "Delete", icon: Trash, handler: () => onDelete(), destructive: true }].map(({ name, icon: Icon, handler, destructive }, index) =>
             <TooltipProvider delayDuration={300} key={index}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={button.destructive ? "destructive" : "ghost"}
+                    variant={destructive ? "destructive" : "ghost"}
                     size="icon"
                     className="h-6 w-6 shrink-0 bg-input/10 backdrop-blur-sm"
                     onClick={(e) => {
                       e.stopPropagation()
-                      button.function()
+                      handler()
                     }}
                   >
-                    <button.icon className="h-3 w-3" />
+                    <Icon className="h-3 w-3" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>{button.name}</TooltipContent>
+                <TooltipContent>{name}</TooltipContent>
               </Tooltip>
             </TooltipProvider>)}
         </div>

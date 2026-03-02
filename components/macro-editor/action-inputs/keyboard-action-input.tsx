@@ -95,28 +95,6 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
 
   return (
     <div className="flex flex-wrap gap-4 items-start content-center">
-      <div className="min-w-[126px] shrink space-y-2">
-        <Label>Key State</Label>
-        <div className="flex">
-          <ToggleGroup
-            type="single"
-            value={action.state || "press"}
-            onValueChange={handleKeyboardModeChange}
-            className="shrink-0 rounded-lg"
-          >
-            <ToggleGroupItem value="down" aria-label="Key Down" title="Key Down">
-              <ArrowDownToLine className="h-4 w-4" />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="press" aria-label="Key Press" title="Key Press">
-              <ArrowDownUp className="h-4 w-4" />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="up" aria-label="Key Up" title="Key Up">
-              <ArrowUpFromLine className="h-4 w-4" />
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-      </div>
-
       <div className="min-w-60 flex-1 space-y-2">
         <Label>Key</Label>
         <div className="flex">
@@ -156,6 +134,28 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
               </Command>
             </PopoverContent>
           </Popover>
+        </div>
+      </div>
+      
+      <div className="min-w-[126px] shrink space-y-2">
+        <Label>Key State</Label>
+        <div className="flex">
+          <ToggleGroup
+            type="single"
+            value={action.state || "press"}
+            onValueChange={handleKeyboardModeChange}
+            className="shrink-0 rounded-lg"
+          >
+            <ToggleGroupItem value="down" aria-label="Key Down" title="Key Down">
+              <ArrowDownToLine className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="press" aria-label="Key Press" title="Key Press">
+              <ArrowDownUp className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="up" aria-label="Key Up" title="Key Up">
+              <ArrowUpFromLine className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
       </div>
 
