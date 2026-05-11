@@ -95,17 +95,16 @@ export default function ActionList({ listType, title, description, compact = fal
         <Droppable droppableId={`${listType}-actions`}>
           {(provided, snapshot) => (
             <ScrollArea
-              className={cn("h-96 w-full", listType === "loop" && "h-85")}
+              className={cn("h-96 w-full **:data-radix-scroll-area-viewport:*:h-full", listType === "loop" && "h-85")}
               scrollHideDelay={1000 * 60 * 60 * 24}
             >
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={`space-y-1 min-h-48 transition-colors w-full ${snapshot.isDraggingOver ? "bg-input/65 rounded-md" : ""
-                  }`}
+                className={`${(snapshot.isDraggingOver ? "bg-input/65 rounded-md" : "")} h-full min-h-48 w-full space-y-1 transition-colors`}
               >
                 {actions.length === 0 ? (
-                  <div className="text-center py-6 border border-dashed rounded-md text-foreground/65 text-sm">
+                  <div className="h-full rounded-md border border-dashed py-6 text-center text-sm text-foreground/65">
                     {snapshot.isDraggingOver ? "Drop action here" : "No actions added yet"}
                   </div>
                 ) : (
