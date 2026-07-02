@@ -141,7 +141,6 @@ function ProfilesContent() {
         profile: selectedProfile,
         macroId,
         macroName: macro.name,
-        macroData: JSON.stringify(macro),
       })
       router.push(`/macro-editor?${queryParams.toString()}`)
     },
@@ -194,7 +193,7 @@ function ProfilesContent() {
   return (
     <main className="min-h-screen bg-background">
       <ScrollArea>
-        <div className="container mx-auto px-6 py-3 space-y-3 max-h-dvh">
+        <div className="container mx-auto p-3 space-y-3 max-h-dvh">
           <Card>
             <CardHeader className="pb-4">
               <div className="flex justify-between text-center text-foreground">

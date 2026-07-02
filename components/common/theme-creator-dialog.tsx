@@ -40,7 +40,7 @@ const MACROS: MacroData[] = [
     enabled: true,
     loopMode: "Held",
     type: "Hotkey",
-    cooldown: 0, start: [], loop: [], finish: [], interrupt: true, mod: false, modifierMode: "Inclusive", modifiers: Modifiers.Control, repeatDelay: 0,
+    cooldown: 0, start: [], loop: [], finish: [], interrupt: true, isMod: false, modifierMode: "Inclusive", modifiers: Modifiers.Control, repeatDelay: 0,
   },
   {
     id: "1",
@@ -49,7 +49,7 @@ const MACROS: MacroData[] = [
     enabled: false,
     loopMode: "Toggle",
     type: "Command",
-    cooldown: 0, start: [], loop: [], finish: [], interrupt: false, mod: false, modifierMode: "Exclusive", modifiers: Modifiers.None, repeatDelay: 0,
+    cooldown: 0, start: [], loop: [], finish: [], interrupt: false, isMod: false, modifierMode: "Exclusive", modifiers: Modifiers.None, repeatDelay: 0,
   }
 ]
 const ACTIONS: MacroAction[] = [

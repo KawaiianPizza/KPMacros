@@ -8,7 +8,7 @@ import { MacroEditorProvider } from "@/contexts/macro-editor-context"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent } from "@/components/ui/card"
 import { AlertTriangle } from "lucide-react"
-import { MacroData, Modifiers } from "@/lib/types"
+import { MacroData, Modifiers, WebSocketMessage } from "@/lib/types"
 import { useWebSocketUI } from "@/hooks/use-websocketUI"
 
 
@@ -16,7 +16,7 @@ export default function MacroEditorPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { toast } = useToast()
-  const { send } = useWebSocketUI()
+  const { send, once } = useWebSocketUI()
 
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -31,75 +31,79 @@ export default function MacroEditorPage() {
 
       const profile = searchParams.get("profile")
       const name = searchParams.get("macroName")
-      const macroDataString = searchParams.get("macroData")
+      const macroId = searchParams.get("macroId")
 
       console.log("Macro Editor Parameters:", {
         profile,
         macroName: name,
-        macroData: macroDataString ? "Present" : "Not provided",
+        macroId,
       })
-
       if (!profile) {
         throw new Error("Profile parameter is required")
       }
 
       setProfileName(profile)
       setMacroName(name)
+      const getMacroHandler = (data: MacroData) => {
+        if (data) {
+          try {
+            const parsedData = data
 
-      if (macroDataString) {
-        try {
-          const parsedData = JSON.parse(decodeURIComponent(macroDataString))
+            if (!parsedData || typeof parsedData !== "object") {
+              throw new Error("Invalid macro data format")
+            }
 
-          if (!parsedData || typeof parsedData !== "object") {
-            throw new Error("Invalid macro data format")
+            const validatedMacroData: MacroData = {
+              id: parsedData.id || crypto.randomUUID(),
+              name: parsedData.name || name || "Untitled Macro",
+              enabled: typeof parsedData.enabled === "boolean" ? parsedData.enabled : true,
+              isMod: parsedData.isMod || false,
+              type: ["Hotkey", "Command"].includes(parsedData.type) ? parsedData.type : "Hotkey",
+              activator: typeof parsedData.activator === "string" ? parsedData.activator : "",
+              loopMode: ["Held", "Toggle"].includes(parsedData.loopMode) ? parsedData.loopMode : "Held",
+              interrupt: typeof parsedData.interrupt === "boolean" ? parsedData.interrupt : true,
+              repeatDelay: typeof parsedData.repeatDelay === "number" ? parsedData.repeatDelay : 100,
+              modifiers: typeof parsedData.modifiers === typeof Modifiers ? parsedData.modifiers : Modifiers.None,
+              modifierMode: ["Inclusive", "Exclusive"].includes(parsedData.modifierMode) ? parsedData.modifierMode : "Inclusive",
+              start: Array.isArray(parsedData.start) ? parsedData.start : [],
+              loop: Array.isArray(parsedData.loop) ? parsedData.loop : [],
+              finish: Array.isArray(parsedData.finish) ? parsedData.finish : [],
+              cooldown: typeof parsedData.cooldown === "number" ? parsedData.cooldown : 0
+            }
+
+            setParsedMacroData(validatedMacroData)
+            console.log("Successfully parsed macro data:", validatedMacroData)
+          } catch (parseError) {
+            console.error("Error parsing macro data:", parseError)
+            throw new Error(
+              `Failed to parse macro data: ${parseError instanceof Error ? parseError.message : "Unknown error"}`,
+            )
+          }
+        } else {
+          const defaultMacroData: MacroData = {
+            id: crypto.randomUUID(),
+            name: "",
+            enabled: true,
+            isMod: false,
+            type: "Hotkey",
+            activator: "",
+            loopMode: "Held",
+            interrupt: true,
+            repeatDelay: 100,
+            modifiers: 0 as Modifiers,
+            modifierMode: "Inclusive",
+            start: [],
+            loop: [],
+            finish: [],
+            cooldown: 0
           }
 
-          const validatedMacroData: MacroData = {
-            name: parsedData.name || name || "Untitled Macro",
-            enabled: typeof parsedData.enabled === "boolean" ? parsedData.enabled : true,
-            mod: parsedData.mod || false,
-            type: ["Hotkey", "Command"].includes(parsedData.type) ? parsedData.type : "Hotkey",
-            activator: typeof parsedData.activator === "string" ? parsedData.activator : "",
-            loopMode: ["Held", "Toggle"].includes(parsedData.loopMode) ? parsedData.loopMode : "Held",
-            interrupt: typeof parsedData.interrupt === "boolean" ? parsedData.interrupt : true,
-            repeatDelay: typeof parsedData.repeatDelay === "number" ? parsedData.repeatDelay : 100,
-            modifiers: typeof parsedData.modifiers === "number" ? parsedData.modifiers : 0,
-            modifierMode: ["Inclusive", "Exclusive"].includes(parsedData.modifierMode) ? parsedData.modifierMode : "Inclusive",
-            start: Array.isArray(parsedData.start) ? parsedData.start : [],
-            loop: Array.isArray(parsedData.loop) ? parsedData.loop : [],
-            finish: Array.isArray(parsedData.finish) ? parsedData.finish : [],
-            cooldown: typeof parsedData.cooldown === "number" ? parsedData.cooldown : 0
-          }
-
-          setParsedMacroData(validatedMacroData)
-          console.log("Successfully parsed macro data:", validatedMacroData)
-        } catch (parseError) {
-          console.error("Error parsing macro data:", parseError)
-          throw new Error(
-            `Failed to parse macro data: ${parseError instanceof Error ? parseError.message : "Unknown error"}`,
-          )
+          setParsedMacroData(defaultMacroData)
+          console.log("Creating new macro with default data:", defaultMacroData)
         }
-      } else {
-        const defaultMacroData: MacroData = {
-          name: "",
-          enabled: true,
-          mod: false,
-          type: "Hotkey",
-          activator: "",
-          loopMode: "Held",
-          interrupt: true,
-          repeatDelay: 100,
-          modifiers: 0 as Modifiers,
-          modifierMode: "Inclusive",
-          start: [],
-          loop: [],
-          finish: [],
-          cooldown: 0
-        }
-
-        setParsedMacroData(defaultMacroData)
-        console.log("Creating new macro with default data:", defaultMacroData)
       }
+      once("getMacro", { profile, id: macroId }, getMacroHandler)
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error occurred"
       console.error("Macro Editor initialization error:", errorMessage)

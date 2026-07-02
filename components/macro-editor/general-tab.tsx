@@ -42,7 +42,7 @@ export default function GeneralTab() {
   }
 
   const handleModChange = (checked: boolean) => {
-    updateMacro({ mod: checked })
+    updateMacro({ isMod: checked })
   }
 
   const handleMacroTypeChange = (value: "Hotkey" | "Command") => {
@@ -148,7 +148,7 @@ export default function GeneralTab() {
           <CardDescription>Choose how this macro will be triggered</CardDescription>
         </CardHeader>
         <CardContent>
-          <TypeSwitch options={["Hotkey", "Command"]} value={macro.type || "Hotkey"} onValueChange={(value) => handleMacroTypeChange(value as "Hotkey" | "Command")} disabled={macro.mod ? "Command" : undefined} className="w-96" />
+          <TypeSwitch options={["Hotkey", "Command"]} value={macro.type || "Hotkey"} onValueChange={(value) => handleMacroTypeChange(value as "Hotkey" | "Command")} disabled={macro.isMod ? "Command" : undefined} className="w-96" />
         </CardContent>
       </Card>
 
@@ -238,7 +238,7 @@ export default function GeneralTab() {
 
           <div className="space-y-2 flex justify-between">
             <div className="flex items-center space-x-2">
-              <Checkbox id="interrupt" disabled={macro.mod} checked={macro.interrupt} onCheckedChange={handleInterruptChange} />
+              <Checkbox id="interrupt" disabled={macro.isMod} checked={macro.interrupt} onCheckedChange={handleInterruptChange} />
               <Label htmlFor="interrupt" className="flex items-center gap-2">
                 {macro.type === "Hotkey" ? "Interrupt the activator key" : "Remove command after activation"}
                 <TooltipProvider delayDuration={300}>
@@ -256,7 +256,7 @@ export default function GeneralTab() {
               </Label>
             </div>
             {macro.type === "Hotkey" && <div className="flex items-center space-x-2">
-              <Checkbox id="mod" checked={macro.mod} onCheckedChange={handleModChange} />
+              <Checkbox id="mod" checked={macro.isMod} onCheckedChange={handleModChange} />
               <Label htmlFor="mod" className="flex items-center gap-2">
                 Is Mod key
                 <TooltipProvider delayDuration={300}>

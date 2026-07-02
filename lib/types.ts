@@ -8,7 +8,7 @@ export interface MacroData {
   id?: string
   name: string
   oldName?: string
-  mod: boolean
+  isMod?: boolean
   enabled: boolean
   type: "Hotkey" | "Command"
   activator: string
@@ -20,7 +20,7 @@ export interface MacroData {
   start: MacroAction[]
   loop: MacroAction[]
   finish: MacroAction[]
-  cooldown: number
+  cooldown?: number
 }
 
 export const MacroActionType = <const>[

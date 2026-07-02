@@ -29,7 +29,7 @@ export default function MacroEditorLayout() {
   } = useMacroEditor()
 
   const handleTabChange = (value: string) => {
-    if (!macro.mod)
+    if (!macro.isMod)
       setActiveTab(value)
   }
 
@@ -91,7 +91,7 @@ export default function MacroEditorLayout() {
       <Card className="flex gap-6">
         <div className="rounded-lg border border-border transition-all duration-300 flex-1 overflow-hidden">
           <div className="p-6">
-            <TypeSwitch options={["General", "Actions"]} disabled={macro.mod ? "Actions" : undefined} value={activeTab} onValueChange={handleTabChange} className="w-full mb-6" />
+            <TypeSwitch options={["General", "Actions"]} disabled={macro.isMod ? "Actions" : undefined} value={activeTab} onValueChange={handleTabChange} className="w-full mb-6" />
             <div className="space-y-6">
               {renderTabContent()}
               <div className="flex justify-end space-x-2 pt-4 border-t border-border mt-6">

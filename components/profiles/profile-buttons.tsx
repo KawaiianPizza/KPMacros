@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Plus, Pencil, Trash2, Trash } from "lucide-react"
 import type { Profile } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { ScrollArea, ScrollBar } from "../ui/scroll-area"
+import { ReactElement, useEffect, useRef, WheelEventHandler } from "react"
 
 interface ProfileButtonsProps {
   profiles: Profile[]
@@ -23,21 +25,36 @@ export default function ProfileButtons({
   onDeleteProfile,
 }: ProfileButtonsProps) {
   const isGlobalProfile = (profileName: string) => profileName === "Global" || profileName === "Global Exclusive"
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 
+  useEffect(() => {
+    const scrollArea = scrollAreaRef.current;
+    if (!scrollArea) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      console.log(scrollAreaRef)
+      if (event.deltaY === 0) return;
+      event.preventDefault();
+      scrollArea.lastElementChild!.scrollLeft += event.deltaY;
+    };
+
+    scrollArea.addEventListener('wheel', handleWheel, { passive: false });
+    return () => scrollArea.removeEventListener('wheel', handleWheel);
+  }, []);
   return (
     <div className="relative">
-      <div className="scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent flex overflow-x-auto pb-2">
-        <div className="flex space-x-2">
+      <ScrollArea ref={scrollAreaRef} className="h-full border border-border p-1 rounded-md bg-card blend-66 overflow-clip">
+        <div className="flex space-x-1 h-12">
           {profiles.map((profile) => {
             const isSelected = selectedProfile === profile.name
             const isGlobal = isGlobalProfile(profile.name)
 
             return (
-              <div key={profile.name} className="relative shrink-0 overflow-clip rounded-md border border-border bg-input">
-                <div className={cn("flex rounded-md h-16", isSelected && "border-active overflow-hidden")}>
+              <div key={profile.name} className="relative shrink-0 overflow-clip rounded-md border border-border bg-card transition-all duration-200 hover:border-active">
+                <div className={cn("flex rounded-md h-full", isSelected && "border-active overflow-hidden")}>
                   <Button
                     variant="default"
-                    className={cn("h-16 min-w-[120px] self-center whitespace-normal rounded-none border-none text-center transition-all duration-200", isSelected && "text-active"
+                    className={cn("h-full min-w-[120px] self-center rounded-none border-none bg-transparent p-1 text-center whitespace-normal transition-all duration-200", isSelected && "text-active"
                     )}
                     onClick={() => onSelectProfile(profile.name)}
                   >
@@ -79,14 +96,15 @@ export default function ProfileButtons({
 
           <Button
             variant="outline"
-            className="h-16 w-16 shrink-0"
+            className="h-full w-12 shrink-0 bg-card transition-all duration-200 hover:border-active"
             onClick={onNewProfile}
             title="Create New Profile"
           >
-            <Plus className="h-6 w-6" />
+            <Plus />
           </Button>
         </div>
-      </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
     </div>
   )
 }

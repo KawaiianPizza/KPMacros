@@ -121,6 +121,7 @@ export function useMacros(profileName: string) {
 
   useEffect(() => {
     const handleMacros = (data: any[]) => {
+      console.log(data)
       const macrosWithUUIDs = ensureMacroUUIDs(data)
       setMacros(macrosWithUUIDs)
       setIsLoading(false)

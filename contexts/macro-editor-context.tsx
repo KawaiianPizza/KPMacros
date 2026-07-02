@@ -79,7 +79,7 @@ const createDefaultMacroData = (): MacroData => ({
   loop: [],
   finish: [],
   cooldown: 0,
-  mod: false
+  isMod: false
 })
 
 const MacroEditorContext = createContext<MacroEditorContextType | undefined>(undefined)
@@ -162,12 +162,6 @@ export function MacroEditorProvider({
 
   const updateMacro = useCallback((updates: Partial<MacroData>) => {
     try {
-      if (updates.activator) {
-        send("testMacroStop", {
-          profile: currentProfile,
-          macro,
-        })
-      }
       setMacro((prev) => {
         const updated = { ...prev, ...updates }
         const validation = validateActivator(updated.activator, updated.type)
@@ -326,7 +320,8 @@ export function MacroEditorProvider({
       throw new Error("Profile is required")
     }
 
-    const macroToSave = macro.mod ? {
+    const macroToSave = macro.isMod ? {
+      id: macro.id,
       name: macro.name ? macro.name : macro.activator,
       oldName: isEditingExisting ? macro.oldName : undefined,
       activator: macro.activator,
@@ -334,7 +329,7 @@ export function MacroEditorProvider({
       enabled: macro.enabled,
       interrupt: macro.interrupt,
       modifierMode: macro.modifierMode,
-      mod: macro.mod,
+      isMod: macro.isMod,
     } : {
       ...macro,
       name: macro.name ? macro.name : macro.activator,
@@ -384,7 +379,6 @@ export function MacroEditorProvider({
       }
     }
     once("saveMacro", saveData, macroSaved)
-    send("testMacro", saveData)
   }, [macro, currentProfile, currentMacroId, isEditingExisting, router, toast])
 
   const toggleTesting = useCallback(() => {
@@ -405,27 +399,27 @@ export function MacroEditorProvider({
   }, [macro, profileName, toast, isTesting, setIsTesting])
 
   useEffect(() => {
+    if (!currentProfile) {
+      throw new Error("Profile is required")
+    }
+
+    const macroToTest = {
+      ...macro,
+      enabled: true,
+      start: macro.start.map(({ id, ...rest }) => rest),
+      loop: macro.loop.map(({ id, ...rest }) => rest),
+      finish: macro.finish.map(({ id, ...rest }) => rest),
+    }
+
+    const macroData = {
+      profile: currentProfile,
+      macro: macroToTest,
+    }
     if (isTesting) {
-      if (!currentProfile) {
-        throw new Error("Profile is required")
-      }
-
-      const macroToTest = {
-        ...macro,
-        enabled: true,
-        start: macro.start.map(({ id, ...rest }) => rest),
-        loop: macro.loop.map(({ id, ...rest }) => rest),
-        finish: macro.finish.map(({ id, ...rest }) => rest),
-        testing: true
-      }
-
-      const macroData = {
-        profile: currentProfile,
-        macro: macroToTest,
-      }
       send("testMacro", macroData)
       return
     }
+    send("testMacroStop", macroData)
   }, [macro, isTesting])
 
 

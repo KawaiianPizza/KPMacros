@@ -166,7 +166,7 @@ export default function MacroList({
           </div>
         ) : (
           <ScrollArea className="h-full border border-border p-1 rounded-md bg-card blend-66 overflow-clip">
-            <div className="space-y-2 max-h-[75dvh] z-10 relative">{macros.map(renderMacroRow)}</div>
+            <div className="space-y-1 max-h-[75dvh] z-10 relative">{macros.map(renderMacroRow)}</div>
           </ScrollArea>
         )}
       </CardContent>

@@ -50,7 +50,11 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
       setWindows(data)
       setIsLoadingWindows(false)
     }
-
+    
+    if (!openDialog) {
+      off("windows", handleWindows)
+      return
+    }
     on("windows", handleWindows)
 
     send("getWindows", {})
@@ -58,7 +62,7 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
     return () => {
       off("windows", handleWindows)
     }
-  }, [])
+  }, [openDialog])
 
   const handleKeyboardModeChange = (value: string) => {
     if (!value) return
@@ -136,7 +140,7 @@ export default function KeyboardActionInput({ action, onChange, compact }: Keybo
           </Popover>
         </div>
       </div>
-      
+
       <div className="min-w-[126px] shrink space-y-2">
         <Label>Key State</Label>
         <div className="flex">
